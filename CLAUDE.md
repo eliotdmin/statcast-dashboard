@@ -15,6 +15,12 @@ Add to `FINDINGS.md` whenever an analysis produces a number worth keeping, and t
 `DECISIONS.md` whenever a choice is made that a future reader would otherwise
 have to reconstruct. Append; do not rewrite history.
 
+Run `/project-log` at completion points, not only at endings. It writes files
+and changes nothing about the conversation, so it is a save point rather than a
+checkpoint you have to reload from — running it twice in a session just adds
+what is new. A finding written when it is discovered keeps the caveat that made
+it honest; one written three hours later usually does not.
+
 
 ## GitHub and Savant are both unreachable from the sandbox
 
