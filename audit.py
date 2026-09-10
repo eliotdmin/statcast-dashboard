@@ -39,6 +39,18 @@ DEAD = schema.dead("pitches")
 PLAUSIBLE = schema.plausible("pitches")
 
 
+# Games that were cancelled and never made up. A check that just says "two teams
+# are short" flags these forever; a check that knows about them stays useful,
+# because an UNEXPLAINED hole still fails. Each entry needs a reason, not just a
+# number -- an exception you cannot justify is a bug you have decided to ignore.
+SCHEDULE_EXCEPTIONS = {
+    2024: {"teams": {"CLE": 161, "HOU": 161},
+           "why": "HOU @ CLE 2024-09-29, the regular-season finale, was rained out "
+                  "after a long delay and never made up -- it had no playoff "
+                  "implications. MLB played 2,429 games in 2024."},
+}
+
+
 def cols(con, table="pitches"):
     return [r[1] for r in con.execute(f"PRAGMA table_info({table})")]
 
@@ -237,13 +249,20 @@ def integrity(con, years):
             GROUP BY t""", (y, y)).fetchall()
         if not rows:
             continue
-        short = [(t, g) for t, g in rows if g != 162]
+        short = {t: g for t, g in rows if g != 162}
         complete = max(g for _, g in rows) >= 162
         if not complete:
             continue                      # season still in progress
-        add(f"{y}: every team played 162", not short, f"{short or 'all 30 teams at 162'}",
-            "A cancelled game that was never made up leaves exactly two teams at 161 and names them. "
-            "Anything else -- one team short, or many -- is a fetch hole, not a rainout.")
+        exc = SCHEDULE_EXCEPTIONS.get(y, {})
+        expected = exc.get("teams", {})
+        unexplained = {t: g for t, g in short.items() if expected.get(t) != g}
+        detail = f"{short or 'all 30 teams at 162'}"
+        if expected and not unexplained:
+            detail += f" -- known: {exc['why']}"
+        add(f"{y}: schedule complete", not unexplained, detail,
+            "A cancelled game that was never made up leaves exactly two teams at 161 and names them; "
+            "those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, "
+            "or many -- is a fetch hole, not a rainout.")
 
     # Schedule completeness: every logged day with 0 rows should be a real off-day.
     per_year = {}
