@@ -11,3 +11,4 @@ output/*
 !output/regression_*.txt
 !output/sequencing.json
 !output/audit.json
+!output/sequencing_pitchers.json

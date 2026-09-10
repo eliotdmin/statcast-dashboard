@@ -152,3 +152,65 @@ regular-season finale, was rained out and never made up.
 A corrupted database under-reported its own row count by 23,523 pitches with no
 error raised — counts and most queries still worked. `PRAGMA quick_check` now
 runs after every scheduled refresh for exactly this reason.
+
+---
+
+## 2026-09-10 — Does a pitch play differently depending on what preceded it?
+
+**Question.** Within the 2025 season, is a pitch's run value different after each
+other pitch type, once the count is removed? And do the highest-workload
+pitchers change pitches more than is good for them?
+
+**Method.** Every (previous pitch, this pitch, count) cell is compared against
+what that same pitch type is worth in that same count league-wide:
+`expected = sum over counts of n(cell,count) * baseline(pitch,count) / n(cell)`.
+The count is the dominant confound — pitchers go to the breaking ball ahead and
+back to the fastball behind — so a delta of zero means the sequence told you
+nothing the count did not.
+
+**Result — league.** Repeating beats changing by **+0.58 runs per 100**, 95%
+interval **[+0.44, +0.71]**, across 525,900 paired pitches. The gap is largest in
+even counts (+0.97) and two-strike counts (+0.92), smallest when the hitter is
+ahead (+0.37).
+
+The extremes of the matrix are one-sided. Best: `ST→FC` +0.96, `CU→CH` +0.62,
+`FS→FS` +0.61, `SL→SL` +0.55. Worst: `KC→FF` −1.37, `CH→ST` −0.98, `CH→SI` −0.97,
+`FS→FF` −0.92. Seven of the eight best are repeats or offspeed-to-offspeed;
+**every one of the eight worst is a return to a fastball after an offspeed pitch.**
+
+**Result — individual pitchers.** The five 2025 innings leaders, each measured
+against himself:
+
+| pitcher | IP | repeat rate | gap | 95% interval | verdict |
+|---|---|---|---|---|---|
+| Logan Webb | 204.0 | 32.6% | +0.19 | [−1.72, +2.10] | not distinguishable |
+| Garrett Crochet | 202.0 | 29.7% | −0.20 | [−2.21, +1.81] | not distinguishable |
+| Cristopher Sánchez | 200.3 | 41.6% | +3.68 | [+1.83, +5.54] | repeats too little |
+| Carlos Rodón | 194.0 | 32.7% | +0.79 | [−1.21, +2.80] | not distinguishable |
+| Tarik Skubal | 192.7 | 26.5% | −0.42 | [−2.46, +1.61] | not distinguishable |
+
+**What it shows.** The league effect is real and precisely estimated. The
+direction contradicts the coaching orthodoxy, and it concentrates exactly where
+that orthodoxy is loudest — the two-strike putaway pitch.
+
+**What it does not show.** Two things, and the second is the important one.
+
+It is not causal. Sequence is chosen, not assigned; a pitcher repeats a pitch he
+likes that day. Within-pitcher comparison removes the between-pitcher confound
+and nothing else.
+
+**And it does not identify individual pitchers who mix too much.** One season is
+roughly 2,900 pitches for a starter, which puts the standard error on his gap
+near 1 run per 100 — nearly twice the league effect size. Four of five intervals
+straddle zero. Sánchez separates, but with five pitchers tested one clearing at
+95% is about what chance produces, so that is a hypothesis rather than a result.
+**Anyone reporting a single-season per-pitcher sequencing number without an
+interval is reporting noise.**
+
+**Next.** Pool 2023–2025 for per-pitcher estimates, which roughly halves the
+standard error and would make a real leaderboard possible. 2026 must stay out
+until the ABS strike-zone change is accounted for. Then the interesting split:
+Skubal and Crochet trend negative (changing works for them) while Sánchez trends
+strongly positive — if that holds up over three seasons, the mechanism is
+probably arsenal quality, and the question becomes whether the league effect is
+just pitchers whose second-best pitch is not worth going to.
