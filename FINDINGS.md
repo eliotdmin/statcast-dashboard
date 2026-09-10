@@ -214,3 +214,55 @@ Skubal and Crochet trend negative (changing works for them) while Sánchez trend
 strongly positive — if that holds up over three seasons, the mechanism is
 probably arsenal quality, and the question becomes whether the league effect is
 just pitchers whose second-best pitch is not worth going to.
+
+---
+
+## 2026-09-10 — Which pitch is right in which count?
+
+**Question.** Within each count, does pitch type matter, and does the answer
+change as the count changes?
+
+**A trap to name first.** Run value per 100 averages ~0.00 in EVERY count. That
+is construction, not a finding: `delta_run_exp` measures the change from the
+pre-pitch state, so within a fixed count the average across all pitches is
+necessarily near zero. All the signal is in differences BETWEEN pitch types
+within a count, never in the count's own average.
+
+**Result.** Fastballs (FF/SI/FC) beat offspeed in every count with 0 or 1 strike,
+and lose in every count with 2 strikes. No exceptions in 2025.
+
+| count | fastball | offspeed | gap | FB share |
+|---|---|---|---|---|
+| 0-0 | +0.05 | −0.06 | +0.11 | 60.9% |
+| 1-0 | +0.09 | −0.12 | +0.21 | 60.2% |
+| 2-0 | +0.10 | −0.24 | +0.34 | 71.0% |
+| 0-1 | +0.12 | −0.12 | +0.24 | 50.3% |
+| 1-1 | +0.21 | −0.18 | +0.39 | 50.5% |
+| 2-1 | +0.30 | −0.46 | +0.76 | 58.9% |
+| 3-1 | +0.23 | −0.67 | +0.90 | 77.0% |
+| 0-2 | −0.08 | +0.05 | −0.13 | 42.5% |
+| 1-2 | −0.08 | +0.05 | −0.12 | 43.9% |
+| **2-2** | **−0.42** | **+0.38** | **−0.80** | **48.7%** |
+| 3-2 | −0.07 | +0.28 | −0.35 | 62.6% |
+
+Best pitch by count follows the same shape: sinker early (1-0 +0.41, 2-1 +0.56),
+changeup and splitter with two strikes (0-2 CH +0.38, 1-2 FS +0.53, 2-2 CH +0.53).
+
+**What it shows.** The fastball/offspeed decision flips at the second strike, and
+the flip is monotone in strikes. 2-2 is the largest gap in the table in either
+direction while carrying a nearly even mix — compare 3-1, where a similar-sized
+gap comes with a 77/23 mix. If any count is systematically mispriced, 2-2 is the
+candidate.
+
+**What it does not show.** These are AVERAGE values of pitches actually thrown,
+not the MARGINAL value of throwing one more. A pitcher goes to the changeup in
+2-2 when he can command it that day; the ones who cannot, do not. So the offspeed
+number partly measures selection into the pitch, and the marginal changeup — the
+one added by overriding the pitcher's own judgment — is worth less than the
+average one. The gap's size and the even mix make it testable, not proven.
+
+**Next.** The marginal-versus-average problem is the whole question. A
+within-pitcher design helps: for pitchers who throw both in 2-2, compare their
+own results, and see whether those who lean fastball there underperform their own
+offspeed. If the effect survives that, it is a real recommendation rather than a
+description of who throws what.
