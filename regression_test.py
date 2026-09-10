@@ -115,8 +115,13 @@ def main():
     ap.add_argument("--role", default="batter", choices=["batter", "pitcher"])
     ap.add_argument("--boot", type=int, default=1000)
     ap.add_argument("--perm", type=int, default=500)
+    ap.add_argument("--db", default=None,
+                    help="path to a database file; use a scratch copy rather than "
+                         "the live one when the pipeline may be running")
     args = ap.parse_args()
 
+    if args.db:
+        db.DB_PATH = __import__("pathlib").Path(args.db)
     con = db.connect()
     n = con.execute("SELECT COUNT(*) FROM pitches").fetchone()[0]
     if n == 0:
