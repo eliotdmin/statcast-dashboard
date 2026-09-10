@@ -15,16 +15,40 @@ import pandas as pd
 
 import db
 
-# Regular season windows. Extend as needed.
-SEASON_START = {2024: "2024-03-28", 2025: "2025-03-27", 2026: "2026-03-26"}
+# Regular-season windows, (first game, last game) inclusive.
+#
+# Starts are deliberately a day or two early where MLB opened abroad: 2024 began
+# with the Seoul Series on Mar 20 and 2025 with the Tokyo Series on Mar 18, both
+# well before the domestic openers. An extra empty day costs one request and is
+# logged as an off-day, so erring early is cheap; missing real games is not.
+#
+# Ends are the last day of the REGULAR season. Postseason is excluded by default
+# because every downstream metric here is a regular-season qualified-player
+# statistic, and October's roster and bullpen usage are a different population.
+# Pass include_postseason=True to extend through early November.
+SEASONS = {
+    2023: ("2023-03-30", "2023-10-01"),
+    2024: ("2024-03-20", "2024-09-30"),
+    2025: ("2025-03-18", "2025-09-28"),
+    2026: ("2026-03-25", "2026-10-04"),
+}
+POSTSEASON_END = "{year}-11-05"
 
 
-def season_days(year, through=None, days_back=None):
-    start = datetime.strptime(SEASON_START.get(year, f"{year}-03-28"), "%Y-%m-%d").date()
-    # Statcast lags ~1 day; never ask for today.
-    end = through or (date.today() - timedelta(days=1))
-    if end.year > year:
-        end = date(year, 11, 5)
+def season_days(year, through=None, days_back=None, include_postseason=False):
+    """Every calendar day of `year`'s regular season, oldest first."""
+    start_s, end_s = SEASONS.get(year, (f"{year}-03-28", f"{year}-10-05"))
+    start = datetime.strptime(start_s, "%Y-%m-%d").date()
+    end = datetime.strptime(
+        POSTSEASON_END.format(year=year) if include_postseason else end_s, "%Y-%m-%d"
+    ).date()
+
+    # Statcast lags ~1 day; never ask for today or the future.
+    yesterday = date.today() - timedelta(days=1)
+    if through:
+        end = min(end, through)
+    end = min(end, yesterday)
+
     if days_back:
         recent = end - timedelta(days=days_back - 1)
         if recent > start:
@@ -37,7 +61,7 @@ def season_days(year, through=None, days_back=None):
 
 
 def fetch_pitches(con, year, sleep=2.0, limit_days=None, days_back=None,
-                  newest_first=False, verbose=True):
+                  newest_first=False, verbose=True, include_postseason=False):
     """Fetch any un-ingested day of pitch-level data for `year`.
 
     Every column Savant returns is stored (see db.append_pitches) - recovering a
@@ -46,7 +70,9 @@ def fetch_pitches(con, year, sleep=2.0, limit_days=None, days_back=None,
     from pybaseball import statcast
 
     have = db.days_already_ingested(con, "pitches")
-    todo = [d for d in season_days(year, days_back=days_back) if d not in have]
+    todo = [d for d in season_days(year, days_back=days_back,
+                                   include_postseason=include_postseason)
+            if d not in have]
     if newest_first:
         todo = todo[::-1]
     if limit_days:
@@ -78,6 +104,20 @@ def fetch_pitches(con, year, sleep=2.0, limit_days=None, days_back=None,
         time.sleep(sleep)
 
 
+def default_snapshot(year):
+    """Snapshot label for a leaderboard pull.
+
+    A completed season's leaderboard is final, so it is labelled with that
+    season's last day. Only the in-progress season is labelled with today --
+    otherwise backfilling four years today would stamp all four with the same
+    snapshot_date and the primary key would collapse them into one.
+    """
+    today = date.today()
+    _, end_s = SEASONS.get(year, (None, f"{year}-10-05"))
+    end = datetime.strptime(end_s, "%Y-%m-%d").date()
+    return today.isoformat() if today <= end else end.isoformat()
+
+
 def _name(df):
     if {"last_name, first_name"} <= set(df.columns):
         s = df["last_name, first_name"].astype(str)
@@ -93,7 +133,7 @@ def _name(df):
 def fetch_expected_stats(con, year, snapshot=None):
     """Season-to-date expected vs actual leaderboards for hitters and pitchers."""
     from pybaseball import statcast_batter_expected_stats, statcast_pitcher_expected_stats
-    snapshot = snapshot or date.today().isoformat()
+    snapshot = snapshot or default_snapshot(year)
 
     for kind, fn, minimum in (
         ("batter", statcast_batter_expected_stats, 50),
@@ -133,7 +173,7 @@ def fetch_batted_ball(con, year, snapshot=None):
     """Exit velocity / barrel leaderboards - the 'is the contact real' layer."""
     from pybaseball import (statcast_batter_exitvelo_barrels,
                             statcast_pitcher_exitvelo_barrels)
-    snapshot = snapshot or date.today().isoformat()
+    snapshot = snapshot or default_snapshot(year)
 
     for kind, fn in (("batter", statcast_batter_exitvelo_barrels),
                      ("pitcher", statcast_pitcher_exitvelo_barrels)):
@@ -166,3 +206,50 @@ def fetch_batted_ball(con, year, snapshot=None):
         out.to_sql("batted_ball", con, if_exists="append", index=False)
         con.commit()
         print(f"  [batted_ball] {kind}: {len(out)} players")
+
+
+def fetch_sprint_speed(con, year, snapshot=None, min_opp=10):
+    """Sprint speed leaderboard - feet per second in a player's fastest one-second window.
+
+    Statcast counts an "opportunity" as a two-plus base run on a non-homer, or a
+    home-to-first on a topped or weakly-hit ball, and averages roughly the fastest
+    two thirds of them. min_opp=10 is Savant's own qualifying default.
+
+    Column names on this endpoint have drifted before, so every field is read
+    through .get() and a missing one lands as NULL rather than raising.
+    """
+    from pybaseball import statcast_sprint_speed
+    snapshot = snapshot or default_snapshot(year)
+
+    try:
+        df = statcast_sprint_speed(year, min_opp)
+    except Exception as e:
+        print(f"  ! sprint_speed failed: {type(e).__name__}: {e}")
+        return
+    if df is None or len(df) == 0:
+        print("  ! sprint_speed returned nothing")
+        return
+
+    def col(*names):
+        for n in names:
+            if n in df.columns:
+                return df[n]
+        return None
+
+    out = pd.DataFrame({
+        "snapshot_date": snapshot,
+        "player_id": col("player_id"),
+        "player_name": _name(df),
+        "year": year,
+        "age": col("age"),
+        "competitive_runs": col("competitive_runs", "n_competitive_runs", "opportunities"),
+        "bolts": col("bolts", "n_bolts"),
+        "hp_to_1b": col("hp_to_1b", "hp_to_1b_secs"),
+        "sprint_speed": col("sprint_speed", "sprint_speed_fps"),
+    })
+    out = out[out.player_id.notna()]
+    con.execute("DELETE FROM sprint_speed WHERE snapshot_date=?", (snapshot,))
+    out.to_sql("sprint_speed", con, if_exists="append", index=False)
+    con.commit()
+    print(f"  [sprint_speed] {len(out)} players "
+          f"(mean {out.sprint_speed.mean():.2f} ft/s)" if len(out) else "  [sprint_speed] none")
