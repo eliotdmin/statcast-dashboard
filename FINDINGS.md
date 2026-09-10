@@ -318,10 +318,18 @@ himself in the same count, pooled 2023-2025:
 
 Essentially identical to the pooled estimate. The effect is **not** composition.
 
-**Why this pairing matters more than either number alone.** The same design,
-applied on the same afternoon to the same database, killed one finding and left
-the other untouched. That is the strongest available evidence that the test is
-discriminating rather than merely conservative.
+**Why this pairing matters more than either number alone — it is a positive
+control.** A null is uninformative unless the design can be shown to detect
+something. Had every test returned null, "no effect" and "no power" would be
+indistinguishable. This result is the known-positive: same design, same database,
+comparable samples, clearly non-zero.
+
+The precise claim it licenses is narrower than "the 2-2 effect is zero". It shows
+the design detects an effect of about 0.56 runs/100 at this sample size. It says
+nothing about 0.15. So the honest statement of the 2-2 result is that any true
+within-pitcher effect there is **smaller than about +0.45** — the upper bound of
+its own interval — not that it is absent. A formal power calculation would
+replace this reasoning by analogy; it has not been done.
 
 **But it still does not vary by pitcher.** Persistence of a pitcher's own gap,
 2023-24 → 2025: **r = −0.069 [−0.249, +0.116]** across 115 pitchers. No evidence.
@@ -349,9 +357,16 @@ Ryan Helsley slider +2.73, Mason Miller slider +2.66, Cade Smith 4-seam +2.47.
 **By whiff per swing:** Fernando Cruz splitter **57.7%**, Josh Hader slider
 56.2%, Spencer Strider slider 52.7%, Blake Snell curve 52.1%.
 
-**What it shows.** The pipeline reproduces pitches that are independently famous
-as the best in baseball, which is a useful end-to-end check on the run-value and
-whiff calculations.
+**What it shows.** Very little, until it is checked against something external.
+The names at the top were originally described here as "independently famous",
+which was asserted from prior knowledge rather than read from a source — and
+validating a pipeline against your own priors is not validation. Cruz's splitter
+does hold up on inspection (Reds Content Plus, April 2024, "the best pitch in the
+league"; Pinstripe Alley, Feb 2025). The others are unchecked.
+
+The real check is mechanical and not yet done: pull Savant's own whiff-rate
+leaderboard and reconcile it pitch by pitch against these numbers. Until that
+runs, treat this as output, not as a verified end-to-end test.
 
 **What it does not show.** Reliever bias is severe and unadjusted: relievers
 appear in one-inning bursts against favourable matchups, and eight of the top
