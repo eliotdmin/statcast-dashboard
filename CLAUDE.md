@@ -58,3 +58,22 @@ accept the slower query plan:
 
 Recovery, if it happens again: `sqlite3 db ".recover" | sqlite3 new.db`, then
 `verify_recovery.py --fix` to queue damaged days, then `backfill.py`.
+
+
+## The repo must not live in ~/Desktop
+
+macOS TCC protects ~/Desktop, ~/Documents and ~/Downloads. A script run by
+launchd executes as /bin/bash, which has no access to those folders, so the
+scheduled refresh failed with:
+
+    /bin/bash: .../refresh.sh: Operation not permitted
+
+and produced an empty refresh.log, because the script never started. Running the
+same script by hand works, because Terminal has been granted access and the
+script inherits it. That asymmetry is what makes this so confusing to diagnose.
+
+The repo therefore lives in ~/Projects/statcast-dashboard, which TCC does not
+protect. The launchd plist hard-codes that path. Do not move the repo back into
+a protected folder, and do not "fix" this by granting Full Disk Access to
+/bin/bash -- that hands unrestricted disk access to every shell script on the
+machine, forever.

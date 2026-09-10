@@ -7,7 +7,7 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/eliotmin/Desktop/statcast-dashboard/refresh.sh</string>
+    <string>/Users/eliotmin/Projects/statcast-dashboard/refresh.sh</string>
   </array>
 
   <!-- Statcast lags about a day, so 11:00 local means yesterday's games are settled. -->
@@ -24,8 +24,8 @@
     <key>STATCAST_PYTHON</key><string>/opt/anaconda3/bin/python3</string> -->
   </dict>
 
-  <key>WorkingDirectory</key><string>/Users/eliotmin/Desktop/statcast-dashboard</string>
-  <key>StandardOutPath</key><string>/Users/eliotmin/Desktop/statcast-dashboard/logs/launchd.out</string>
-  <key>StandardErrorPath</key><string>/Users/eliotmin/Desktop/statcast-dashboard/logs/launchd.err</string>
+  <key>WorkingDirectory</key><string>/Users/eliotmin/Projects/statcast-dashboard</string>
+  <key>StandardOutPath</key><string>/Users/eliotmin/Projects/statcast-dashboard/logs/launchd.out</string>
+  <key>StandardErrorPath</key><string>/Users/eliotmin/Projects/statcast-dashboard/logs/launchd.err</string>
 </dict>
 </plist>
