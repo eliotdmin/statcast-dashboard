@@ -63,6 +63,7 @@ def main():
             try:
                 fetch.fetch_expected_stats(con, y)
                 fetch.fetch_batted_ball(con, y)
+                fetch.fetch_sprint_speed(con, y)
             except Exception as e:
                 print(f"  ! leaderboards[{y}] failed: {type(e).__name__}: {e}", flush=True)
         t0 = time.time()
