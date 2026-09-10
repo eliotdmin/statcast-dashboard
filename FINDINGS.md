@@ -266,3 +266,95 @@ within-pitcher design helps: for pitchers who throw both in 2-2, compare their
 own results, and see whether those who lean fastball there underperform their own
 offspeed. If the effect survives that, it is a real recommendation rather than a
 description of who throws what.
+
+---
+
+## 2026-09-10 — Pre-registered: does pitch choice by count survive a within-pitcher test?
+
+**Pre-specified before looking**, because by this point the data had been cut a
+dozen ways and every additional cut raises the chance of a lucky threshold
+crossing:
+
+* **H1** Within a pitcher, offspeed outperforms his own fastball in 2-2.
+* **H2** The gap is a persistent property of the pitcher — his 2023-24 gap
+  predicts his 2025 gap.
+
+**Result — H1: the 2-2 finding does not survive.** Within pitcher, in the same
+count, offspeed beats fastball in 2-2 by **+0.12 [−0.21, +0.45]** across 351
+pitchers. Not distinguishable from zero. The league-level −0.80 gap reported
+earlier the same day was **almost entirely between-pitcher selection**: pitchers
+with a good changeup throw it in 2-2, and they are better pitchers. Compare a
+pitcher to himself and it disappears. That earlier entry's "average is not
+marginal" caveat did not merely qualify the finding — it consumed it.
+
+One count does survive multiple-comparison correction across the ten tested
+(Bonferroni α = 0.005):
+
+| count | gap (OS − FB) | 95% CI | z | survives |
+|---|---|---|---|---|
+| **1-2** | **+0.44** | [+0.19, +0.70] | 3.38 | **yes** |
+| 3-2 | +1.00 | [+0.18, +1.83] | 2.38 | no |
+| 1-1 | −0.26 | [−0.50, −0.03] | −2.17 | no |
+| 0-1 | −0.19 | [−0.37, −0.02] | −2.13 | no |
+| 2-2 | +0.12 | [−0.21, +0.45] | 0.71 | no |
+
+**Result — H2: no persistence, in any count.** Fitting 2023-24 and testing 2025,
+the correlation of a pitcher's own gap between periods is never distinguishable
+from zero: 2-2 r = +0.03 [−0.14, +0.20]; the largest anywhere is 2-1 at +0.20
+with an interval spanning zero. **There is no per-pitcher pitch-selection
+recommendation supportable from three seasons of public data.** Between-pitcher
+differences in this gap are noise.
+
+---
+
+## 2026-09-10 — The sequencing effect DOES survive the same test
+
+The obvious objection to the morning's headline — repeating beats changing by
+0.58 runs/100 — is the confound that just destroyed the 2-2 result: maybe
+pitchers who repeat more are simply better. Run within pitcher, each man against
+himself in the same count, pooled 2023-2025:
+
+**+0.563 runs per 100, 95% [+0.425, +0.702], 360 pitchers.**
+
+Essentially identical to the pooled estimate. The effect is **not** composition.
+
+**Why this pairing matters more than either number alone.** The same design,
+applied on the same afternoon to the same database, killed one finding and left
+the other untouched. That is the strongest available evidence that the test is
+discriminating rather than merely conservative.
+
+**But it still does not vary by pitcher.** Persistence of a pitcher's own gap,
+2023-24 → 2025: **r = −0.069 [−0.249, +0.116]** across 115 pitchers. No evidence.
+
+**So the actionable claim is a blanket rule, not a list.** "Repeat more often"
+is supported league-wide and within pitcher; "these specific pitchers mix too
+much" is not, and cannot be from this data. The original open question — *are
+there pitchers who mix too much* — is answered: **not identifiably.**
+
+**What would change this.** The effect is ~0.5 runs/100 and one starter-season
+carries a standard error near 1.0. Detecting individual variation needs either
+many more seasons per pitcher, or a lower-variance outcome than run value —
+whiff rate on the pitch would be a candidate, since it is binary and per-pitch
+rather than heavily tailed.
+
+---
+
+## 2026-09-10 — The nastiest individual pitches, 2023-2025
+
+1,162 pitcher-pitch combinations with 600+ thrown.
+
+**By run value per 100:** Tyler Holton sinker +3.35, Gabe Speier 4-seam +2.77,
+Ryan Helsley slider +2.73, Mason Miller slider +2.66, Cade Smith 4-seam +2.47.
+
+**By whiff per swing:** Fernando Cruz splitter **57.7%**, Josh Hader slider
+56.2%, Spencer Strider slider 52.7%, Blake Snell curve 52.1%.
+
+**What it shows.** The pipeline reproduces pitches that are independently famous
+as the best in baseball, which is a useful end-to-end check on the run-value and
+whiff calculations.
+
+**What it does not show.** Reliever bias is severe and unadjusted: relievers
+appear in one-inning bursts against favourable matchups, and eight of the top
+ten by run value are relievers. Run value per 100 also rewards pitches thrown in
+low-leverage spots. A usable "best pitch" list needs a starter/reliever split and
+a leverage adjustment; this one is a raw leaderboard.

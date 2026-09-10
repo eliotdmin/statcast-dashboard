@@ -12,3 +12,6 @@ output/*
 !output/sequencing.json
 !output/audit.json
 !output/sequencing_pitchers.json
+!output/count_choice.json
+!output/repeat_within.json
+!output/nastiest.json
