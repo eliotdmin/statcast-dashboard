@@ -14,13 +14,35 @@ LOG="logs/refresh.log"
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"; }
 
+# A machine-specific interpreter path does not belong in a committed plist, so
+# it lives in .refreshrc, which is gitignored. Create it with:
+#     echo "STATCAST_PYTHON=$(which python3)" > .refreshrc
+# from the shell where the pipeline already works -- that captures whatever your
+# conda environment actually resolves to, without anyone having to guess.
+[ -f .refreshrc ] && . ./.refreshrc
+
 find_python() {
     # An explicit override always wins.
     if [ -n "${STATCAST_PYTHON:-}" ] && "$STATCAST_PYTHON" -c 'import pybaseball' 2>/dev/null; then
         echo "$STATCAST_PYTHON"; return 0
     fi
+    # conda's own answer, if conda is reachable at all.
+    for cbin in "$HOME/anaconda3/bin/conda" "$HOME/opt/anaconda3/bin/conda" \
+                "$HOME/miniconda3/bin/conda" "$HOME/opt/miniconda3/bin/conda" \
+                /opt/anaconda3/bin/conda /opt/miniconda3/bin/conda /opt/homebrew/bin/conda
+    do
+        if [ -x "$cbin" ]; then
+            base="$("$cbin" info --base 2>/dev/null)"
+            if [ -n "$base" ] && [ -x "$base/bin/python3" ] \
+               && "$base/bin/python3" -c 'import pybaseball' 2>/dev/null; then
+                echo "$base/bin/python3"; return 0
+            fi
+        fi
+    done
     for p in \
         "$HOME/anaconda3/bin/python3" \
+        "$HOME/opt/anaconda3/bin/python3" \
+        "$HOME/opt/miniconda3/bin/python3" \
         "$HOME/miniconda3/bin/python3" \
         "$HOME/miniforge3/bin/python3" \
         /opt/anaconda3/bin/python3 \
