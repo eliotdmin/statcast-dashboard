@@ -137,3 +137,40 @@ re-fetch. Sprint speed, expected stats and batted-ball leaderboards take seconds
 pull them fresh each run. The constraint on adding more sources is not disk — the
 leaderboards are all under 100 MB combined — it is that every stored table is a
 table that must be documented, audited and reconciled.
+
+### D13. Auto-write the archive; keep a human on the core
+
+`docs/log/` is append-only, dated history — a mediocre entry there is harmless,
+because it records what happened rather than claiming what is true. `FINDINGS.md`
+and `DECISIONS.md` are different: future sessions read them and trust them, so a
+wrong entry propagates silently.
+
+The asymmetry is the argument. A missing entry is recoverable — git history and
+the session transcript are both still on disk. A wrong entry is not, because
+nothing downstream questions it. So automation is welcome up to the point of
+writing to the core, and a person approves that step.
+
+This is not a claim that a model cannot write a good log. It is that nothing
+unreviewed should write to the file everything else trusts, which is the same
+reason code review exists in codebases with good test suites.
+
+*Rejected:* a `SessionEnd` hook or scheduled job that distills the transcript
+straight into `FINDINGS.md`. Also rejected on mechanics: `SessionEnd` hooks get
+~1.5 seconds and cannot invoke a model at all — `prompt` and `agent` handlers are
+documented only on other events.
+*Would be wrong if:* the log stops being written at all, at which point an
+imperfect automatic entry beats nothing. Revisit if two months pass with empty
+`docs/log/`.
+
+### D14. Hooks gather; skills decide
+
+`SessionStart` runs a shell script that prints recent commits, carried-over open
+questions and uncommitted changes. That is mechanical work with a deterministic
+answer, and a hook does it perfectly and for free.
+
+Judging what a session meant is not mechanical, and no shell command can do it.
+That belongs in `/project-log`, invoked deliberately.
+
+*Rejected:* wiring a `SessionEnd` hook for symmetry. It would have produced a
+list of commits `git log` already gives you, while the part worth having stayed
+manual regardless.

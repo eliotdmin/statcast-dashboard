@@ -16,6 +16,17 @@ Add to `FINDINGS.md` whenever an analysis produces a number worth keeping, and t
 have to reconstruct. Append; do not rewrite history.
 
 
+## GitHub and Savant are both unreachable from the sandbox
+
+`git push` fails with `502 from proxy after CONNECT`, and Savant with a 403.
+Both are the session egress allowlist, not the remote. Pushing and fetching are
+run by the user in their own Terminal. Adding a host to the allowlist mid-session
+does not help — egress policy is snapshotted when a session starts, so the change
+only reaches the next one.
+
+`~/.claude` is a protected location the bridge refuses to connect at all, so
+anything under it is the user's to run.
+
 ## Never run git from the Cowork sandbox
 
 The sandbox shell cannot delete files. `git add` creates `.git/index.lock` and
