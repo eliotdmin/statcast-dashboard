@@ -1,0 +1,5060 @@
+{
+ "generated_at": "2026-09-10T16:48:45+00:00",
+ "db_bytes": 1918451712,
+ "seasons": [
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "n_columns": 119,
+ "total_pitches": 2843142,
+ "date_range": [
+  "2023-03-30",
+  "2026-09-09"
+ ],
+ "coverage": {
+  "pitch_type": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "game_date": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "release_speed": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717838,
+     "pct": 99.61
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722089,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729816,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "release_pos_x": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "release_pos_z": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "player_name": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "batter": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "pitcher": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "events": {
+   "condition": "completed plate appearances",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 182706,
+     "present": 182706,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 181020,
+     "present": 181020,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 181317,
+     "present": 181317,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 164449,
+     "present": 164449,
+     "pct": 100.0
+    }
+   }
+  },
+  "description": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "spin_dir": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "spin_rate_deprecated": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "break_angle_deprecated": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "break_length_deprecated": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "zone": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "des": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 184104,
+     "pct": 25.55
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 189085,
+     "pct": 25.81
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 190536,
+     "pct": 25.68
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 166149,
+     "pct": 25.64
+    }
+   }
+  },
+  "game_type": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "stand": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "p_throws": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "home_team": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "away_team": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "type": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "hit_location": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 117951,
+     "pct": 94.94
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 122392,
+     "pct": 95.26
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 123603,
+     "pct": 95.13
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 107261,
+     "pct": 95.21
+    }
+   }
+  },
+  "bb_type": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 124232,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 128476,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 129930,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112655,
+     "pct": 100.0
+    }
+   }
+  },
+  "balls": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "strikes": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "game_year": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "pfx_x": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729679,
+     "pct": 98.33
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "pfx_z": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729812,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "plate_x": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "plate_z": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "on_3b": {
+   "condition": "all pitches (null = base empty, not missing)",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 70422,
+     "pct": 9.77
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 69065,
+     "pct": 9.43
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 70561,
+     "pct": 9.51
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 62946,
+     "pct": 9.72
+    }
+   }
+  },
+  "on_2b": {
+   "condition": "all pitches (null = base empty, not missing)",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 139025,
+     "pct": 19.29
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 137431,
+     "pct": 18.76
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 140799,
+     "pct": 18.97
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 124773,
+     "pct": 19.26
+    }
+   }
+  },
+  "on_1b": {
+   "condition": "all pitches (null = base empty, not missing)",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 221734,
+     "pct": 30.77
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 221407,
+     "pct": 30.23
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 226890,
+     "pct": 30.57
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 202068,
+     "pct": 31.19
+    }
+   }
+  },
+  "outs_when_up": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "inning": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "inning_topbot": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "hc_x": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 124179,
+     "pct": 99.96
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 128429,
+     "pct": 99.96
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 129883,
+     "pct": 99.96
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112600,
+     "pct": 99.95
+    }
+   }
+  },
+  "hc_y": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 124179,
+     "pct": 99.96
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 128429,
+     "pct": 99.96
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 129883,
+     "pct": 99.96
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112600,
+     "pct": 99.95
+    }
+   }
+  },
+  "tfs_deprecated": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "tfs_zulu_deprecated": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "umpire": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "sv_id": {
+   "condition": "all pitches",
+   "dead": true,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 0,
+     "pct": 0.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 0,
+     "pct": 0.0
+    }
+   }
+  },
+  "vx0": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "vy0": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "vz0": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "ax": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "ay": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "az": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "sz_top": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "sz_bot": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "hit_distance_sc": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 123914,
+     "pct": 99.74
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 125809,
+     "pct": 97.92
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 127732,
+     "pct": 98.31
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112161,
+     "pct": 99.56
+    }
+   }
+  },
+  "launch_speed": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 123876,
+     "pct": 99.71
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 125895,
+     "pct": 97.99
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 127816,
+     "pct": 98.37
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112179,
+     "pct": 99.58
+    }
+   }
+  },
+  "launch_angle": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 123965,
+     "pct": 99.78
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 125961,
+     "pct": 98.04
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 127899,
+     "pct": 98.44
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112239,
+     "pct": 99.63
+    }
+   }
+  },
+  "effective_speed": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 716602,
+     "pct": 99.43
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 720971,
+     "pct": 98.43
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729380,
+     "pct": 98.29
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644616,
+     "pct": 99.49
+    }
+   }
+  },
+  "release_spin_rate": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 713765,
+     "pct": 99.04
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 718670,
+     "pct": 98.11
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 727970,
+     "pct": 98.1
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644352,
+     "pct": 99.45
+    }
+   }
+  },
+  "release_extension": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 716775,
+     "pct": 99.46
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721082,
+     "pct": 98.44
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729641,
+     "pct": 98.32
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644843,
+     "pct": 99.53
+    }
+   }
+  },
+  "game_pk": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_2": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_3": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_4": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_5": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_6": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_7": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_8": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fielder_9": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "release_pos_y": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729813,
+     "pct": 98.35
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645470,
+     "pct": 99.63
+    }
+   }
+  },
+  "estimated_ba_using_speedangle": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 122220,
+     "pct": 98.38
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 122120,
+     "pct": 95.05
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 122582,
+     "pct": 94.34
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 110354,
+     "pct": 97.96
+    }
+   }
+  },
+  "estimated_woba_using_speedangle": {
+   "condition": "completed plate appearances",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 182706,
+     "present": 182610,
+     "pct": 99.95
+    },
+    "2024": {
+     "denom": 181020,
+     "present": 180920,
+     "pct": 99.94
+    },
+    "2025": {
+     "denom": 181317,
+     "present": 181231,
+     "pct": 99.95
+    },
+    "2026": {
+     "denom": 164449,
+     "present": 164372,
+     "pct": 99.95
+    }
+   }
+  },
+  "woba_value": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 184376,
+     "pct": 25.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 189417,
+     "pct": 25.86
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 190869,
+     "pct": 25.72
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 166444,
+     "pct": 25.69
+    }
+   }
+  },
+  "woba_denom": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 183403,
+     "pct": 25.45
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 181781,
+     "pct": 24.82
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 182185,
+     "pct": 24.55
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 165348,
+     "pct": 25.52
+    }
+   }
+  },
+  "babip_value": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 184376,
+     "pct": 25.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 189417,
+     "pct": 25.86
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 190869,
+     "pct": 25.72
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 166444,
+     "pct": 25.69
+    }
+   }
+  },
+  "iso_value": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 184376,
+     "pct": 25.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 189417,
+     "pct": 25.86
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 190869,
+     "pct": 25.72
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 166444,
+     "pct": 25.69
+    }
+   }
+  },
+  "launch_speed_angle": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 123874,
+     "pct": 99.71
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 125895,
+     "pct": 97.99
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 127814,
+     "pct": 98.37
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 112179,
+     "pct": 99.58
+    }
+   }
+  },
+  "at_bat_number": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "pitch_number": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "pitch_name": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717673,
+     "pct": 99.58
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 721991,
+     "pct": 98.57
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729757,
+     "pct": 98.34
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645448,
+     "pct": 99.62
+    }
+   }
+  },
+  "home_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "away_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "bat_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "fld_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "post_away_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "post_home_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "post_bat_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "post_fld_score": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "if_fielding_alignment": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 715516,
+     "pct": 99.28
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 716635,
+     "pct": 97.84
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 728576,
+     "pct": 98.18
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644237,
+     "pct": 99.44
+    }
+   }
+  },
+  "of_fielding_alignment": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 715516,
+     "pct": 99.28
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 716635,
+     "pct": 97.84
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 728576,
+     "pct": 98.18
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644237,
+     "pct": 99.44
+    }
+   }
+  },
+  "spin_axis": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 713765,
+     "pct": 99.04
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 718670,
+     "pct": 98.11
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 727966,
+     "pct": 98.1
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 644357,
+     "pct": 99.45
+    }
+   }
+  },
+  "delta_home_win_exp": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "delta_run_exp": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717937,
+     "pct": 99.62
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 730056,
+     "pct": 99.67
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 739575,
+     "pct": 99.66
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645785,
+     "pct": 99.67
+    }
+   }
+  },
+  "bat_speed": {
+   "condition": "swings",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 341066,
+     "present": 144670,
+     "pct": 42.42
+    },
+    "2024": {
+     "denom": 350707,
+     "present": 316818,
+     "pct": 90.34
+    },
+    "2025": {
+     "denom": 352771,
+     "present": 332891,
+     "pct": 94.36
+    },
+    "2026": {
+     "denom": 307544,
+     "present": 299431,
+     "pct": 97.36
+    }
+   }
+  },
+  "swing_length": {
+   "condition": "swings",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 341066,
+     "present": 144670,
+     "pct": 42.42
+    },
+    "2024": {
+     "denom": 350707,
+     "present": 316818,
+     "pct": 90.34
+    },
+    "2025": {
+     "denom": 352771,
+     "present": 332891,
+     "pct": 94.36
+    },
+    "2026": {
+     "denom": 307544,
+     "present": 299431,
+     "pct": 97.36
+    }
+   }
+  },
+  "miss_distance": {
+   "condition": "swinging strikes",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 76298,
+     "present": 32147,
+     "pct": 42.13
+    },
+    "2024": {
+     "denom": 77876,
+     "present": 69784,
+     "pct": 89.61
+    },
+    "2025": {
+     "denom": 77477,
+     "present": 73889,
+     "pct": 95.37
+    },
+    "2026": {
+     "denom": 66483,
+     "present": 65540,
+     "pct": 98.58
+    }
+   }
+  },
+  "estimated_slg_using_speedangle": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 122220,
+     "pct": 98.38
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 122120,
+     "pct": 95.05
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 122582,
+     "pct": 94.34
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 110354,
+     "pct": 97.96
+    }
+   }
+  },
+  "delta_pitcher_run_exp": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717937,
+     "pct": 99.62
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 730056,
+     "pct": 99.67
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 739575,
+     "pct": 99.66
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645785,
+     "pct": 99.67
+    }
+   }
+  },
+  "hyper_speed": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 238137,
+     "pct": 33.04
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 242991,
+     "pct": 33.17
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 243249,
+     "pct": 32.78
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 215512,
+     "pct": 33.26
+    }
+   }
+  },
+  "home_score_diff": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "bat_score_diff": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "home_win_exp": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "bat_win_exp": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "age_pit_legacy": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "age_bat_legacy": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "age_pit": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "age_bat": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "n_thruorder_pitcher": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "n_priorpa_thisgame_player_at_bat": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 720684,
+     "pct": 100.0
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 732482,
+     "pct": 100.0
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 742080,
+     "pct": 100.0
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 647896,
+     "pct": 100.0
+    }
+   }
+  },
+  "pitcher_days_since_prev_game": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 685819,
+     "pct": 95.16
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 676889,
+     "pct": 92.41
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 678086,
+     "pct": 91.38
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 609796,
+     "pct": 94.12
+    }
+   }
+  },
+  "batter_days_since_prev_game": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 711875,
+     "pct": 98.78
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 703517,
+     "pct": 96.05
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 703624,
+     "pct": 94.82
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 635320,
+     "pct": 98.06
+    }
+   }
+  },
+  "pitcher_days_until_next_game": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 692601,
+     "pct": 96.1
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 683989,
+     "pct": 93.38
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 685047,
+     "pct": 92.31
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 609571,
+     "pct": 94.08
+    }
+   }
+  },
+  "batter_days_until_next_game": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 714533,
+     "pct": 99.15
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 705689,
+     "pct": 96.34
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 706453,
+     "pct": 95.2
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 635454,
+     "pct": 98.08
+    }
+   }
+  },
+  "api_break_z_with_gravity": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722081,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729679,
+     "pct": 98.33
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "api_break_x_arm": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729679,
+     "pct": 98.33
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "api_break_x_batter_in": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 717835,
+     "pct": 99.6
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 722086,
+     "pct": 98.58
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 729679,
+     "pct": 98.33
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 645469,
+     "pct": 99.63
+    }
+   }
+  },
+  "arm_angle": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 711134,
+     "pct": 98.67
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 706209,
+     "pct": 96.41
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 708798,
+     "pct": 95.52
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 638959,
+     "pct": 98.62
+    }
+   }
+  },
+  "attack_angle": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 51921,
+     "pct": 41.79
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 114089,
+     "pct": 88.8
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 120401,
+     "pct": 92.66
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 108128,
+     "pct": 95.98
+    }
+   }
+  },
+  "attack_direction": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 51921,
+     "pct": 41.79
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 114089,
+     "pct": 88.8
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 120401,
+     "pct": 92.66
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 108128,
+     "pct": 95.98
+    }
+   }
+  },
+  "swing_path_tilt": {
+   "condition": "balls in play",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 124234,
+     "present": 51920,
+     "pct": 41.79
+    },
+    "2024": {
+     "denom": 128479,
+     "present": 114088,
+     "pct": 88.8
+    },
+    "2025": {
+     "denom": 129932,
+     "present": 120399,
+     "pct": 92.66
+    },
+    "2026": {
+     "denom": 112656,
+     "present": 108126,
+     "pct": 95.98
+    }
+   }
+  },
+  "intercept_ball_minus_batter_pos_x_inches": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 144608,
+     "pct": 20.07
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 316728,
+     "pct": 43.24
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 332610,
+     "pct": 44.82
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 299232,
+     "pct": 46.19
+    }
+   }
+  },
+  "intercept_ball_minus_batter_pos_y_inches": {
+   "condition": "all pitches",
+   "dead": false,
+   "by_year": {
+    "2023": {
+     "denom": 720684,
+     "present": 144608,
+     "pct": 20.07
+    },
+    "2024": {
+     "denom": 732482,
+     "present": 316728,
+     "pct": 43.24
+    },
+    "2025": {
+     "denom": 742080,
+     "present": 332610,
+     "pct": 44.82
+    },
+    "2026": {
+     "denom": 647896,
+     "present": 299232,
+     "pct": 46.19
+    }
+   }
+  }
+ },
+ "integrity": [
+  {
+   "name": "No duplicate pitches",
+   "ok": true,
+   "detail": "0 duplicated (game_pk, at_bat, pitch)",
+   "why": "A day fetched twice would double-count every rate stat. ingest_log is supposed to prevent this."
+  },
+  {
+   "name": "Count states legal",
+   "ok": true,
+   "detail": "0 rows with impossible ball/strike counts",
+   "why": "Savant occasionally emits a 4-ball or 3-strike row on a mid-PA event; they should be excluded from count-state work."
+  },
+  {
+   "name": "Regular season only",
+   "ok": false,
+   "detail": "{'R': 2793007, 'S': 50135}",
+   "why": "Spring training and postseason rows contaminate qualified-player leaderboards if not filtered."
+  },
+  {
+   "name": "xwOBA non-contact convention is consistent across seasons",
+   "ok": true,
+   "detail": "{2023: 'folded-in', 2024: 'folded-in', 2025: 'folded-in', 2026: 'folded-in'}",
+   "why": "'folded-in' = strikeouts/walks carry an xwOBA (K=0.0, BB~0.70). 'null' = they do not. If seasons disagree, `WHERE estimated_woba_using_speedangle IS NOT NULL` means 'batted ball' in one season and 'completed PA' in another. Use type='X' for contact."
+  },
+  {
+   "name": "Batted balls modelled by xwOBA",
+   "ok": true,
+   "detail": "0 of 482,250 non-bunt balls in play (0.00%) have no xwOBA",
+   "why": "These are tracking failures, not structural nulls. Above ~1% means a real gap in the ball-tracking for that period, and every rate built on xwOBA is computed on a quietly non-random subset of contact."
+  },
+  {
+   "name": "Every database column is documented",
+   "ok": true,
+   "detail": "undocumented: none | in schema but not in db: none",
+   "why": "Savant adds columns mid-season and the ingest widens the table to accept them. An undocumented column is a metric nobody has decided how to treat -- add it to schema.yaml, with its applicability condition, before anything downstream consumes it."
+  },
+  {
+   "name": "xBA/xSLG remain contact-only",
+   "ok": true,
+   "detail": "0 non-contact rows carry an xBA",
+   "why": "xwOBA and xBA follow DIFFERENT conventions in the same row. Averaging xBA over all PA still drops strikeouts from the numerator while the denominator counts them."
+  },
+  {
+   "name": "plate_x sign flips by batter side",
+   "ok": true,
+   "detail": "mean plate_x: {'L': -0.145, 'R': 0.184}",
+   "why": "Pitchers work away from both sides, so the two means must have OPPOSITE signs. If they don't, the handedness correction in any platoon split is backwards."
+  },
+  {
+   "name": "pfx_x sign flips by pitcher hand",
+   "ok": true,
+   "detail": "mean pfx_x: {'L': 0.395, 'R': -0.317}",
+   "why": "Arm-side run is opposite-signed for lefties and righties. Pooling without flipping cancels the effect to ~zero."
+  },
+  {
+   "name": "2023: schedule complete",
+   "ok": true,
+   "detail": "all 30 teams at 162",
+   "why": "A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout."
+  },
+  {
+   "name": "2024: schedule complete",
+   "ok": true,
+   "detail": "{'CLE': 161, 'HOU': 161} -- known: HOU @ CLE 2024-09-29, the regular-season finale, was rained out after a long delay and never made up -- it had no playoff implications. MLB played 2,429 games in 2024.",
+   "why": "A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout."
+  },
+  {
+   "name": "2025: schedule complete",
+   "ok": true,
+   "detail": "all 30 teams at 162",
+   "why": "A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout."
+  }
+ ],
+ "by_season": {
+  "2023": {
+   "days_with_games": 182,
+   "days_logged": 186,
+   "offdays": 4,
+   "games": 2430,
+   "pitches": 720684,
+   "pitches_per_game": 296.6,
+   "games_vs_2430": 100.0
+  },
+  "2024": {
+   "days_with_games": 190,
+   "days_logged": 192,
+   "offdays": 2,
+   "games": 2517,
+   "pitches": 732482,
+   "pitches_per_game": 291.0,
+   "games_vs_2430": 103.6
+  },
+  "2025": {
+   "days_with_games": 190,
+   "days_logged": 195,
+   "offdays": 5,
+   "games": 2531,
+   "pitches": 742080,
+   "pitches_per_game": 293.2,
+   "games_vs_2430": 104.2
+  },
+  "2026": {
+   "days_with_games": 166,
+   "days_logged": 169,
+   "offdays": 3,
+   "games": 2195,
+   "pitches": 647896,
+   "pitches_per_game": 295.2,
+   "games_vs_2430": 90.3
+  }
+ },
+ "reconciliation": [
+  {
+   "year": 2023,
+   "snapshot": "2023-10-01",
+   "n_players": 60,
+   "median_woba_diff": 0.0097,
+   "median_pa_coverage": 0.995
+  },
+  {
+   "year": 2024,
+   "snapshot": "2024-09-30",
+   "n_players": 60,
+   "median_woba_diff": 0.0093,
+   "median_pa_coverage": 0.994
+  },
+  {
+   "year": 2025,
+   "snapshot": "2025-09-28",
+   "n_players": 60,
+   "median_woba_diff": 0.0079,
+   "median_pa_coverage": 0.993
+  },
+  {
+   "year": 2026,
+   "snapshot": "2026-09-10",
+   "n_players": 60,
+   "median_woba_diff": 0.0066,
+   "median_pa_coverage": 0.994
+  }
+ ],
+ "distributions": {
+  "balls": {
+   "2023": {
+    "n": 720684,
+    "mean": 0.881,
+    "sd": 0.972,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 3,
+    "max": 3,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 732482,
+    "mean": 0.871,
+    "sd": 0.971,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 1,
+    "p99": 3,
+    "max": 3,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 742080,
+    "mean": 0.878,
+    "sd": 0.969,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 3,
+    "max": 3,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 647896,
+    "mean": 0.882,
+    "sd": 0.974,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 3,
+    "max": 3,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     3
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "strikes": {
+   "2023": {
+    "n": 720684,
+    "mean": 0.899,
+    "sd": 0.828,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 732482,
+    "mean": 0.902,
+    "sd": 0.83,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 742080,
+    "mean": 0.9,
+    "sd": 0.828,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 647896,
+    "mean": 0.896,
+    "sd": 0.83,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "outs_when_up": {
+   "2023": {
+    "n": 720684,
+    "mean": 0.983,
+    "sd": 0.818,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 732482,
+    "mean": 0.983,
+    "sd": 0.818,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 742080,
+    "mean": 0.98,
+    "sd": 0.817,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 647896,
+    "mean": 0.984,
+    "sd": 0.819,
+    "min": 0,
+    "p1": 0,
+    "p25": 0,
+    "p50": 1,
+    "p75": 2,
+    "p99": 2,
+    "max": 2,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "release_speed": {
+   "2023": {
+    "n": 717838,
+    "mean": 88.999,
+    "sd": 6.085,
+    "min": 33.4,
+    "p1": 73.8,
+    "p25": 84.6,
+    "p50": 89.8,
+    "p75": 93.9,
+    "p99": 99.2,
+    "max": 104.8,
+    "implausible_low": 350,
+    "implausible_high": 0,
+    "implausible_pct": 0.049,
+    "bounds": [
+     50,
+     106
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 722089,
+    "mean": 89.147,
+    "sd": 5.993,
+    "min": 31.9,
+    "p1": 74.6,
+    "p25": 84.8,
+    "p50": 89.9,
+    "p75": 94.0,
+    "p99": 99.1,
+    "max": 105.5,
+    "implausible_low": 295,
+    "implausible_high": 0,
+    "implausible_pct": 0.041,
+    "bounds": [
+     50,
+     106
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729816,
+    "mean": 89.363,
+    "sd": 6.157,
+    "min": 21.7,
+    "p1": 74.5,
+    "p25": 85.1,
+    "p50": 90.2,
+    "p75": 94.3,
+    "p99": 99.4,
+    "max": 104.2,
+    "implausible_low": 636,
+    "implausible_high": 0,
+    "implausible_pct": 0.087,
+    "bounds": [
+     50,
+     106
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645469,
+    "mean": 89.613,
+    "sd": 6.232,
+    "min": 30.3,
+    "p1": 74.8,
+    "p25": 85.5,
+    "p50": 90.5,
+    "p75": 94.5,
+    "p99": 99.7,
+    "max": 105.5,
+    "implausible_low": 932,
+    "implausible_high": 0,
+    "implausible_pct": 0.144,
+    "bounds": [
+     50,
+     106
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "effective_speed": {
+   "2023": {
+    "n": 716602,
+    "mean": 89.249,
+    "sd": 6.261,
+    "min": 29.2,
+    "p1": 73.4,
+    "p25": 84.8,
+    "p50": 90.1,
+    "p75": 94.2,
+    "p99": 100.0,
+    "max": 105.7,
+    "implausible_low": 410,
+    "implausible_high": 0,
+    "implausible_pct": 0.057,
+    "bounds": [
+     50,
+     110
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 720971,
+    "mean": 89.418,
+    "sd": 6.156,
+    "min": 28.5,
+    "p1": 74.4,
+    "p25": 85.1,
+    "p50": 90.3,
+    "p75": 94.2,
+    "p99": 99.9,
+    "max": 107.1,
+    "implausible_low": 344,
+    "implausible_high": 0,
+    "implausible_pct": 0.048,
+    "bounds": [
+     50,
+     110
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729380,
+    "mean": 89.504,
+    "sd": 6.32,
+    "min": 28.0,
+    "p1": 74.2,
+    "p25": 85.2,
+    "p50": 90.4,
+    "p75": 94.4,
+    "p99": 100.0,
+    "max": 105.6,
+    "implausible_low": 737,
+    "implausible_high": 0,
+    "implausible_pct": 0.101,
+    "bounds": [
+     50,
+     110
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 644616,
+    "mean": 89.837,
+    "sd": 6.41,
+    "min": 26.5,
+    "p1": 74.6,
+    "p25": 85.6,
+    "p50": 90.8,
+    "p75": 94.7,
+    "p99": 100.5,
+    "max": 107.8,
+    "implausible_low": 1046,
+    "implausible_high": 0,
+    "implausible_pct": 0.162,
+    "bounds": [
+     50,
+     110
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "release_spin_rate": {
+   "2023": {
+    "n": 713765,
+    "mean": 2249.147,
+    "sd": 340.684,
+    "min": 16,
+    "p1": 1190,
+    "p25": 2098,
+    "p50": 2277,
+    "p75": 2448,
+    "p99": 2992,
+    "max": 3544,
+    "implausible_low": 212,
+    "implausible_high": 0,
+    "implausible_pct": 0.03,
+    "bounds": [
+     500,
+     3600
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 718670,
+    "mean": 2255.454,
+    "sd": 363.509,
+    "min": 14,
+    "p1": 1010,
+    "p25": 2102,
+    "p50": 2287,
+    "p75": 2465,
+    "p99": 3016,
+    "max": 3578,
+    "implausible_low": 1025,
+    "implausible_high": 0,
+    "implausible_pct": 0.143,
+    "bounds": [
+     500,
+     3600
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 727970,
+    "mean": 2276.176,
+    "sd": 363.853,
+    "min": 42,
+    "p1": 1042,
+    "p25": 2137,
+    "p50": 2314,
+    "p75": 2482,
+    "p99": 3046,
+    "max": 3547,
+    "implausible_low": 278,
+    "implausible_high": 0,
+    "implausible_pct": 0.038,
+    "bounds": [
+     500,
+     3600
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 644352,
+    "mean": 2265.626,
+    "sd": 369.745,
+    "min": 2,
+    "p1": 1047,
+    "p25": 2126,
+    "p50": 2306,
+    "p75": 2480,
+    "p99": 3021,
+    "max": 3599,
+    "implausible_low": 476,
+    "implausible_high": 0,
+    "implausible_pct": 0.074,
+    "bounds": [
+     500,
+     3600
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "release_extension": {
+   "2023": {
+    "n": 716775,
+    "mean": 6.439,
+    "sd": 0.466,
+    "min": 3.0,
+    "p1": 5.4,
+    "p25": 6.1,
+    "p50": 6.4,
+    "p75": 6.7,
+    "p99": 7.5,
+    "max": 11.7,
+    "implausible_low": 0,
+    "implausible_high": 12,
+    "implausible_pct": 0.002,
+    "bounds": [
+     3.0,
+     8.5
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 721082,
+    "mean": 6.457,
+    "sd": 0.456,
+    "min": 3.2,
+    "p1": 5.3,
+    "p25": 6.2,
+    "p50": 6.5,
+    "p75": 6.7,
+    "p99": 7.5,
+    "max": 8.7,
+    "implausible_low": 0,
+    "implausible_high": 9,
+    "implausible_pct": 0.001,
+    "bounds": [
+     3.0,
+     8.5
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729641,
+    "mean": 6.426,
+    "sd": 0.457,
+    "min": 2.8,
+    "p1": 5.3,
+    "p25": 6.1,
+    "p50": 6.4,
+    "p75": 6.7,
+    "p99": 7.5,
+    "max": 9.6,
+    "implausible_low": 3,
+    "implausible_high": 8,
+    "implausible_pct": 0.002,
+    "bounds": [
+     3.0,
+     8.5
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 644843,
+    "mean": 6.432,
+    "sd": 0.457,
+    "min": 2.7,
+    "p1": 5.3,
+    "p25": 6.2,
+    "p50": 6.4,
+    "p75": 6.7,
+    "p99": 7.5,
+    "max": 9.4,
+    "implausible_low": 8,
+    "implausible_high": 6,
+    "implausible_pct": 0.002,
+    "bounds": [
+     3.0,
+     8.5
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "pfx_x": {
+   "2023": {
+    "n": 717835,
+    "mean": -0.125,
+    "sd": 0.894,
+    "min": -2.58,
+    "p1": -1.62,
+    "p25": -0.89,
+    "p50": -0.18,
+    "p75": 0.58,
+    "p99": 1.6,
+    "max": 2.36,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 722086,
+    "mean": -0.101,
+    "sd": 0.897,
+    "min": -2.95,
+    "p1": -1.6,
+    "p25": -0.87,
+    "p50": -0.16,
+    "p75": 0.62,
+    "p99": 1.6,
+    "max": 2.4,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729679,
+    "mean": -0.13,
+    "sd": 0.897,
+    "min": -2.45,
+    "p1": -1.61,
+    "p25": -0.91,
+    "p50": -0.21,
+    "p75": 0.57,
+    "p99": 1.61,
+    "max": 2.54,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645469,
+    "mean": -0.131,
+    "sd": 0.908,
+    "min": -2.92,
+    "p1": -1.62,
+    "p25": -0.92,
+    "p50": -0.21,
+    "p75": 0.61,
+    "p99": 1.6,
+    "max": 2.51,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "pfx_z": {
+   "2023": {
+    "n": 717835,
+    "mean": 0.59,
+    "sd": 0.709,
+    "min": -2.14,
+    "p1": -1.31,
+    "p25": 0.14,
+    "p50": 0.64,
+    "p75": 1.2,
+    "p99": 1.71,
+    "max": 2.84,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 722086,
+    "mean": 0.588,
+    "sd": 0.708,
+    "min": -2.45,
+    "p1": -1.29,
+    "p25": 0.13,
+    "p50": 0.62,
+    "p75": 1.19,
+    "p99": 1.71,
+    "max": 2.31,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729812,
+    "mean": 0.574,
+    "sd": 0.722,
+    "min": -2.0,
+    "p1": -1.32,
+    "p25": 0.11,
+    "p50": 0.61,
+    "p75": 1.19,
+    "p99": 1.71,
+    "max": 2.55,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645469,
+    "mean": 0.559,
+    "sd": 0.709,
+    "min": -1.91,
+    "p1": -1.3,
+    "p25": 0.11,
+    "p50": 0.6,
+    "p75": 1.16,
+    "p99": 1.69,
+    "max": 2.7,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -3,
+     3
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "plate_x": {
+   "2023": {
+    "n": 717673,
+    "mean": 0.036,
+    "sd": 0.837,
+    "min": -11.365,
+    "p1": -1.908,
+    "p25": -0.524,
+    "p50": 0.036,
+    "p75": 0.596,
+    "p99": 2.023,
+    "max": 5.689,
+    "implausible_low": 16,
+    "implausible_high": 31,
+    "implausible_pct": 0.007,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 721991,
+    "mean": 0.054,
+    "sd": 0.841,
+    "min": -5.381,
+    "p1": -1.907,
+    "p25": -0.51,
+    "p50": 0.052,
+    "p75": 0.615,
+    "p99": 2.039,
+    "max": 10.204,
+    "implausible_low": 17,
+    "implausible_high": 20,
+    "implausible_pct": 0.005,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729757,
+    "mean": 0.039,
+    "sd": 0.827,
+    "min": -7.135,
+    "p1": -1.899,
+    "p25": -0.516,
+    "p50": 0.032,
+    "p75": 0.582,
+    "p99": 1.999,
+    "max": 34.972,
+    "implausible_low": 19,
+    "implausible_high": 19,
+    "implausible_pct": 0.005,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645448,
+    "mean": 0.019,
+    "sd": 0.82,
+    "min": -6.351,
+    "p1": -1.913,
+    "p25": -0.531,
+    "p50": 0.014,
+    "p75": 0.561,
+    "p99": 1.955,
+    "max": 7.031,
+    "implausible_low": 19,
+    "implausible_high": 20,
+    "implausible_pct": 0.006,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "plate_z": {
+   "2023": {
+    "n": 717673,
+    "mean": 2.282,
+    "sd": 0.969,
+    "min": -4.277,
+    "p1": -0.079,
+    "p25": 1.643,
+    "p50": 2.284,
+    "p75": 2.916,
+    "p99": 4.518,
+    "max": 11.024,
+    "implausible_low": 61,
+    "implausible_high": 16,
+    "implausible_pct": 0.011,
+    "bounds": [
+     -2,
+     7
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 721991,
+    "mean": 2.304,
+    "sd": 0.968,
+    "min": -7.654,
+    "p1": -0.01,
+    "p25": 1.661,
+    "p50": 2.299,
+    "p75": 2.941,
+    "p99": 4.554,
+    "max": 12.359,
+    "implausible_low": 49,
+    "implausible_high": 12,
+    "implausible_pct": 0.008,
+    "bounds": [
+     -2,
+     7
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729757,
+    "mean": 2.323,
+    "sd": 0.965,
+    "min": -57.601,
+    "p1": -0.012,
+    "p25": 1.696,
+    "p50": 2.336,
+    "p75": 2.969,
+    "p99": 4.556,
+    "max": 10.42,
+    "implausible_low": 50,
+    "implausible_high": 18,
+    "implausible_pct": 0.009,
+    "bounds": [
+     -2,
+     7
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645448,
+    "mean": 2.256,
+    "sd": 0.972,
+    "min": -5.023,
+    "p1": -0.131,
+    "p25": 1.629,
+    "p50": 2.28,
+    "p75": 2.907,
+    "p99": 4.496,
+    "max": 10.703,
+    "implausible_low": 52,
+    "implausible_high": 12,
+    "implausible_pct": 0.01,
+    "bounds": [
+     -2,
+     7
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "sz_top": {
+   "2023": {
+    "n": 717673,
+    "mean": 3.361,
+    "sd": 0.194,
+    "min": 2.509,
+    "p1": 2.908,
+    "p25": 3.23,
+    "p50": 3.36,
+    "p75": 3.49,
+    "p99": 3.815,
+    "max": 4.304,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     2.5,
+     4.8
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 721991,
+    "mean": 3.406,
+    "sd": 0.191,
+    "min": 2.522,
+    "p1": 2.963,
+    "p25": 3.275,
+    "p50": 3.402,
+    "p75": 3.528,
+    "p99": 3.87,
+    "max": 4.282,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     2.5,
+     4.8
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729757,
+    "mean": 3.429,
+    "sd": 0.193,
+    "min": 2.507,
+    "p1": 3.013,
+    "p25": 3.29,
+    "p50": 3.43,
+    "p75": 3.557,
+    "p99": 3.909,
+    "max": 4.411,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     2.5,
+     4.8
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645448,
+    "mean": 3.214,
+    "sd": 0.105,
+    "min": 2.926,
+    "p1": 2.985,
+    "p25": 3.138,
+    "p50": 3.21,
+    "p75": 3.285,
+    "p99": 3.489,
+    "max": 3.541,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     2.5,
+     4.8
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "sz_bot": {
+   "2023": {
+    "n": 717673,
+    "mean": 1.594,
+    "sd": 0.113,
+    "min": 0.759,
+    "p1": 1.32,
+    "p25": 1.517,
+    "p50": 1.594,
+    "p75": 1.67,
+    "p99": 1.851,
+    "max": 2.468,
+    "implausible_low": 5,
+    "implausible_high": 0,
+    "implausible_pct": 0.001,
+    "bounds": [
+     0.8,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 721991,
+    "mean": 1.601,
+    "sd": 0.112,
+    "min": 1.0,
+    "p1": 1.32,
+    "p25": 1.53,
+    "p50": 1.6,
+    "p75": 1.67,
+    "p99": 1.86,
+    "max": 2.136,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0.8,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 729757,
+    "mean": 1.605,
+    "sd": 0.111,
+    "min": 1.004,
+    "p1": 1.332,
+    "p25": 1.532,
+    "p50": 1.605,
+    "p75": 1.679,
+    "p99": 1.867,
+    "max": 2.0,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0.8,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645448,
+    "mean": 1.622,
+    "sd": 0.053,
+    "min": 1.477,
+    "p1": 1.506,
+    "p25": 1.584,
+    "p50": 1.62,
+    "p75": 1.658,
+    "p99": 1.761,
+    "max": 1.787,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0.8,
+     2.5
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "arm_angle": {
+   "2023": {
+    "n": 711134,
+    "mean": 38.776,
+    "sd": 12.772,
+    "min": -70.7,
+    "p1": 1.9,
+    "p25": 31.9,
+    "p50": 39.9,
+    "p75": 47.0,
+    "p99": 64.0,
+    "max": 84.0,
+    "implausible_low": 1569,
+    "implausible_high": 0,
+    "implausible_pct": 0.221,
+    "bounds": [
+     -20,
+     100
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 706209,
+    "mean": 38.098,
+    "sd": 13.137,
+    "min": -71.2,
+    "p1": 2.7,
+    "p25": 30.4,
+    "p50": 39.2,
+    "p75": 46.6,
+    "p99": 64.7,
+    "max": 144.0,
+    "implausible_low": 1818,
+    "implausible_high": 4,
+    "implausible_pct": 0.258,
+    "bounds": [
+     -20,
+     100
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 708798,
+    "mean": 37.649,
+    "sd": 12.888,
+    "min": -67.4,
+    "p1": 3.1,
+    "p25": 30.2,
+    "p50": 38.4,
+    "p75": 46.1,
+    "p99": 63.6,
+    "max": 87.1,
+    "implausible_low": 1740,
+    "implausible_high": 0,
+    "implausible_pct": 0.245,
+    "bounds": [
+     -20,
+     100
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 638959,
+    "mean": 37.199,
+    "sd": 12.652,
+    "min": -66.5,
+    "p1": 4.9,
+    "p25": 30.0,
+    "p50": 38.2,
+    "p75": 45.3,
+    "p99": 64.4,
+    "max": 85.0,
+    "implausible_low": 1544,
+    "implausible_high": 0,
+    "implausible_pct": 0.242,
+    "bounds": [
+     -20,
+     100
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "hit_distance_sc": {
+   "2023": {
+    "n": 237055,
+    "mean": 155.382,
+    "sd": 120.908,
+    "min": 0,
+    "p1": 1,
+    "p25": 19,
+    "p50": 166,
+    "p75": 243,
+    "p99": 410,
+    "max": 493,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     520
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 241543,
+    "mean": 156.506,
+    "sd": 120.068,
+    "min": 0,
+    "p1": 1,
+    "p25": 21,
+    "p50": 168,
+    "p75": 245,
+    "p99": 405,
+    "max": 480,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     520
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 242146,
+    "mean": 157.939,
+    "sd": 120.359,
+    "min": 0,
+    "p1": 1,
+    "p25": 22,
+    "p50": 167,
+    "p75": 247,
+    "p99": 406,
+    "max": 493,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     520
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 214222,
+    "mean": 156.59,
+    "sd": 119.313,
+    "min": 0,
+    "p1": 1,
+    "p25": 25,
+    "p50": 169,
+    "p75": 246,
+    "p99": 405,
+    "max": 474,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     520
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "launch_speed": {
+   "2023": {
+    "n": 236925,
+    "mean": 82.596,
+    "sd": 15.216,
+    "min": 3.6,
+    "p1": 38.0,
+    "p25": 72.8,
+    "p50": 82.0,
+    "p75": 94.3,
+    "p99": 110.0,
+    "max": 121.2,
+    "implausible_low": 6,
+    "implausible_high": 0,
+    "implausible_pct": 0.003,
+    "bounds": [
+     5,
+     125
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 241565,
+    "mean": 82.538,
+    "sd": 15.086,
+    "min": 3.0,
+    "p1": 38.9,
+    "p25": 73.1,
+    "p50": 82.2,
+    "p75": 94.4,
+    "p99": 109.8,
+    "max": 121.5,
+    "implausible_low": 5,
+    "implausible_high": 0,
+    "implausible_pct": 0.002,
+    "bounds": [
+     5,
+     125
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 242034,
+    "mean": 83.106,
+    "sd": 15.501,
+    "min": 2.6,
+    "p1": 36.0,
+    "p25": 73.4,
+    "p50": 83.2,
+    "p75": 95.3,
+    "p99": 110.1,
+    "max": 122.9,
+    "implausible_low": 5,
+    "implausible_high": 0,
+    "implausible_pct": 0.002,
+    "bounds": [
+     5,
+     125
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 214138,
+    "mean": 82.556,
+    "sd": 15.247,
+    "min": 2.3,
+    "p1": 35.6,
+    "p25": 73.3,
+    "p50": 82.6,
+    "p75": 94.5,
+    "p99": 109.6,
+    "max": 119.7,
+    "implausible_low": 8,
+    "implausible_high": 0,
+    "implausible_pct": 0.004,
+    "bounds": [
+     5,
+     125
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "launch_angle": {
+   "2023": {
+    "n": 237245,
+    "mean": 16.794,
+    "sd": 32.714,
+    "min": -90,
+    "p1": -62,
+    "p25": -5,
+    "p50": 20,
+    "p75": 41,
+    "p99": 79,
+    "max": 90,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -90,
+     90
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 241882,
+    "mean": 17.445,
+    "sd": 33.012,
+    "min": -90,
+    "p1": -62,
+    "p25": -5,
+    "p50": 20,
+    "p75": 42,
+    "p99": 79,
+    "max": 90,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -90,
+     90
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 242428,
+    "mean": 17.815,
+    "sd": 32.869,
+    "min": -89,
+    "p1": -61,
+    "p25": -4,
+    "p50": 20,
+    "p75": 42,
+    "p99": 80,
+    "max": 90,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -90,
+     90
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 214460,
+    "mean": 17.912,
+    "sd": 32.506,
+    "min": -90,
+    "p1": -61,
+    "p25": -3,
+    "p50": 20,
+    "p75": 42,
+    "p99": 80,
+    "max": 90,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -90,
+     90
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "estimated_woba_using_speedangle": {
+   "2023": {
+    "n": 182610,
+    "mean": 0.32,
+    "sd": 0.373,
+    "min": 0.0,
+    "p1": 0.0,
+    "p25": 0.003,
+    "p50": 0.162,
+    "p75": 0.611,
+    "p99": 1.692,
+    "max": 2.001,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 180920,
+    "mean": 0.316,
+    "sd": 0.367,
+    "min": 0.0,
+    "p1": 0.0,
+    "p25": 0.003,
+    "p50": 0.174,
+    "p75": 0.59,
+    "p99": 1.632,
+    "max": 2.014,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 181231,
+    "mean": 0.316,
+    "sd": 0.365,
+    "min": 0.0,
+    "p1": 0.0,
+    "p25": 0.006,
+    "p50": 0.162,
+    "p75": 0.587,
+    "p99": 1.616,
+    "max": 2.018,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2.5
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 164372,
+    "mean": 0.315,
+    "sd": 0.369,
+    "min": 0.0,
+    "p1": 0.0,
+    "p25": 0.003,
+    "p50": 0.163,
+    "p75": 0.59,
+    "p99": 1.737,
+    "max": 2.044,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     0,
+     2.5
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "delta_run_exp": {
+   "2023": {
+    "n": 717937,
+    "mean": 0.0,
+    "sd": 0.227,
+    "min": -0.551,
+    "p1": -0.353,
+    "p25": -0.061,
+    "p50": -0.036,
+    "p75": 0.04,
+    "p99": 0.9,
+    "max": 2.701,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 730056,
+    "mean": 0.0,
+    "sd": 0.224,
+    "min": -0.594,
+    "p1": -0.339,
+    "p25": -0.061,
+    "p50": -0.037,
+    "p75": 0.039,
+    "p99": 0.884,
+    "max": 2.693,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 739575,
+    "mean": 0.0,
+    "sd": 0.228,
+    "min": -0.577,
+    "p1": -0.345,
+    "p25": -0.062,
+    "p50": -0.038,
+    "p75": 0.039,
+    "p99": 0.909,
+    "max": 2.696,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 645785,
+    "mean": 0.0,
+    "sd": 0.224,
+    "min": -0.619,
+    "p1": -0.347,
+    "p25": -0.067,
+    "p50": -0.034,
+    "p75": 0.041,
+    "p99": 0.84,
+    "max": 2.701,
+    "implausible_low": 0,
+    "implausible_high": 0,
+    "implausible_pct": 0.0,
+    "bounds": [
+     -4,
+     4
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "bat_speed": {
+   "2023": {
+    "n": 144734,
+    "mean": 69.638,
+    "sd": 8.363,
+    "min": 0.9,
+    "p1": 34,
+    "p25": 67,
+    "p50": 71,
+    "p75": 74.3,
+    "p99": 82.6,
+    "max": 88,
+    "implausible_low": 697,
+    "implausible_high": 0,
+    "implausible_pct": 0.482,
+    "bounds": [
+     20,
+     95
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 316997,
+    "mean": 69.458,
+    "sd": 8.802,
+    "min": 0.9,
+    "p1": 31.2,
+    "p25": 67,
+    "p50": 70.9,
+    "p75": 74.2,
+    "p99": 82.8,
+    "max": 88,
+    "implausible_low": 1886,
+    "implausible_high": 0,
+    "implausible_pct": 0.595,
+    "bounds": [
+     20,
+     95
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 333101,
+    "mean": 69.624,
+    "sd": 9.199,
+    "min": 0.6,
+    "p1": 28.5,
+    "p25": 67.3,
+    "p50": 71.2,
+    "p75": 74.6,
+    "p99": 82.8,
+    "max": 88,
+    "implausible_low": 2233,
+    "implausible_high": 0,
+    "implausible_pct": 0.67,
+    "bounds": [
+     20,
+     95
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 299640,
+    "mean": 69.81,
+    "sd": 9.582,
+    "min": 0.3,
+    "p1": 25.8,
+    "p25": 67.5,
+    "p50": 71.5,
+    "p75": 74.8,
+    "p99": 82.8,
+    "max": 88,
+    "implausible_low": 2438,
+    "implausible_high": 0,
+    "implausible_pct": 0.814,
+    "bounds": [
+     20,
+     95
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "swing_length": {
+   "2023": {
+    "n": 144734,
+    "mean": 7.229,
+    "sd": 0.972,
+    "min": 0.3,
+    "p1": 4.8,
+    "p25": 6.6,
+    "p50": 7.3,
+    "p75": 7.9,
+    "p99": 9.1,
+    "max": 10.5,
+    "implausible_low": 517,
+    "implausible_high": 0,
+    "implausible_pct": 0.357,
+    "bounds": [
+     2,
+     12
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 316997,
+    "mean": 7.215,
+    "sd": 0.986,
+    "min": 0.3,
+    "p1": 4.7,
+    "p25": 6.6,
+    "p50": 7.3,
+    "p75": 7.9,
+    "p99": 9.1,
+    "max": 12,
+    "implausible_low": 1369,
+    "implausible_high": 0,
+    "implausible_pct": 0.432,
+    "bounds": [
+     2,
+     12
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 333101,
+    "mean": 7.202,
+    "sd": 1.017,
+    "min": 0.2,
+    "p1": 4.5,
+    "p25": 6.6,
+    "p50": 7.3,
+    "p75": 7.9,
+    "p99": 9.1,
+    "max": 12.9,
+    "implausible_low": 1657,
+    "implausible_high": 6,
+    "implausible_pct": 0.499,
+    "bounds": [
+     2,
+     12
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 299640,
+    "mean": 7.204,
+    "sd": 1.049,
+    "min": 0.3,
+    "p1": 4.4,
+    "p25": 6.6,
+    "p50": 7.3,
+    "p75": 7.9,
+    "p99": 9.2,
+    "max": 14.1,
+    "implausible_low": 1873,
+    "implausible_high": 12,
+    "implausible_pct": 0.629,
+    "bounds": [
+     2,
+     12
+    ],
+    "sampled_pct": 10
+   }
+  },
+  "attack_angle": {
+   "2023": {
+    "n": 144734,
+    "mean": 9.295,
+    "sd": 11.779,
+    "min": -89.758,
+    "p1": -20.27,
+    "p25": 1.903,
+    "p50": 9.542,
+    "p75": 17.12,
+    "p99": 34.444,
+    "max": 80.536,
+    "implausible_low": 384,
+    "implausible_high": 32,
+    "implausible_pct": 0.287,
+    "bounds": [
+     -40,
+     60
+    ],
+    "sampled_pct": 10
+   },
+   "2024": {
+    "n": 316997,
+    "mean": 9.154,
+    "sd": 11.759,
+    "min": -89.556,
+    "p1": -19.425,
+    "p25": 2.001,
+    "p50": 9.443,
+    "p75": 17.008,
+    "p99": 33.606,
+    "max": 86.088,
+    "implausible_low": 991,
+    "implausible_high": 57,
+    "implausible_pct": 0.331,
+    "bounds": [
+     -40,
+     60
+    ],
+    "sampled_pct": 10
+   },
+   "2025": {
+    "n": 333101,
+    "mean": 9.066,
+    "sd": 11.849,
+    "min": -88.134,
+    "p1": -21.816,
+    "p25": 2.004,
+    "p50": 9.427,
+    "p75": 16.858,
+    "p99": 33.469,
+    "max": 89.261,
+    "implausible_low": 1059,
+    "implausible_high": 77,
+    "implausible_pct": 0.341,
+    "bounds": [
+     -40,
+     60
+    ],
+    "sampled_pct": 10
+   },
+   "2026": {
+    "n": 299640,
+    "mean": 9.056,
+    "sd": 12.093,
+    "min": -89.61,
+    "p1": -22.745,
+    "p25": 1.913,
+    "p50": 9.404,
+    "p75": 16.907,
+    "p99": 33.452,
+    "max": 88.466,
+    "implausible_low": 1183,
+    "implausible_high": 73,
+    "implausible_pct": 0.419,
+    "bounds": [
+     -40,
+     60
+    ],
+    "sampled_pct": 10
+   }
+  }
+ }
+}

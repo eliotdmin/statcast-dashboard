@@ -6,3 +6,8 @@ logs/*.log
 .DS_Store
 logs/launchd.*
 .refreshrc
+!output/
+output/*
+!output/regression_*.txt
+!output/sequencing.json
+!output/audit.json

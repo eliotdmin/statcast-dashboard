@@ -1,5 +1,21 @@
 # Working agreements for this repo
 
+**Read these first, in this order:**
+
+1. `DECISIONS.md` — why the project is built this way. Read before changing an
+   approach, so a settled decision is reversed deliberately rather than by
+   accident.
+2. `FINDINGS.md` — what has been tested and what the numbers were. Read before
+   proposing an analysis, so you do not re-run something already answered or
+   contradict a measured result.
+3. `DATA_DICTIONARY.md` — every column, its units, and what will burn you. Read
+   before touching any column. Generated from `schema.yaml`; edit the YAML.
+
+Add to `FINDINGS.md` whenever an analysis produces a number worth keeping, and to
+`DECISIONS.md` whenever a choice is made that a future reader would otherwise
+have to reconstruct. Append; do not rewrite history.
+
+
 ## Never run git from the Cowork sandbox
 
 The sandbox shell cannot delete files. `git add` creates `.git/index.lock` and

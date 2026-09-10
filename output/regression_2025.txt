@@ -1,0 +1,31 @@
+799 batters · 2,843,142 pitch rows · 2023-03-30 to 2026-09-09
+
+ win  blk     n |  r(wOBA)  r(xwOBA)            Δr [95% CI] |  β partial         [95% CI] |  b coupled          null | verdict
+--------------------------------------------------------------------------------------------------------------------------------
+  15   11  1631 |    0.058     0.147 +0.089 [+0.050,+0.126] |      0.217    [+0.14,+0.29] |      1.036   0.59 (null) | xwOBA wins
+  30    6  1436 |    0.114     0.212 +0.098 [+0.058,+0.133] |      0.276    [+0.20,+0.35] |      1.012   0.54 (null) | xwOBA wins
+  45    4  1066 |    0.150     0.254 +0.104 [+0.059,+0.144] |      0.327    [+0.22,+0.41] |      0.997   0.49 (null) | xwOBA wins
+  60    3   806 |    0.161     0.298 +0.137 [+0.092,+0.183] |      0.427    [+0.33,+0.53] |      1.127   0.49 (null) | xwOBA wins
+
+HOW TO READ THIS
+
+  Δr        r(xwOBA→future) minus r(wOBA→future). Positive means contact quality
+            beat results. It only counts if the 95% interval excludes zero.
+
+  β partial Standardized coefficient on xwOBA1 in  wOBA2 ~ wOBA1 + xwOBA1.
+            This is the honest measure: what xwOBA adds ON TOP OF what the
+            player's own results already told you. Free of mathematical coupling.
+            Near zero = xwOBA is just restating wOBA.
+
+  b coupled The naive regression-to-mean slope, shown ONLY beside its
+            permutation null. If b ≈ null, the slope is an artifact of the
+            shared -wOBA1 term, not evidence of regression. Compare the two
+            numbers; never read b on its own.
+
+  RMSE is deliberately omitted: xwOBA is smoother than wOBA, so it wins on RMSE
+  against a mean-reverting target regardless of whether it carries more signal.
+
+  Blocks now slide by W (not 2W), so a season yields more pairs. Halves within
+  a pair never overlap, but pairs overlap each other — treat block count as an
+  optimistic sample size, and prefer window rows with 4+ blocks.
+
