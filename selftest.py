@@ -90,6 +90,23 @@ check("flagging respects z threshold",
 check("all flagged players are qualified", bool(sig[sig.flagged].qualified.all()))
 check("percentiles in 0-100", bool(sig.pct_est_woba.dropna().between(0,100).all()))
 
+# --- speed adjustment -------------------------------------------------------
+# A luck gap that is PURELY a function of speed must residualise to nothing.
+# These hitters have a gap of exactly 0.004 wOBA per ft/s above 27 and no luck
+# at all, so a working adjustment recovers 0.004 and flattens the gap.
+_rng = np.random.default_rng(7)
+_speed = _rng.uniform(24, 31, 200)
+_d = pd.DataFrame({"sprint_speed": _speed,
+                   "luck_gap": 0.004 * (_speed - 27),
+                   "qualified": True})
+_out = analyze.speed_adjust(_d.copy())
+_fit = analyze.LAST_SPEED_FIT
+check("speed coefficient recovered", abs(_fit["coef"] - 0.004) < 1e-6,
+      f"fitted {_fit['coef']:.6f} vs true 0.004000")
+check("fit explains a pure-speed gap", _fit["r2"] > 0.999, f"r2={_fit['r2']:.4f}")
+check("speed-only gap residualises to flat", _out.luck_gap_adj.std() < 1e-6)
+check("raw gap was not already flat", _d.luck_gap.std() > 0.005)
+
 print(f"\n{len(sig)} rows analysed | {int(sig.flagged.sum())} flagged "
       f"| {'ALL PASS' if not fails else str(len(fails))+' FAILURE(S)'}")
 sys.exit(1 if fails else 0)

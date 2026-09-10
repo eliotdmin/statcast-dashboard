@@ -37,6 +37,23 @@ CREATE TABLE IF NOT EXISTS batted_ball (
     PRIMARY KEY (snapshot_date, player_type, player_id)
 );
 
+-- Sprint speed, in feet per second. Lives here because it is the one thing the
+-- pitch table structurally cannot see: it measures the runner, not the ball.
+-- Fast hitters beat their xwOBA persistently, which the luck signal would
+-- otherwise keep misreading as luck due to regress.
+CREATE TABLE IF NOT EXISTS sprint_speed (
+    snapshot_date TEXT,
+    player_id     INTEGER,
+    player_name   TEXT,
+    year          INTEGER,
+    age           INTEGER,
+    competitive_runs INTEGER,
+    bolts         INTEGER,
+    hp_to_1b      REAL,
+    sprint_speed  REAL,
+    PRIMARY KEY (snapshot_date, player_id)
+);
+
 -- Bookkeeping so daily refreshes only fetch what is missing.
 CREATE TABLE IF NOT EXISTS ingest_log (
     scope      TEXT,   -- e.g. 'pitches'

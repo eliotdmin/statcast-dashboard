@@ -54,6 +54,7 @@ def main():
     print("== leaderboards ==")
     fetch.fetch_expected_stats(con, args.year)
     fetch.fetch_batted_ball(con, args.year)
+    fetch.fetch_sprint_speed(con, args.year)
 
     if not args.skip_pitches:
         print("== pitch-level ==")
@@ -72,6 +73,7 @@ def main():
             "ba", "est_ba", "slg", "est_slg", "woba", "est_woba",
             "luck_gap", "luck_z", "outlook", "proj_woba_ros", "proj_vs_current",
             "pct_est_woba", "pct_woba", "pct_ev", "pct_barrel", "pct_hardhit",
+            "sprint_speed", "pct_sprint", "luck_gap_adj", "luck_z_adj", "outlook_adj",
             "avg_hit_speed", "brl_percent", "ev95percent", "avg_launch_angle",
             "qualified", "flagged", "direction"]
 
@@ -83,6 +85,9 @@ def main():
                    "flag_z": analyze.FLAG_Z,
                    "k_batter": analyze.K_BATTER,
                    "k_pitcher": analyze.K_PITCHER,
+                   "speed_coef": analyze.LAST_SPEED_FIT.get("coef"),
+                   "speed_r2": analyze.LAST_SPEED_FIT.get("r2"),
+                   "speed_n": analyze.LAST_SPEED_FIT.get("n"),
                },
                "groups": {}}
 
