@@ -21,3 +21,4 @@ output/*
 !output/mets_tests.json
 !output/profiles.json
 !output/league_changes.json
+!output/monthly.json

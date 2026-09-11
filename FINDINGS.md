@@ -789,3 +789,49 @@ Neither is exactly true, and a genuine outlier will be over-shrunk.
 be shrunk by that metric's signal share, and the numbers above are the
 coefficients. This is the same partial-pooling logic already in `proj_woba_ros`,
 applied to change rather than level.
+
+---
+
+## 2026-09-11 — Monthly resolution: reliability of a LEVEL is not reliability of a CHANGE
+
+**The claim being tested was mine, and it was wrong.** Having found bat speed
+reliable at about ten swings, I said monthly resolution would work for it. It
+does not.
+
+League-wide month-over-month change, decomposed:
+
+| metric | sd observed | noise | sd TRUE | signal share |
+|---|---|---|---|---|
+| fastball velocity | 0.62 | 0.13 | 0.61 | **96%** |
+| arm angle | 1.82 | 0.31 | 1.80 | **97%** |
+| swing length | 0.16 | 0.12 | 0.10 | 43% |
+| bat speed | 1.39 | 1.13 | 0.81 | **34%** |
+| swing% | 4.90 | 4.22 | 2.49 | 26% |
+| chase% | 6.26 | 5.43 | 3.12 | 25% |
+| whiff/sw% | 5.78 | 5.23 | 2.46 | **18%** |
+
+**Why the level result did not transfer.** Two effects compound. A change is a
+difference of two noisy measurements, so it carries roughly twice the noise of
+either. And players barely move their bat speed from month to month, so there is
+little true variation to find. A metric can be measured precisely and still have
+almost nothing real to detect at that cadence.
+
+Bat speed at season scale is 85% signal; the same metric month over month is 34%.
+**Reliability of a level and reliability of a change are different quantities,
+and the second is what change detection needs.**
+
+**Result.** Monthly resolution is usable for pitcher velocity and arm angle, and
+close to useless for hitter discipline and swing metrics. The earlier
+recommendation that "bat speed works monthly, even weekly" is superseded.
+
+**Mets moves that beat the league distribution** (shrunk by signal share, z
+against the true-change spread): Manaea velocity −2.33 (z −3.85), Peralta arm
+angle +5.53 (z +3.08), McLean arm angle +5.39 (z +3.00), Díaz velocity +1.01
+(z +1.66). **No Mets hitter cleared at all.** Bichette's whiff rate appeared to
+jump 15.2 points and shrinks to +4.8 — the clearest single illustration of why
+raw month-over-month numbers for hitters should not be read.
+
+**A flaw found and fixed.** The first version took consecutive months in sorted
+order, so pairs like 2025-09 → 2026-04 were counted as monthly changes when they
+straddle the entire offseason. Now skipped; only within-season transitions count.
+Manaea's largest "monthly" move was one of these.
