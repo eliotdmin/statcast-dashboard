@@ -481,3 +481,49 @@ noise. The decline survives a bias pushing the other way.
 **Next.** Add pitcher fixed effects. Get umpire IDs from StatsAPI and test
 whether umpire-to-umpire variation fell in parallel — under the deterrence story
 it should.
+
+---
+
+## 2026-09-11 — Applying the stabilisation result: Mets hitters, 2025 vs 2026
+
+**Question.** Not "what is the Mets' reliability curve" — reliability is a
+correlation ACROSS players, so a 15-man roster would give a correlation on n=15
+and mean nothing. The usable question is which year-over-year changes are large
+enough to believe, given what each metric's reliability implies.
+
+**Method.** Per player, per season, mean and standard error; change reported with
+SE(delta) = sqrt(sd_a²/n_a + sd_b²/n_b). Team assigned from the half-inning (the
+batting team is the away team in the top half).
+
+**Result.**
+
+| metric | changes distinguishable from zero |
+|---|---|
+| bat speed | **3 of 7** |
+| exit velocity | 1 of 7 |
+| xwOBA | **0 of 7** |
+
+| hitter | bat speed 2025 → 2026 | 95% CI |
+|---|---|---|
+| Mark Vientos | 69.16 → 71.87 (**+2.71**) | [+1.91, +3.52] |
+| Francisco Lindor | 69.02 → 70.75 (**+1.72**) | [+1.00, +2.45] |
+| Juan Soto | 70.93 → 69.81 (**−1.12**) | [−2.06, −0.19] |
+
+**What it shows.** The stabilisation result made concrete: identical players,
+identical seasons, and the metric alone decides whether a change is visible.
+Every xwOBA change on this roster is inside its own error bars.
+
+One pattern worth following: Francisco Alvarez lost 2.82 mph of exit velocity
+(the only significant EV change) while his bat speed held flat at +0.30. Swing
+speed unchanged, contact quality down — that points at timing or approach rather
+than strength, which is a different diagnosis and a different fix.
+
+**What it does not show.** That any of these changes matter. Bat speed is
+measured precisely; whether +2.71 mph of it produces runs is the untested link,
+and it is the same gap flagged in the stabilisation entry. Detecting a change is
+not the same as knowing it is worth something.
+
+**A trap this hit.** The first run printed bare player IDs because `name_of()`
+looked up `pitches.player_name` — which is the PITCHER's name on every row
+regardless of grouping, exactly as `DATA_DICTIONARY.md` warns in bold. Batter
+names come from `expected_stats`. The documentation was right and was not read.
