@@ -174,3 +174,27 @@ That belongs in `/project-log`, invoked deliberately.
 *Rejected:* wiring a `SessionEnd` hook for symmetry. It would have produced a
 list of commits `git log` already gives you, while the part worth having stayed
 manual regardless.
+
+## D15 — Never measure a season-over-season change relative to a Statcast-provided reference column
+**2026-09-11.** `sz_top`/`sz_bot` changed definition in 2026: per-pitch operator estimate (353,643
+distinct values in 2025) became a per-batter formula (390 distinct values, one per batter), 0.22 ft
+lower on average. An analysis of the called zone measured in `sz_top` units reported the top of the
+zone expanding; measured in absolute feet it contracted sharply. Same data, opposite conclusion.
+
+**Rule.** Anything compared across seasons is measured in units the rulebook fixes — feet off the
+ground, feet off the centre of the plate, mph — never in units a data provider can redefine.
+Provider-derived columns (`zone`, `sz_top`, `sz_bot`, `launch_speed_angle`, `estimated_*`) are fine
+*within* a season and suspect *across* seasons until checked.
+
+**Guard.** `audit.py` must gain a schema-drift check: per column per season, mean / sd / null rate /
+**distinct-value count**, flagging any year-over-year jump past a threshold. The distinct-count
+column alone catches this instantly (353,643 -> 390). This is the second field to silently change
+meaning between seasons; a mechanical check is cheaper than catching it by eye a third time.
+
+## D16 — Every displayed change is shrunk and expressed in league true-change SDs
+**2026-09-11.** `calibrate.py` writes `output/calibration.json`; `profiles.py` loads it and reports
+`d`, `shrunk = d * var_true/(var_true+se^2)`, and `z = shrunk/sd_true` for every metric.
+Reports rank by |z|, not by |d| and not by |d/se|. Significance tests against zero and sample size
+controls the answer; the calibration tests against how far players actually move, which is the
+question. A report generated without `calibration.json` prints a warning rather than silently
+falling back to raw changes.

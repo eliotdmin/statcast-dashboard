@@ -126,3 +126,39 @@ Needs 2021–2022 as the pre-period. Not downloaded.
    pitch-clock experiments. Note the 2020 Trackman→Hawk-Eye instrument change:
    spin and movement are not comparable across that seam, though exit velocity
    and launch angle broadly are.
+
+---
+
+## Queue as of 2026-09-11 (pre-registered: write the predicted direction BEFORE querying)
+
+### S10 — Consequences of the 2026 zone change  *(highest value)*
+The zone lost its top (-23.5pp at 3.4-3.6 ft) and gained its bottom (+10.5pp at 1.4-1.6 ft).
+Large, recent, exogenous, well measured — the closest thing to a natural experiment in this data.
+**Predictions, recorded before running:** (1) pitchers in the top tercile of vertical approach angle
+/ high-fastball usage lose more 2026-vs-2025 xwOBA-against than the bottom tercile; (2) low-ball
+and sinker-heavy pitchers gain; (3) tall hitters gain relative to short hitters. Power: whole
+league, both seasons. Data: fully available.
+
+### S11 — Real tunnel separation at the commit point
+Today's null used release-point distance, which is a proxy. Project both pitches forward ~23 ft
+using release position + velocity + acceleration vectors (all present), measure separation there,
+redo within pitcher. **Prediction:** still null, but the test is only honest once this is run.
+
+### S12 — Within-hitter two-strike adjustment
+Does a hitter's own 2K performance improve in seasons he shortens up more? Settles whether the
+between-hitter correlation found today is causal or a marker of bat control. Needs 3+ seasons per
+hitter; 2023-2026 supports it.
+
+### S13 — Holdout: replay all of 2026-09-11 on 2023-2024
+Everything today was fit and read on 2025-2026. The scripts are parameterised by year. Cheap.
+**Prediction:** two-strike effect and platoon signal share replicate; the TTO/arsenal null and the
+tunnelling null replicate; nothing new appears.
+
+### S14 — Is monthly mean reversion (-0.51) constant?
+If it varies by hitter or by point in season, it is exploitable. If it equals the value implied by
+the monthly noise share, it is mechanical and merely a warning label. Cheap, already have the panel.
+
+### S15 — Park sensor vs park physics
+Bat speed should not vary with air density; exit velocity should. The ratio per park separates
+instrumentation from environment. Coors is the control. Feeds a park adjustment that everything
+else should then use.

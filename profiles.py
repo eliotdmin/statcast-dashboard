@@ -43,12 +43,49 @@ def mean(s, ss, n):
     return m, math.sqrt(max(ss / n - m * m, 0) / n)
 
 
-def delta(a, b):
-    """a=(val,se) 2025, b=(val,se) 2026 -> dict with change, se, significance."""
+CAL = {}
+
+
+def load_cal(path="output/calibration.json"):
+    """League change distributions from calibrate.py. Without them a change can
+    only be compared to zero, which answers the uninteresting question."""
+    global CAL
+    f = Path(path)
+    if f.exists(): CAL = json.loads(f.read_text())
+    return bool(CAL)
+
+
+def delta(a, b, cal=None):
+    """a=(val,se) 2025, b=(val,se) 2026.
+
+    Three numbers matter, not one:
+      d       what the stat line says changed
+      shrunk  what probably really changed. An observed change is true change
+              plus noise, so the believable part is d * var_true/(var_true+se^2).
+              A metric that is mostly noise year to year (GB%, 18% signal) gets
+              cut hard; one that is nearly all signal (arm angle) barely moves.
+      z       that believable change measured in league true-change SDs. This is
+              the "is .04 of wOBA a lot" question, answered by how far a typical
+              major leaguer actually moves in a year rather than by opinion.
+    """
     if a[0] is None or b[0] is None: return None
     d = b[0] - a[0]
     se = math.hypot(a[1] or 0, b[1] or 0)
-    return {"y25": a[0], "y26": b[0], "d": d, "se": se, "sig": abs(d) > 1.96 * se}
+    out = {"y25": a[0], "y26": b[0], "d": d, "se": se, "sig": abs(d) > 1.96 * se}
+    if cal and cal.get("sd_true", 0) > 0:
+        vt = cal["sd_true"] ** 2
+        k = vt / (vt + se * se)
+        out.update(shrunk=d * k, k=k, z=d * k / cal["sd_true"],
+                   sd_true=cal["sd_true"], share=cal["share"])
+    return out
+
+
+def verdict(v):
+    z = v.get("z")
+    if z is None: return "uncalibrated"
+    az = abs(z)
+    return ("league-extreme" if az >= 2 else "clearly moved" if az >= 1.25
+            else "moved a little" if az >= 0.75 else "ordinary drift")
 
 
 HIT_Q = f"""
@@ -122,6 +159,24 @@ FROM pitches WHERE game_year IN (2025,2026) AND game_type='R' AND {PIT}=?
 GROUP BY 1,2"""
 
 
+def show(name, pt, metrics, w):
+    """Rank by how far the believable change is from a normal year, not by how
+    many decimal places it happens to occupy."""
+    rows = [(k, v) for k, v in metrics.items() if v.get("z") is not None]
+    rows.sort(key=lambda x: -abs(x[1]["z"]))
+    top = [r for r in rows if abs(r[1]["z"]) >= 0.75]
+    print(f"--- {name}  ({pt}) — {len(top)} of {len(rows)} metrics moved "
+          f"more than a normal year's drift")
+    for k, v in top:
+        f = "{:>8.4f}" if abs(v["y25"]) < 1.5 else "{:>8.2f}"
+        print(f"      {k:{w}s} " + f.format(v["y25"]) + " ->" + f.format(v["y26"]) +
+              f"   raw {v['d']:>+8.4f}  believable {v['shrunk']:>+8.4f}"
+              f"  z {v['z']:>+5.2f}  {verdict(v)}")
+    if not top:
+        k, v = rows[0] if rows else (None, None)
+        if k: print(f"      (biggest: {k} z {v['z']:+.2f} — nothing unusual)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", default=str(Path(__file__).parent/"data"/"statcast.db"))
@@ -129,6 +184,10 @@ def main():
     a = ap.parse_args()
     con = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
     con.execute("PRAGMA cache_size=-400000")
+    if not load_cal():
+        print("WARNING: output/calibration.json missing. Run calibrate.py first,")
+        print("or every change below is judged against zero instead of against")
+        print("how much players actually move. Continuing uncalibrated.\n")
 
     bn = {}
     for pid, nm in con.execute("SELECT player_id, player_name FROM expected_stats WHERE player_type='batter'"):
@@ -168,7 +227,7 @@ def main():
                 "pa": (A["pa"], B["pa"]), "metrics": {}}
         for k in A:
             if k in ("pa", "pitches"): continue
-            d = delta(A[k], B[k])
+            d = delta(A[k], B[k], CAL.get("hitters", {}).get(k))
             if d: prof["metrics"][k] = d
         hitters.append(prof)
     hitters.sort(key=lambda h: -(h["pa"][0] + h["pa"][1]))
@@ -200,7 +259,7 @@ def main():
                 "ip": (A["ip"], B["ip"]), "metrics": {}}
         for k in A:
             if k in ("bf", "ip"): continue
-            d = delta(A[k], B[k])
+            d = delta(A[k], B[k], CAL.get("pitchers", {}).get(k))
             if d: prof["metrics"][k] = d
         # arsenal
         ars = {}
@@ -221,19 +280,11 @@ def main():
 
     print(f"{a.team}: {len(hitters)} hitters (600+ PA), {len(pitchers)} pitchers (100+ IP)\n")
     for h in hitters:
-        sig = [(k, v) for k, v in h["metrics"].items() if v["sig"]]
-        print(f"--- {h['name']}  ({h['pa'][0]:.0f} + {h['pa'][1]:.0f} PA) — "
-              f"{len(sig)} of {len(h['metrics'])} changes real")
-        for k, v in sorted(sig, key=lambda x: -abs(x[1]["d"]/x[1]["se"])):
-            print(f"      {k:16s} {v['y25']:>8.2f} -> {v['y26']:>8.2f}  ({v['d']:+.2f})")
+        show(h["name"], f"{h['pa'][0]:.0f} + {h['pa'][1]:.0f} PA", h["metrics"], 16)
     print()
     for p in pitchers:
-        sig = [(k, v) for k, v in p["metrics"].items() if v["sig"]]
+        show(p["name"], f"{p['ip'][0]:.0f} + {p['ip'][1]:.0f} IP", p["metrics"], 18)
         big = sorted((v["d"], k) for k, v in p["arsenal"].items() if abs(v["d"]) >= 5)
-        print(f"--- {p['name']}  ({p['ip'][0]:.0f} + {p['ip'][1]:.0f} IP) — "
-              f"{len(sig)} of {len(p['metrics'])} changes real")
-        for k, v in sorted(sig, key=lambda x: -abs(x[1]["d"]/x[1]["se"])):
-            print(f"      {k:18s} {v['y25']:>8.2f} -> {v['y26']:>8.2f}  ({v['d']:+.2f})")
         if big:
             print("      arsenal: " + ", ".join(f"{k}{d:+.0f}pp" for d, k in big))
     print("\nwrote output/profiles.json")

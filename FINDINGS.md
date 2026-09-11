@@ -835,3 +835,88 @@ raw month-over-month numbers for hitters should not be read.
 order, so pairs like 2025-09 → 2026-04 were counted as monthly changes when they
 straddle the entire offseason. Now skipped; only within-season transitions count.
 Manaea's largest "monthly" move was one of these.
+
+---
+
+## 2026-09-11 — Calibration applied everywhere, nine exploratory studies, two retractions
+
+### Retraction 1: the Mets profile report overstated most of its changes
+The published report judged a change by (a) clearing its own error bar and (b) passing a
+practical-size floor I picked by hand. (a) only tests against zero, which sample size
+controls; (b) was an opinion. Replaced by `calibrate.py` -> `profiles.py` -> `report_profiles.py`:
+every change is shrunk by `var_true/(var_true+se^2)` for that metric and reported in units of
+`sd_true`. Biggest casualty: **Baty GB% -10.38 raw -> -1.72 believable** (GB% is 18% signal).
+Vientos bat speed +2.71 -> +2.33 (z +2.30, league-extreme) survives almost intact.
+
+### Retraction 2: H14 was scored on the wrong evidence
+"Chase rate is a fast-moving discipline signal" was marked yes because chase changes were
+*detectable*. The hypothesis claims chase *leads* production. Within-hitter, 1,119 month-triples:
+  d(chase)_t -> d(wOBA)_{t+1}:  +0.0459 ± 0.0364   (null)
+  d(chase)_t -> d(wOBA)_t:      -0.3696 ± 0.0411   (real)
+Chase is **coincident, not leading**. Now scored no.
+Incidental and more valuable: **monthly d(wOBA) mean-reverts at -0.51 ± 0.026.** Half of any
+month's movement is given back the next month, mechanically. Any in-season alerting built on
+monthly splits must account for this.
+
+### H16, previously skipped, now run
+Bat-speed change 2025->2026 vs 2026 wOBA-xwOBA gap, 222 hitters: **r = -0.036 [-0.167, +0.096]**.
+The luck gap is not a disguised mechanical change. Consistent with the gap regression's R^2=0.133.
+
+### CRITICAL DATA TRAP: sz_top was redefined in 2026
+| season | mean sz_top | distinct values league-wide | distinct for one batter |
+|---|---|---|---|
+| 2024 | 3.408 | 321,120 | 459 |
+| 2025 | 3.435 | 353,643 | 907 |
+| 2026 | 3.215 | **390** | **1** |
+
+MLB replaced a per-pitch operator estimate with a per-batter formula. **Any season-over-season
+analysis measured relative to sz_top/sz_bot is comparing against a different ruler.** My first
+zone analysis did exactly this and reported the top of the zone EXPANDING by +32.8pp. Redone in
+absolute feet it CONTRACTED. See DECISIONS D15.
+
+### The 2026 zone, in absolute geometry (immune to the above)
+- top 3.4-3.6 ft: 41.1% -> **17.6%** called strikes (-23.5pp); 3.2-3.4 ft: -17.2pp
+- bottom 1.4-1.6 ft: 42.0% -> **52.5%** (+10.5pp); 1.6-1.8 ft: +10.4pp
+- outside 0.90-1.05 ft: 20.5% -> 13.0% (-7.6pp)
+- **sharpness**: 20%-to-80% transition band narrowed 2.61 -> 1.90 inches (outside), 3.36 -> 2.95 (top)
+Shorter, deeper, narrower, crisper. Explains the framing-spread collapse (15.5 -> 10.6 runs)
+found on 2026-09-10. No challenge/overturn flag exists in the data, so this is the zone's *net*
+shape under the system, not a measurement of challenge outcomes.
+
+### TTO penalty is real; arsenal breadth does NOT blunt it
+Within pitcher: pass 1 -0.0094, pass 2 +0.0025, pass 3 +0.0146 vs own average (+24 pts 1->3).
+Penalty ~ effective arsenal size, 337 starter-seasons: **slope -0.0027 ± 0.0040** (null).
+This is the second, stronger confirmation of the pitch-mixing null — run in the exact situation
+most favourable to the hypothesis.
+
+### Two-strike adjustment: real, universal, and associated with better outcomes
+521 hitter-seasons. Mean bat speed with 2 strikes is **-1.37 mph**; **89% of hitters slow down**.
+Between-hitter, those who shorten most have lower K% (r=+0.133 [+0.048,+0.217]), higher 2K wOBA
+(r=-0.147 [-0.230,-0.062]), lower whiff (r=+0.102). NOT causal — within-hitter test still needed.
+
+### Platoon split is a real trait, 72% signal
+158 hitters. Mean advantage vs opposite hand +0.0311 wOBA. Observed spread .0414, noise .0217,
+**true .0353**. 28% of any published platoon leaderboard's spread is noise.
+
+### Clean nulls
+- **Tunnelling**: 340k swings, consecutive different pitch types, baselined on (prev type, type,
+  count). Excess whiff by release-point gap: -0.14 / +0.14 / +0.08 / -0.24 pp. Nothing, no ordering.
+  Caveat: release distance != trajectory separation at commit point. Not yet computed.
+- **Velocity decay**: between-pitcher says steeper decay -> SMALLER late penalty (r=+0.905 across
+  quintiles) — pure selection, the "gains velo" quintile has .2497 early wOBA. **Within pitcher,
+  8,250 starts: +0.0031 ± 0.0024, null.** Keep as the canonical selection-effect teaching case:
+  monotone across five bins and still an artifact.
+
+### Measurement warning: bat speed is park-dependent
+Same team's hitters home vs road. Bat speed home-road sd **0.23 mph** (HOU -0.45 to TB +0.65);
+exit velo sd **0.46 mph**. **Correlated +0.456 across parks** — a shared installation effect, not
+hitting. Relative to a true YoY bat-speed spread of 1.01, this is not negligible for small changes.
+
+### Full league change calibration (see output/calibration.json)
+Hitters, most to least believable: swing length 87%, bat speed 85%, FB seen 72%, xwOBA 72%,
+swing% 70%, wOBA 68%, z-swing 65%, 1st-pitch sw 64%, chase 59%, whiff/sw 54%, 2K swing 45%,
+BB% 44%, K% 38%, barrel 38%, exit velo 37%, pull 29%, hard-hit 27%, **GB% 18%, edge seen 6%,
+sweet-spot 0%**.
+Pitchers: arm angle 100%, extension 100%, velo 99%, spin 97%, xwOBA-against 72%, wOBA-against 69%,
+whiff/sw 49%, chase induced 39%, K% 39%, zone% 28%, 1st-pitch strike 24%, **BB% 1%, edge% 1%**.
+Rule of thumb: what a player *does* is measurable in one season; what *happens to the ball* is not.
