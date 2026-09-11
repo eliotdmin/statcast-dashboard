@@ -20,3 +20,4 @@ output/*
 !output/contact_quality.json
 !output/mets_tests.json
 !output/profiles.json
+!output/league_changes.json

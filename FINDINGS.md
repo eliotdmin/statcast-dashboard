@@ -724,3 +724,68 @@ That asymmetry is the finding, and it has an obvious follow-up: either opponents
 adjust on a longer lag than one season, or the adjustments are happening in
 dimensions this measures poorly — location within the zone rather than pitch
 mix. The second is testable with the location data already on disk.
+
+---
+
+## 2026-09-11 — How much do players actually change? Calibrating "a lot"
+
+**Question.** A change can clear its error bar and still be ordinary. Is +.040
+wOBA a big move? A standard error cannot answer that; the league-wide
+distribution of year-over-year changes can.
+
+**Method.** 222 hitters with 250+ PA in both 2025 and 2026. The observed spread
+of changes overstates the real one, because every measured change carries
+sampling noise:
+
+    var(observed change) = var(true change) + var(noise)
+
+so the real spread is `sqrt(var_obs − mean(se²))`, and the ratio
+`var_true / var_obs` is the share of observed movement that is real.
+
+| metric | sd observed | sd noise | **sd TRUE** | signal share | 90th pct |
+|---|---|---|---|---|---|
+| wOBA | .0356 | .0200 | **.0294** | 68% | .0377 |
+| xwOBA | .0276 | .0146 | **.0234** | 72% | .0300 |
+| bat speed | 1.10 | 0.43 | **1.01** | **85%** | 1.30 |
+| swing% | 3.05 | 1.67 | 2.55 | 70% | 3.27 |
+| chase% | 3.36 | 2.14 | 2.59 | 59% | 3.32 |
+| whiff/sw% | 3.04 | 2.06 | 2.23 | 54% | 2.86 |
+| BB% | 2.47 | 1.84 | 1.65 | 44% | 2.11 |
+| K% | 3.45 | 2.71 | 2.13 | 38% | 2.74 |
+| barrel% | 2.89 | 2.28 | 1.78 | 38% | 2.28 |
+| exit velo | 1.49 | 1.19 | 0.90 | 37% | 1.15 |
+| hard-hit% | 4.61 | 3.93 | 2.42 | 27% | 3.10 |
+| GB% | 4.35 | 3.93 | **1.86** | **18%** | 2.39 |
+
+**Answer: +.040 wOBA is a big move.** The true spread of year-over-year wOBA
+change is .0294, so +.040 is 1.4 SD — above the 90th percentile of real movers.
+The intuition was right and my arbitrary "practical floor" of .015 was too
+generous.
+
+**THE MORE IMPORTANT RESULT: the signal share IS a shrinkage factor, and it
+corrects the profiles reported earlier the same day.** Given an observed change
+`d` with standard error `se`, the best estimate of the true change is
+
+    d × var_true / (var_true + se²)
+
+For bat speed, 85% of observed movement is real, so an observed change is close
+to the truth. For ground-ball rate only 18% is, so most of what looks like a
+mechanical change is sampling.
+
+Applied to the Mets profiles:
+
+* Vientos's bat speed **+2.71 → ≈ +2.3 expected true**, roughly 2.3 true SD, a
+  genuinely rare move.
+* Baty's ground-ball rate **−10.38 → ≈ −1.9 expected true**. It reads as the
+  most dramatic change on the roster and is mostly noise. Reported without
+  shrinkage, that number would have become a story about a launch-angle
+  overhaul.
+
+**What it does not show.** The decomposition assumes the noise estimate is right
+and that true change is normally distributed around zero with constant variance.
+Neither is exactly true, and a genuine outlier will be over-shrunk.
+
+**Implication for the dashboard.** Every year-over-year change it displays should
+be shrunk by that metric's signal share, and the numbers above are the
+coefficients. This is the same partial-pooling logic already in `proj_woba_ros`,
+applied to change rather than level.
