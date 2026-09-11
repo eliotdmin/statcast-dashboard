@@ -10,6 +10,8 @@
    contradict a measured result.
 3. `DATA_DICTIONARY.md` — every column, its units, and what will burn you. Read
    before touching any column. Generated from `schema.yaml`; edit the YAML.
+4. `RESEARCH_BACKLOG.md` — candidate studies with an honest read on whether the
+   data can answer each. Read before proposing a new analysis.
 
 Add to `FINDINGS.md` whenever an analysis produces a number worth keeping, and to
 `DECISIONS.md` whenever a choice is made that a future reader would otherwise
