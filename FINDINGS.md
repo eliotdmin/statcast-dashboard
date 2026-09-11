@@ -373,3 +373,111 @@ appear in one-inning bursts against favourable matchups, and eight of the top
 ten by run value are relievers. Run value per 100 also rewards pitches thrown in
 low-leverage spots. A usable "best pitch" list needs a starter/reliever split and
 a leverage adjustment; this one is a raw leaderboard.
+
+---
+
+## 2026-09-11 — How many events before a metric means anything?
+
+**Question.** Split-half reliability by sample size for every metric the
+dashboard could use. Nothing to pre-register: this measures reliability, not an
+effect, so there is nothing to fish for.
+
+**Method.** For each player-season and sample size n, take the first 2n events,
+split by odd/even index (balances within-season trend and opponent quality far
+better than first-half/second-half), correlate half-means across players, and
+correct with Spearman-Brown. Reported at r = 0.5, the conventional stabilisation
+bar, and r = 0.7, because 0.5 gets quoted as though it were high when it means
+half the observed spread is still noise. 2026 excluded — chase rate depends on
+`zone`, which the ABS change redefines.
+
+| metric | r = 0.5 | r = 0.7 | unit |
+|---|---|---|---|
+| swing length | ≤5 | ≤5 | swings |
+| pitcher velocity | ≤5 | ≤5 | fastballs |
+| arm angle | ≤5 | ≤5 | pitches |
+| **bat speed** | **≤5** | **10** | **swings** |
+| exit velocity | 15 | 50 | batted balls |
+| launch angle | 20 | 50 | batted balls |
+| barrel rate | 20 | 75 | batted balls |
+| whiff rate | 20 | 60 | swings |
+| hard-hit rate | 25 | 60 | batted balls |
+| chase rate | 30 | 75 | out-of-zone pitches |
+| pitcher whiff rate | 50 | 125 | swings against |
+| **xwOBA** | **100** | **250** | **PA** |
+
+**What it shows.** A 25-to-50-fold spread in how much evidence each metric needs.
+Bat speed is trustworthy after roughly ten swings — two or three games. xwOBA
+needs 250 plate appearances for the same confidence, which is most of a season.
+The physical measurements (bat speed, swing length, velocity, arm angle) are
+essentially player traits read off a sensor; the outcome measures are contested
+events with a hitter, a pitcher and a defence in them.
+
+**The design implication, which inverts the current dashboard.** `analyze.py`
+gates everything at MIN_PA = 150 and treats contact quality as *corroborating
+evidence* for an xwOBA-driven signal. The reliability ordering says that is
+backwards: at 150 PA xwOBA has barely cleared r = 0.55, while the swing metrics
+were trustworthy two months earlier. **Swing metrics should be the trigger and
+xwOBA the confirmation.**
+
+**What it does not show.** Reliability is necessary, not sufficient. A metric can
+be perfectly reliable and still useless for forecasting if it does not move with
+outcomes — swing length is reliable at five swings precisely because it barely
+varies. The untested step is whether a CHANGE in bat speed predicts a change in
+production. That is the next study, and it is the one that would actually justify
+rewiring the signal.
+
+Sample sizes thin at the top of the grid: only 34 hitters reach 500 batted balls
+in a season, so the r values at n ≥ 250 rest on few players.
+
+---
+
+## 2026-09-11 — Did catcher framing collapse under ABS? (pre-registered, and wrong)
+
+**Pre-specified.** If the strike zone became automated in 2026, the spread
+between catchers in extra strikes gained should collapse toward zero.
+
+**Method.** Extra called strikes versus expectation, where expectation is the
+same season's own strike rate for an identical bucket of location (0.1 ft grid),
+count and batter side. The zone is a FIXED geometric box in every season, never
+`sz_top`/`sz_bot` — those columns are themselves what changed, so using them
+would confound the rule change with the ruler change. Between-catcher standard
+deviation, in extra strikes per 1000 taken pitches.
+
+| season | catchers | SD | best | worst | range |
+|---|---|---|---|---|---|
+| 2023 | 39 | 16.58 | +28.5 | −30.6 | 59.1 |
+| 2024 | 40 | 15.54 | +38.8 | −23.8 | 62.6 |
+| 2025 | 39 | 13.80 | +28.7 | −28.5 | 57.2 |
+| 2026 | 28 | 10.57 | +21.7 | −19.6 | 41.2 |
+
+**The hypothesis was wrong, and knowably so.** 2026 is an ABS **challenge**
+system, not full automation — each team gets a limited number of challenges and
+the umpire still calls nearly every pitch. Framing was never going to collapse.
+The rule should have been checked before the prediction was written; it took one
+search afterwards.
+
+**What actually happened is more interesting.** Framing spread fell 31% against
+the 2023-2025 average — but it was already falling: 16.58, 15.54, 13.80 is a
+steady decline of about 1.4 units a season. Extrapolating that pre-trend predicts
+12.41 for 2026 against 10.57 observed, so the portion plausibly attributable to
+ABS is roughly **15%, not 31%**. Reporting the raw drop would have doubled the
+effect.
+
+**A mechanism worth testing:** a challenge system can suppress framing without
+automating anything, by deterrence — the most egregious framed calls are exactly
+the ones a hitter will challenge, so the return on stealing a strike falls even
+though the umpire still makes the call.
+
+**What it does not show.** Causation. This is a four-point interrupted time
+series with one post-period, which is the weakest version of that design. And the
+residual spread is not necessarily catcher skill: the model controls location,
+count and batter side but **not the pitcher**, so a catcher who receives
+command-heavy pitchers still looks good.
+
+One thing cuts in the finding's favour: 2026 is a partial season, so each catcher
+is measured on fewer pitches, which should INFLATE the observed spread through
+noise. The decline survives a bias pushing the other way.
+
+**Next.** Add pitcher fixed effects. Get umpire IDs from StatsAPI and test
+whether umpire-to-umpire variation fell in parallel — under the deterrence story
+it should.

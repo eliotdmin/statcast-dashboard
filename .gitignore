@@ -15,3 +15,5 @@ output/*
 !output/count_choice.json
 !output/repeat_within.json
 !output/nastiest.json
+!output/stabilization.json
+!output/abs_framing.json
