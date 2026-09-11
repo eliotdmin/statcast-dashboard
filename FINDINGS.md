@@ -647,3 +647,80 @@ One oddity worth a second look: NYM hitters saw MORE fastballs with runners on i
 Holmes dropped his slot nearly five degrees and swapped slider for sinker;
 Manaea replaced almost a quarter of his four-seamers with sinkers; Senga added
 2.2 mph. These are descriptive — no test that the changes caused anything.
+
+---
+
+## 2026-09-11 — Full change profiles, and the hypothesis scorecard
+
+**Scope.** Mets only, and that is an interpretation: "go down the line" implies a
+roster, and a comprehensive per-player profile for the ~250 league hitters above
+600 combined PA would not be readable. `profiles.py --team` makes the league
+version one flag away, but it wants to be a filterable tool rather than a report.
+
+Five hitters at 600+ PA combined, six pitchers at 100+ IP, each across decisions,
+mechanics, results and how they are pitched, every change with an interval.
+
+**TWO WARNINGS THAT COME BEFORE ANY NARRATIVE.**
+
+*Multiple comparisons.* Twenty metrics across five hitters is 100 tests at 95%,
+so about five "significant" results are expected from chance alone. Eighteen
+appeared, and 24 of 78 for pitchers — so there is real signal in aggregate, but
+no single marginal result here is trustworthy on its own, and none of it was
+pre-registered.
+
+*Significance is not magnitude.* With thousands of pitches, trivial differences
+clear their error bars: Peterson's release extension moved 0.05 ft and Holmes's
+0.01 ft, both "real". The report marks changes below a practical floor as tiny.
+
+**Hitters — the substantive changes.**
+
+| player | change |
+|---|---|
+| Juan Soto | swing% +3.8, z-swing% +6.6, chase% +4.3, **K% −6.0**, bat speed −1.1, hard-hit% −7.5 |
+| Francisco Lindor | bat speed +1.8, swing length +0.14, **pull% +7.6** |
+| Brett Baty | **GB% −10.4**, swing length +0.11, 1st-pitch swing% +7.4, chase% +4.3 |
+| Mark Vientos | **bat speed +2.7**, 1st-pitch swing% +7.4 |
+| Francisco Alvarez | **pull% +12.7**, FB seen% +4.4, exit velo −2.8 |
+
+Soto's is the most coherent story on the roster: far more aggressive at
+everything, six fewer points of strikeout rate, and he paid in contact quality —
+slower swing, seven fewer points of hard contact. A deliberate trade of power for
+contact, and it matches the earlier finding that his bat-speed loss concentrates
+in 0-strike counts.
+
+**Pitchers.**
+
+| player | change |
+|---|---|
+| Sean Manaea | velo −0.8, zone% −4.6, whiff% −4.9, **K% −7.1**, FF −23pp / SI +19pp |
+| Clay Holmes | **arm angle −3.0°**, SL −11pp / SI +9pp / CU +7pp, wOBA against −.05 |
+| Nolan McLean | **arm angle +3.5°**, zone% −5.0, ST −14pp / FF +7pp |
+| Kodai Senga | **velo +2.15**, arm angle +1.7, FF +11pp |
+| Huascar Brazobán | SI +14pp, xwOBA against −.05 |
+| David Peterson | velo +0.5, spin +45, wOBA against +.05 |
+
+**THE SCORECARD, and it is one-sided.**
+
+| hypothesis | verdict |
+|---|---|
+| H1 Vientos step change | partial — date found, t-statistic invalid |
+| H2 swing length moved with bat speed | **yes** (Lindor, Baty) |
+| H3 Soto's decline is situational | **yes** |
+| H6 Soto sees fewer fastballs | **no** |
+| H7 team fastball share shifted | **no** |
+| H8 league adjusted to Vientos | **no** |
+| H9 Lindor sees more edge pitches | **no** |
+| H10 different mix with runners on | partial |
+| H14 chase rate is a fast signal | **yes** |
+| H17 a pitcher changed arm slot | **yes** — the best supported |
+| H18 velocity moved meaningfully | **yes** |
+| H19 a pitcher rebuilt his arsenal | **yes** |
+
+**Every mechanical hypothesis confirmed. Every "the league responded"
+hypothesis failed.** Players changed considerably between 2025 and 2026 — arm
+slots, arsenals, bat speeds, approach — and how they were pitched barely moved.
+
+That asymmetry is the finding, and it has an obvious follow-up: either opponents
+adjust on a longer lag than one season, or the adjustments are happening in
+dimensions this measures poorly — location within the zone rather than pitch
+mix. The second is testable with the location data already on disk.

@@ -19,3 +19,4 @@ output/*
 !output/abs_framing.json
 !output/contact_quality.json
 !output/mets_tests.json
+!output/profiles.json
