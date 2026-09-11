@@ -527,3 +527,123 @@ not the same as knowing it is worth something.
 looked up `pitches.player_name` — which is the PITCHER's name on every row
 regardless of grouping, exactly as `DATA_DICTIONARY.md` warns in bold. Batter
 names come from `expected_stats`. The documentation was right and was not read.
+
+---
+
+## 2026-09-11 — Does a faster swing produce better outcomes?
+
+**Result — league, batted balls (2023-2025).** Monotone in everything, then a
+ceiling.
+
+| bat speed | n | exit velo | distance | xwOBA | barrel |
+|---|---|---|---|---|---|
+| 57-59 | 4,574 | 75.9 | 106 ft | .240 | 0.2% |
+| 66-68 | 41,393 | 85.7 | 153 ft | .304 | 2.7% |
+| 72-74 | 67,030 | 91.4 | 180 ft | .392 | 10.1% |
+| 78-80 | 18,216 | 94.6 | 193 ft | .486 | 18.1% |
+| 81-83 | 5,573 | 94.3 | 190 ft | .488 | 18.5% |
+
+**Result — the contact tax does not appear.** Whiff rate against bat speed is
+essentially FLAT across the entire normal range: 23.1% at 63-65 mph, 23.4% at
+66-68, 24.8% at 72-74, 24.2% at 78-80. The folk belief that selling out for
+power costs contact is not visible here. (Whiff rates above 70% at 30-45 mph are
+emergency and checked swings, which are slow *because* they are defensive —
+reverse causation, not a finding.)
+
+**Result — within hitter.** A hitter's own faster-than-usual swings, z-scored
+against his own season: xwOBA .294 at z = −1, .367 at z = 0, .444 at z = +1, and
+.442 at z = +2. Monotone to +1, flat after.
+
+**What it does not show — and this is severe.** `bat_speed` is measured AT
+CONTACT. A mistimed swing is recorded as slower AND produces worse contact, so
+much of this is "swings that connect well are recorded as fast" rather than
+"swinging fast causes good contact". The within-hitter version does not fix it;
+it is the same mechanism inside one player. The whiff result is the cleanest of
+the three, because bat speed there is measured on misses too.
+
+A causal version needs intended swing speed, which is not in public data.
+
+---
+
+## 2026-09-11 — What explains wOBA minus xwOBA besides luck? (and a self-inflicted artifact)
+
+**The first answer was wrong, from a trap this repo documents in bold.** The
+first run compared full wOBA — which scores a strikeout as zero — against xwOBA
+measured ON CONTACT ONLY. That manufactures a large negative gap for every
+high-strikeout hitter, and the regression then dutifully "explained" the gap with
+the strikeout rate that created it: correlation −0.748, R² = 0.719. It looked
+like a major finding. It was an accounting error.
+
+**Corrected**, with xwOBA computed per plate appearance (non-contact events
+folded in at their linear weight, as `analyze.pa_level` does), across 849
+player-seasons with 300+ PA:
+
+| predictor | correlation with gap |
+|---|---|
+| avg exit velocity | **−0.335** |
+| line-drive rate | −0.090 |
+| ground-ball rate | +0.063 |
+| pull rate | +0.060 |
+| strikeout rate | −0.048 |
+| avg launch angle | +0.003 |
+
+**Multiple R² = 0.133.** Standard deviation of the gap = .0191 wOBA.
+
+**What it shows.** About **87% of the gap is not explained by batted-ball
+profile**, which is a real if partial vindication of the dashboard's decision to
+treat it as luck. But it is not pure noise: **hard-hit hitters systematically
+underperform their xwOBA** (−0.335). Candidate explanations, none tested here —
+xwOBA may over-credit the top of the exit-velocity range, or hard contact may be
+caught more often because defenders position for it.
+
+**What it does not show.** That the residual is luck. Park, defence quality
+faced, and sprint speed are all absent from this regression and all plausibly
+systematic. 87% unexplained is an upper bound on luck, not an estimate of it.
+
+**Next.** Add park (the game's home team), and sprint speed once 2023-2025 is
+backfilled. If exit velocity survives those controls, the dashboard should
+residualise the gap on EV — the same correction attempted for speed in D7, on a
+predictor that is actually large.
+
+---
+
+## 2026-09-11 — Mets: within-player change and how they are pitched
+
+**Soto's bat-speed decline is concentrated, not uniform.** By strike count,
+2025 → 2026: 0 strikes **−2.50 mph** (distinguishable), 1 strike −0.31, 2 strikes
+−1.38. He is swinging materially less hard in the count where he would normally
+be most aggressive. Cells are 175-415 swings, so only the 0-strike change clears
+its error bars.
+
+**Vientos's gain looks like a mid-season retooling.** Strongest split of his 2026
+season falls at **2026-06-16**: 71.82 → 73.42 mph, with swing length moving
+7.42 → 7.59 ft in the same direction. His 2025 baseline was 69.16, so the gain
+came in two steps.
+
+⚠️ **The t = 2.1 on that split is not a valid test.** It is the MAXIMUM t over
+about 57 candidate split dates, and the maximum of many statistics has a far
+higher critical value than a single one. The date is a reasonable estimate of
+where the change happened; it is not evidence that a change happened. A proper
+version needs a bootstrap over the max statistic.
+
+**Nobody adjusted how they pitch to any of it.** Fastball share against Soto:
+53.7 / 50.8 / 52.6 / 51.9 across 2023-2026. Against Vientos: 50.8 / 47.2 / 48.9 /
+48.5 — no visible response to a 2.7 mph bat-speed gain. Team-wide: 57.2 → 54.6.
+Lindor's edge rate moved 27.7% → 29.5%.
+
+One oddity worth a second look: NYM hitters saw MORE fastballs with runners on in
+2026 (54.1%) than in 2025 (52.4%), while their bases-empty share was identical at
+55.0% in both years.
+
+**Mets pitchers — three real mechanical changes.**
+
+| pitcher | arm slot 25→26 | velo 25→26 | arsenal |
+|---|---|---|---|
+| Nolan McLean | 28.6 → 32.3 | 95.1 → 95.4 | ST −14pp, FF +7pp |
+| Clay Holmes | 43.3 → **38.5** | 93.7 → 93.1 | SL −11pp, SI +9pp |
+| Sean Manaea | 14.7 → 15.6 | 91.7 → 91.0 | **FF −23pp, SI +19pp** |
+| Kodai Senga | 44.6 → 46.4 | 93.7 → **95.9** | FF +11pp, FC −7pp |
+
+Holmes dropped his slot nearly five degrees and swapped slider for sinker;
+Manaea replaced almost a quarter of his four-seamers with sinkers; Senga added
+2.2 mph. These are descriptive — no test that the changes caused anything.

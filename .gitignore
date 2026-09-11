@@ -17,3 +17,5 @@ output/*
 !output/nastiest.json
 !output/stabilization.json
 !output/abs_framing.json
+!output/contact_quality.json
+!output/mets_tests.json
