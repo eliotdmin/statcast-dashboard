@@ -1,0 +1,897 @@
+<title>What We Learned and What We Got Wrong</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#fbfaf8; --card:#ffffff; --sunk:#f1efeb; --rule:#ddd9d2; --hair:#e9e6e0;
+  --ink:#17151a; --ink2:#4e4a52; --ink3:#87828c;
+  --ac:#5b2c4a; --ac-soft:#f4eaf0; --ok:#2c5a44; --ok-soft:#e6f0ea;
+  --no:#96342f; --no-soft:#f8e8e6; --warn:#7d5a12; --warn-soft:#f7efd9;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --paper:#100f12; --card:#181619; --sunk:#1e1c21; --rule:#322f36; --hair:#28252b;
+  --ink:#efedf1; --ink2:#a8a3ad; --ink3:#78737e;
+  --ac:#d295bb; --ac-soft:#2b1a26; --ok:#7fb99a; --ok-soft:#14261d;
+  --no:#e08078; --no-soft:#2d1917; --warn:#d2a950; --warn-soft:#2b2310;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#100f12; --card:#181619; --sunk:#1e1c21; --rule:#322f36; --hair:#28252b;
+  --ink:#efedf1; --ink2:#a8a3ad; --ink3:#78737e;
+  --ac:#d295bb; --ac-soft:#2b1a26; --ok:#7fb99a; --ok-soft:#14261d;
+  --no:#e08078; --no-soft:#2d1917; --warn:#d2a950; --warn-soft:#2b2310;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:Literata,Georgia,serif;font-size:17px;line-height:1.72}
+.wrap{max-width:760px;margin:0 auto;padding-block:54px 120px;padding-left:22px;padding-right:22px;
+  display:flex;flex-direction:column;gap:30px}
+.sans,.lbl,th,td,.tag,figcaption{font-family:"IBM Plex Sans",-apple-system,sans-serif}
+code,.m{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:.86em}
+code{background:var(--sunk);padding:1px 5px;color:var(--ink2)}
+h1{font-size:clamp(31px,5vw,42px);font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.12;
+  text-wrap:balance}
+h2{font-size:25px;font-weight:700;margin:0;letter-spacing:-.014em;text-wrap:balance;line-height:1.22}
+h3{font-size:19px;font-weight:600;margin:0;letter-spacing:-.008em;text-wrap:balance}
+h4{font-size:16.5px;font-weight:600;margin:0;font-family:"IBM Plex Sans",sans-serif}
+p{margin:0;max-width:66ch}
+.sec{display:flex;flex-direction:column;gap:16px;padding-top:24px;border-top:2px solid var(--ink)}
+.sub{display:flex;flex-direction:column;gap:12px;padding-top:6px}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ac);letter-spacing:.08em;
+  text-transform:uppercase;font-weight:500}
+.lede{font-size:19px;color:var(--ink2);max-width:60ch;line-height:1.6}
+.lbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.note{font-size:15px;color:var(--ink2)}
+.tag{display:inline-block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+  padding:2px 7px;vertical-align:2px;white-space:nowrap}
+.tag.y{background:var(--ok-soft);color:var(--ok)}
+.tag.n{background:var(--no-soft);color:var(--no)}
+.tag.r{background:var(--ac-soft);color:var(--ac)}
+.tag.q{background:var(--warn-soft);color:var(--warn)}
+.box{background:var(--card);border:1px solid var(--hair);padding:18px 20px;display:flex;
+  flex-direction:column;gap:11px}
+.box.err{border-left:3px solid var(--no)}
+.box.key{border-left:3px solid var(--ac);background:var(--ac-soft)}
+.box.key p{color:var(--ink2)}
+.box h4{margin-bottom:-2px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:13.5px}
+th,td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--hair)}
+thead th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);
+  border-bottom:1px solid var(--rule);font-weight:500;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tr.hl td{background:var(--sunk)}
+caption{text-align:left;font-size:13.5px;color:var(--ink2);padding-bottom:7px;font-style:italic}
+ul,ol{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:10px}
+li{max-width:64ch}
+.toc{background:var(--sunk);padding:20px 22px;display:flex;flex-direction:column;gap:7px}
+.toc a{color:var(--ink2);text-decoration:none;font-size:15px;font-family:"IBM Plex Sans",sans-serif}
+.toc a:hover{color:var(--ac)}
+.toc a b{color:var(--ink);font-weight:600}
+.toc .n{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink3);margin-right:9px}
+footer{border-top:1px solid var(--rule);padding-top:18px;color:var(--ink3);font-size:14px;max-width:64ch}
+blockquote{margin:0;padding-left:18px;border-left:3px solid var(--rule);color:var(--ink2);font-style:italic}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:16px">
+  <p class="lbl">statcast-dashboard &middot; complete project report &middot; 13 September 2026</p>
+  <h1>What We Learned and What We Got Wrong</h1>
+  <p class="lede">A full account of every question this project asked of four seasons of pitch-level
+  baseball data: what was tested, how, what came back, and the twenty-three occasions on which an
+  answer turned out to be wrong.</p>
+  <p class="note">Written for someone who knows baseball but has never seen this repository. No
+  statistical background is assumed; the methods are explained where they are first used. Nothing
+  here requires reading anything else first.</p>
+</header>
+
+<div class="toc">
+  <a href="#s1"><span class="n">1</span><b>The project and the data</b></a>
+  <a href="#s2"><span class="n">2</span><b>The methods</b>, explained from scratch</a>
+  <a href="#s3"><span class="n">3</span><b>Pitching</b>: mixing, sequencing, fatigue, tunnelling</a>
+  <a href="#s4"><span class="n">4</span><b>The strike zone</b> and the 2026 challenge system</a>
+  <a href="#s5"><span class="n">5</span><b>Hitting</b>: two strikes, platoons, measurement</a>
+  <a href="#s6"><span class="n">6</span><b>Forecasting</b>, the main line of work</a>
+  <a href="#s7"><span class="n">7</span><b>Marcel</b>, and what happened when we met the baseline</a>
+  <a href="#s8"><span class="n">8</span><b>The gap</b> between what happened and what should have</a>
+  <a href="#s9"><span class="n">9</span><b>The count</b>, and the largest effect we found</a>
+  <a href="#s10"><span class="n">10</span><b>Slumps</b>: what persists and what does not</a>
+  <a href="#s11"><span class="n">11</span><b>Every error</b>, in full</a>
+  <a href="#s12"><span class="n">12</span><b>Shortcomings</b></a>
+  <a href="#s13"><span class="n">13</span><b>What is still open</b></a>
+</div>
+
+<!-- ======================================================= 1 -->
+<section class="sec" id="s1">
+  <p class="num">Section 1</p>
+  <h2>The project and the data</h2>
+
+  <p>Since 2015, every pitch thrown in a Major League Baseball game has been tracked by a camera and
+  radar system called Statcast. It records how fast the pitch left the hand, where it crossed the
+  plate, how much it moved, and &mdash; if the batter swings &mdash; how fast the bat was moving, how
+  hard the ball was struck, at what angle, and where it landed. Since 2024 it also records the
+  <em>geometry of the swing itself</em>: the upward tilt of the bat at contact, its horizontal
+  direction, and the point in space where bat met ball.</p>
+
+  <p>This project holds four complete regular seasons of that data &mdash; 2023 through 2026 &mdash;
+  in a single local database. That is <strong>2,843,142 pitches</strong> across 119 columns, of which
+  roughly <strong>486,000</strong> are balls put in play and <strong>1.33 million</strong> are tracked
+  swings. The database is 1.8 gigabytes and lives on one laptop.</p>
+
+  <p>The animating question was simple and, it turned out, harder than it looked: <em>can this data
+  tell you something about a hitter or pitcher that his statistics alone do not?</em> Baseball has an
+  obvious version of this problem. A hitter goes 2-for-30 over ten days. Is he hurt, is he doing
+  something different with his swing, or has he simply been unlucky? The traditional answer was to
+  wait and see. Statcast offers the possibility of an answer now, because it measures what the hitter
+  <em>did</em> rather than only what happened afterwards.</p>
+
+  <p>Everything below is an attempt to establish whether that possibility is real. The short answer,
+  stated up front so that nothing here reads as a slow reveal, is: <strong>much less than we
+  expected, in a narrower set of circumstances than we expected, and several of the things we
+  initially believed turned out to be mistakes of our own making.</strong></p>
+
+  <div class="box">
+    <h4>How to read the status tags</h4>
+    <p class="note"><span class="tag y">holds</span> tested and survived &nbsp;
+    <span class="tag n">null</span> tested, nothing there &nbsp;
+    <span class="tag r">retracted</span> claimed, then withdrawn &nbsp;
+    <span class="tag q">tentative</span> real but under-powered, or discovered after the fact rather
+    than predicted.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 2 -->
+<section class="sec" id="s2">
+  <p class="num">Section 2</p>
+  <h2>The methods, explained from scratch</h2>
+
+  <p>Five ideas do almost all of the work in this report. They are worth understanding before the
+  results, because in several cases the method <em>is</em> the finding.</p>
+
+  <div class="sub">
+    <h3>Reliability: does a statistic repeat itself?</h3>
+    <p>Suppose you want to know whether "ground-ball rate" is a real property of a hitter or mostly an
+    accident of which balls happened to be hit on the ground. Split his season into two halves that
+    ought to be equivalent &mdash; we used odd-numbered calendar months against even-numbered ones
+    &mdash; compute the statistic in each half, and correlate the two halves across all hitters.</p>
+    <p>If the correlation is near 1, the statistic repeats: hitters who ground out a lot in April also
+    do so in May, and the differences between them are real. If it is near 0, the two halves are
+    unrelated and the entire apparent spread between players was noise. Because each half contains
+    only half the data, this understates the reliability of the full season, and a correction called
+    <strong>Spearman&ndash;Brown</strong> restores it.</p>
+    <p>This single number decides whether a statistic can support a claim about an individual player.
+    A statistic with reliability 0.16 cannot, no matter how large the difference between two players
+    looks.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Signal share: how much of a change is real?</h3>
+    <p>Every measured quantity is the truth plus an error, and variances add:
+    <code>var(observed) = var(true) + var(noise)</code>. The noise part can be computed from sample
+    sizes alone &mdash; for a rate it is <code>p(1&minus;p)/n</code> &mdash; so the true spread can be
+    recovered by subtraction without ever observing a true value.</p>
+    <p>Applied to <em>changes</em> rather than levels, this answers the question every "breakout"
+    article dodges: if a hitter's ground-ball rate fell ten points, how much of that was real? We
+    computed the answer for every metric in the dataset, and the ordering turned out to be the single
+    most useful thing the project produced.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Shrinkage: why you should believe less than you see</h3>
+    <p>If a metric is only 30% signal, then an observed change of ten points should be reported as
+    three. Formally the estimate is pulled toward the league average by a factor
+    <code>var(true) / (var(true) + standard error&sup2;)</code>.</p>
+    <p>This is not a conservatism heuristic. Charles Stein proved in 1961 that for three or more
+    quantities, the obvious estimator &mdash; just use what you measured &mdash; is <em>always</em>
+    beaten by one that shrinks toward a common centre. It was so counterintuitive that it is still
+    called Stein's paradox. In 1977 Efron and Morris illustrated it using the batting averages of
+    eighteen players after forty-five at-bats, shrinking them toward the league mean to predict the
+    rest of the season; the shrunk estimates cut total squared error by roughly a factor of 3.5. As
+    section 7 records, the central empirical finding of this project turned out to be a
+    rediscovery of that result.</p>
+  </div>
+
+  <div class="sub">
+    <h3>The noise ceiling: what is the best a forecaster could do?</h3>
+    <p>Forecast accuracy is usually reported as R&sup2;, the fraction of variation explained, where 1.0
+    is perfection. But if the thing you are predicting is mostly coin flips, perfection is
+    unreachable and R&sup2; near 1 is not the right benchmark.</p>
+    <p>We derived the real ceiling. For two months of the same hitter in the same season,
+    <code>E[(w&#8321;&minus;w&#8322;)&sup2;] = &sigma;&sup2;(1/pa&#8321; + 1/pa&#8322;) + var(drift)</code>.
+    Regressing 16,228 squared differences on the sample-size term identifies both pieces: the
+    per-plate-appearance outcome variance is 0.2258, real month-to-month movement in skill has a
+    standard deviation of .038, and true talent across 670 hitters has a spread of just .035.</p>
+    <p>At a typical month of 87 plate appearances, that means <strong>a forecaster who knew every
+    hitter's true talent exactly would still only score R&sup2; = 0.264</strong>, because the target
+    is mostly noise. Every forecasting number in section 6 should be read against 0.264, not against
+    1.0. This changes the interpretation of every result completely: a model scoring 0.057 is not
+    failing, it is capturing a fifth of everything available.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Holdout testing and pre-registration</h3>
+    <p>Any model can be made to fit data it has already seen. Every forecasting result here was fit on
+    the 2023&ndash;2025 seasons and evaluated exactly once on 2026, which the model never saw during
+    development. Uncertainty is reported as bootstrap intervals: resample the test rows three thousand
+    times with replacement, recompute the whole statistic each time, and report the middle 95%.</p>
+    <p>Where a hypothesis had a predicted direction, that direction was written down before the query
+    ran. Five predictions were pre-registered in this way. <strong>Three of them failed</strong>, and
+    they are reported at the same length as the successes.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 3 -->
+<section class="sec" id="s3">
+  <p class="num">Section 3</p>
+  <h2>Pitching: mixing, sequencing, fatigue, tunnelling</h2>
+
+  <p>Four pieces of pitching orthodoxy were tested. Three produced nothing, and the fourth was real
+  but not for the reason usually given.</p>
+
+  <div class="sub">
+    <h3>Does mixing your pitches work? <span class="tag n">null</span></h3>
+    <p>Every broadcast says a pitcher must "keep hitters honest" by varying what he throws. We
+    measured the variety of a pitcher's arsenal using entropy &mdash; a pitcher who throws 40/30/20/10
+    has an <em>effective</em> arsenal of about 3.6 pitches, not four &mdash; and asked whether broader
+    mixing predicted better results. It did not.</p>
+    <p>That null was unsatisfying enough that we re-ran it under the conditions most favourable to the
+    hypothesis. If variety matters anywhere, it should matter the <em>third time through the batting
+    order</em>, when a hitter has already seen you twice in the same game. Across 337 starter-seasons,
+    the relationship between arsenal breadth and the third-time-through penalty was
+    <code>&minus;0.0027 &plusmn; 0.0040</code> &mdash; an interval spanning zero in both directions
+    against a league spread of 0.074.</p>
+    <p>A negative result that survives being deliberately re-run under favourable conditions is worth
+    considerably more than the original. The practical reading: a fifth pitch is not what keeps a
+    starter alive in the sixth inning.</p>
+  </div>
+
+  <div class="sub">
+    <h3>The third time through the order is real <span class="tag y">holds</span></h3>
+    <p>The penalty itself is genuine and sizeable. Measured <em>within pitcher</em> &mdash; comparing
+    each pitcher against his own average, so that "good pitchers are allowed to go deeper" cannot
+    manufacture the effect &mdash; a plate appearance is worth .0094 below that pitcher's norm the
+    first time through and .0146 above it the third. That is a swing of <strong>24 points of
+    wOBA</strong> from the first pass to the third.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Tunnelling <span class="tag n">null</span></h3>
+    <p>The theory is that two pitches released from the same point but finishing in different places
+    are harder to distinguish, so the second should generate extra swings and misses. We examined
+    every pair of consecutive <em>different</em> pitch types within a plate appearance, bucketed by
+    the distance between release points, and compared the whiff rate against the baseline for that
+    exact combination of previous pitch, current pitch, and count.</p>
+    <p>Across 340,000 swings the excess whiff rate wandered between &minus;0.24 and +0.14 percentage
+    points with no ordering at all. Nothing.</p>
+    <p><strong>An important caveat we did not resolve.</strong> Release-point distance is a crude
+    proxy. The quantity that actually matters is how far apart the two trajectories are at the
+    hitter's commit point, roughly 23 feet from the plate, which is computable from the position,
+    velocity and acceleration vectors in this data and was never computed. So what was shown is that
+    <em>release-point similarity</em> does nothing; "tunnelling does not work" is a stronger claim
+    than the evidence supports.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Velocity decay, and a lesson worth more than the result <span class="tag n">null</span></h3>
+    <p>Do starters who lose more velocity over a start get punished for it? The naive approach sorts
+    492 starts by how fast the fastball was falling and compares early to late results. It produces a
+    beautiful, monotone, wrong answer: across five quintiles the correlation between decay and the
+    late-game penalty was <code>+0.905</code> &mdash; in the <em>opposite</em> direction to the
+    hypothesis, apparently showing that pitchers who <em>gained</em> velocity collapsed hardest.</p>
+    <p>The fifth row explains it. That group's early wOBA was .2497, wildly better than everyone
+    else's. Those are starts where a pitcher was dominating, was left in, and was still airing it out
+    in the seventh. Their late-game "collapse" is regression from an unsustainable start.</p>
+    <p>Compared within pitcher &mdash; each of his starts against his own average, 8,250 starts from
+    307 pitchers &mdash; the effect is <code>+0.0031 &plusmn; 0.0024</code>, indistinguishable from
+    zero and with the sign flipped. We keep this as the project's canonical example that
+    <strong>monotonicity across five bins is not evidence of causation; it is what selection effects
+    usually look like.</strong></p>
+  </div>
+</section>
+
+<!-- ======================================================= 4 -->
+<section class="sec" id="s4">
+  <p class="num">Section 4</p>
+  <h2>The strike zone and the 2026 challenge system</h2>
+
+  <p>In 2026 Major League Baseball introduced a challenge system allowing teams to appeal ball and
+  strike calls to automated tracking. This is a large, recent, externally-imposed change to the game
+  &mdash; close to a natural experiment &mdash; so we measured what it did to the shape of the called
+  zone.</p>
+
+  <p>The first attempt produced a confident, wrong answer, and the way it went wrong is instructive
+  enough to describe in full. We measured called-strike rate in bands defined <em>relative to</em>
+  <code>sz_top</code>, the data's own field for the top of each batter's strike zone. It reported
+  that the top of the zone had <strong>expanded</strong> dramatically, by 32.8 percentage points.</p>
+
+  <div class="box err">
+    <h4>What actually happened</h4>
+    <p class="note">A check on the reference column itself: <code>sz_top</code> had 321,120 distinct
+    values across the league in 2024 and 353,643 in 2025 &mdash; consistent with a human operator
+    estimating it for every pitch. In 2026 it had <strong>390</strong>, exactly one per batter, and
+    averaged 2.6 inches lower. MLB had replaced the per-pitch estimate with a formula. Measuring 2026
+    against <code>sz_top</code> and comparing to 2025 was comparing against a different ruler.</p>
+  </div>
+
+  <p>Redone in absolute feet above the ground &mdash; which the rulebook fixes and no data provider
+  can redefine &mdash; the zone changed in the opposite direction at the top: <span class="tag y">holds</span></p>
+
+  <div class="scroll"><table>
+    <caption>Called-strike rate on taken pitches, by height above the ground.</caption>
+    <thead><tr><th>height</th><th class="n">2024</th><th class="n">2025</th><th class="n">2026</th><th class="n">change</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>3.4&ndash;3.6 ft (top)</td><td class="n">43.9%</td><td class="n">41.1%</td><td class="n">17.6%</td><td class="n">&minus;23.5</td></tr>
+      <tr><td>3.2&ndash;3.4 ft</td><td class="n">83.1%</td><td class="n">81.4%</td><td class="n">64.2%</td><td class="n">&minus;17.2</td></tr>
+      <tr class="hl"><td>1.4&ndash;1.6 ft (bottom)</td><td class="n">47.0%</td><td class="n">42.0%</td><td class="n">52.5%</td><td class="n">+10.5</td></tr>
+      <tr><td>1.6&ndash;1.8 ft</td><td class="n">86.8%</td><td class="n">84.5%</td><td class="n">94.8%</td><td class="n">+10.4</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The zone became <strong>shorter, deeper, narrower and much crisper</strong>. The boundary itself
+  sharpened: the width of the band over which called-strike rate falls from 80% to 20% &mdash; a
+  direct measure of how fuzzy the zone is &mdash; narrowed from 2.61 inches to 1.90 on the outside
+  edge.</p>
+
+  <p>This also explains a number we had produced days earlier and not understood. The spread between
+  the best and worst pitch-framing catchers collapsed from 15.5 runs to 10.6. A crisper zone leaves
+  less to frame.</p>
+</section>
+
+<!-- ======================================================= 5 -->
+<section class="sec" id="s5">
+  <p class="num">Section 5</p>
+  <h2>Hitting: two strikes, platoons, and measurement</h2>
+
+  <div class="sub">
+    <h3>Choking up is real, nearly universal, and appears to work <span class="tag y">holds</span></h3>
+    <p>Bat tracking makes it possible to measure, for the first time at scale, whether hitters
+    actually shorten their swing with two strikes. They do. Across 521 hitter-seasons, average bat
+    speed with two strikes is <strong>1.37 mph slower</strong> than without, and
+    <strong>89% of hitters</strong> do it.</p>
+    <p>The size of the adjustment varies a lot between hitters, and those who shorten up most strike
+    out less, whiff less, and produce more in two-strike counts. All three correlations clear their
+    intervals.</p>
+    <p><strong>This is not causal</strong> and we did not make it so. Hitters with better bat control
+    can afford to shorten up and are also better contact hitters anyway, so the adjustment may be a
+    marker of a skill rather than its cause. The discriminating test &mdash; does the same hitter do
+    better in the seasons he shortens up more &mdash; was specified and never run.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Platoon splits are a real individual trait <span class="tag y">holds</span></h3>
+    <p>The average hitter is 31 points of wOBA better against opposite-handed pitching. The spread
+    between hitters in how large their split is comes out at 0.0414, of which sampling noise accounts
+    for 0.0217, leaving a true spread of <strong>0.0353 &mdash; 72% signal</strong>.</p>
+    <p>So "he handles same-handed pitching unusually well" is a real, measurable property. But 28% of
+    the apparent spread on any published platoon leaderboard is noise, which means the extremes are
+    systematically overstated. A hitter shown with a 90-point split most likely has a true split
+    nearer 70. This matters operationally, because platoon splits drive pinch-hitting and bullpen
+    decisions in live games, and the operational version rarely shrinks.</p>
+  </div>
+
+  <div class="sub">
+    <h3>Bat speed is not measured identically in every ballpark <span class="tag y">holds</span></h3>
+    <p>We compared each team's own hitters at home against the same hitters on the road. Same players,
+    different sensor installations, so any systematic gap is the ballpark's tracking rather than the
+    hitting. Home-minus-road bat speed varies across the thirty parks with a standard deviation of
+    <strong>0.23 mph</strong>, and home-minus-road exit velocity with a standard deviation of 0.46.</p>
+    <p>The tell is that the two are <strong>correlated at +0.456</strong>. Bat speed and exit velocity
+    are separately derived measurements; a park where both read high, for visiting and home hitters
+    alike, is a park whose installation runs hot. Against a true year-over-year bat-speed spread of
+    1.01 mph, a 0.23 mph measurement artifact is not negligible for the many changes in the
+    0.3&ndash;0.6 range that this project had been treating as marginal but real.</p>
+  </div>
+
+  <div class="sub">
+    <h3>The calibration table, which became the project's most-used output <span class="tag y">holds</span></h3>
+    <p>Applying the signal-share method of section 2 to every metric, across 222 hitters with 250+
+    plate appearances in both 2025 and 2026, produced an ordering that reframed everything after it:</p>
+    <div class="scroll"><table>
+      <caption>Fraction of an observed year-over-year change that is real.</caption>
+      <thead><tr><th>metric</th><th class="n">signal</th><th>reading</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>swing length</td><td class="n">87%</td><td>trust it</td></tr>
+        <tr class="hl"><td>bat speed</td><td class="n">85%</td><td>trust it</td></tr>
+        <tr><td>expected wOBA</td><td class="n">72%</td><td>mostly real</td></tr>
+        <tr><td>chase rate</td><td class="n">59%</td><td>mostly real</td></tr>
+        <tr><td>strikeout rate</td><td class="n">38%</td><td>discount heavily</td></tr>
+        <tr><td>hard-hit rate</td><td class="n">27%</td><td>discount heavily</td></tr>
+        <tr class="hl"><td>ground-ball rate</td><td class="n">18%</td><td>mostly noise</td></tr>
+        <tr class="hl"><td>sweet-spot rate</td><td class="n">0%</td><td>pure noise</td></tr>
+      </tbody>
+    </table></div>
+    <p>The ordering is the lesson. <strong>Everything a hitter <em>does</em> &mdash; how fast and how
+    long he swings, whether he swings &mdash; is measurable in a single season. Everything that
+    depends on <em>what happened to the ball afterwards</em> is mostly luck at one season of
+    sample.</strong> Sweet-spot rate has literally no detectable year-over-year signal across the
+    league: the entire apparent spread is sampling noise. Any story about a hitter changing his launch
+    angle profile, built on one season of sweet-spot rate, is a story about nothing.</p>
+    <p>On the pitching side the split is sharper still. Arm angle, release extension, fastball
+    velocity and spin rate are all 97&ndash;100% signal, while walk rate and edge rate are 1%. A
+    pitcher's <em>body</em> is precisely measured; his <em>command</em> is not.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 6 -->
+<section class="sec" id="s6">
+  <p class="num">Section 6</p>
+  <h2>Forecasting, the main line of work</h2>
+
+  <p>The largest single effort went into one question: given what a hitter did in one stretch, how
+  well can you predict what he does in the next? This is the practical question behind every roster
+  decision, and it is the question on which expected statistics were supposed to deliver.</p>
+
+  <p>Two quantities matter throughout. <strong>wOBA</strong> (weighted on-base average) assigns each
+  plate-appearance outcome its average run value, scaled to look like on-base percentage; it is a
+  description of what happened. <strong>Expected wOBA</strong> replaces each batted ball's actual
+  outcome with the league-average result of balls hit at the same exit velocity and launch angle,
+  leaving strikeouts and walks alone; it is a description of how the ball was struck, deliberately
+  blind to where it was hit, to the ballpark and to the defence.</p>
+
+  <div class="sub">
+    <h3>Expected wOBA is better, and what actually happened is worse than useless <span class="tag y">holds</span></h3>
+    <div class="scroll"><table>
+      <caption>Out-of-sample R&sup2; on the 2026 holdout. Negative means worse than assuming every
+      hitter is exactly league average.</caption>
+      <thead><tr><th>window</th><th class="n">n</th><th class="n">wOBA</th><th class="n">expected wOBA</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>1 month</td><td class="n">1,085</td><td class="n">&minus;0.004</td><td class="n">0.015</td></tr>
+        <tr><td>2 months</td><td class="n">856</td><td class="n">0.037</td><td class="n">0.073</td></tr>
+        <tr><td>3 months</td><td class="n">318</td><td class="n">&minus;0.007</td><td class="n">0.030</td></tr>
+        <tr><td>season &rarr; next season</td><td class="n">213</td><td class="n">0.119</td><td class="n">0.127</td></tr>
+      </tbody>
+    </table></div>
+    <p>At one month, <strong>using what a hitter just hit to predict what he hits next is worse than
+    predicting league average for everybody.</strong> Expected wOBA is better at every horizon.</p>
+    <p>Two things we predicted in advance turned out wrong. We expected expected-wOBA's advantage to
+    <em>shrink</em> as the window lengthened, since wOBA's own noise falls with sample. Instead it is
+    humped: it rises from one month to two, holds through three, and nearly vanishes over a full
+    season. We have a story for this but not a mechanism, and the three-month row has the smallest
+    test sample. <span class="tag r">prediction failed</span></p>
+    <p>We also expected the optimal weight on expected wOBA to fall as sample grew. Instead, fitting
+    both together within buckets of playing time, the coefficient on <em>actual</em> wOBA is
+    <strong>negative in every bucket above 55 plate appearances</strong>. Conditional on how the ball
+    was struck, what actually happened is not merely uninformative &mdash; it points the wrong way. A
+    hitter who beat his expected output should be marked <em>down</em>. <span class="tag r">prediction failed</span></p>
+  </div>
+
+  <div class="sub">
+    <h3>A richer model helps, and one of its best features is embarrassing <span class="tag y">holds</span></h3>
+    <p>Adding contact quality, plate discipline, batted-ball mix, context and swing geometry &mdash;
+    48 features in total &mdash; raises one-month accuracy from 0.015 to <strong>0.057</strong>, or
+    about a fifth of the theoretical ceiling. Swing geometry earns its place: adding attack angle,
+    swing tilt, contact depth and bat speed produces the single largest jump after context, and in the
+    simplified linear version bat speed carries the second-largest coefficient of any input, ahead of
+    expected wOBA itself.</p>
+    <div class="box err">
+      <h4>The uncomfortable control</h4>
+      <p class="note">Plate appearances turned up as the second most important feature, so we ran it
+      alone. <strong>How often a manager writes a hitter into the lineup predicts next month better
+      than how hard he hits the ball</strong> &mdash; 0.032 against expected wOBA's 0.015. That is not
+      a hitting statistic. It is the manager's private information about health, matchups and what he
+      has seen in person. It is retained in headline numbers because a real forecaster would observe
+      it too, but it is now always reported alongside the version without it.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>The trade-off nobody states <span class="tag y">holds</span></h3>
+    <p>A statistic can describe what happened, agree with its own next measurement, or forecast the
+    future. These are different properties and they trade off almost perfectly:</p>
+    <div class="scroll"><table>
+      <thead><tr><th>metric</th><th class="n">describes the past</th><th class="n">repeats itself</th><th class="n">predicts the future</th></tr></thead>
+      <tbody>
+        <tr><td>wOBA</td><td class="n">1.000</td><td class="n">0.135</td><td class="n">0.065</td></tr>
+        <tr><td>expected wOBA</td><td class="n">0.747</td><td class="n">0.321</td><td class="n">0.136</td></tr>
+        <tr class="hl"><td>fitted model</td><td class="n">0.485</td><td class="n">0.665</td><td class="n">0.205</td></tr>
+      </tbody>
+    </table></div>
+    <p>Read down the columns: the better a metric describes the month that just happened, the worse it
+    forecasts the next one. wOBA is the perfect description by construction and the worst available
+    forecaster, because a perfect description includes all of the noise.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 7 -->
+<section class="sec" id="s7">
+  <p class="num">Section 7</p>
+  <h2>Marcel, and what happened when we met the baseline</h2>
+
+  <p>All of the above was encouraging until we compared it to the correct benchmark.</p>
+
+  <p><strong>Marcel</strong> &mdash; named after the monkey from <em>Friends</em>, and published by
+  Tom Tango in 2004 precisely so that people with complicated systems would have something to clear
+  &mdash; does three things. It averages a hitter's last three seasons weighted 5/4/3. It regresses
+  that average hard toward the league mean by adding a block of fictional league-average plate
+  appearances. And it nudges the result for age. It has no batted-ball data, no tracking data, and no
+  model. It is about five lines of arithmetic.</p>
+
+  <p>Before comparing, we made two corrections <em>against</em> our own models, because the
+  alternative is a strawman. Marcel's regression constant was tuned on training years, exactly as our
+  models' hyperparameters were. And every model was re-run with the same career history Marcel sees,
+  since we had handicapped ours to a single window.</p>
+
+  <div class="box key">
+    <h4>Result: a draw, and then a loss</h4>
+    <p>At a one-month horizon, tuned Marcel scores <strong>0.0584</strong> and our 48-feature
+    gradient-boosted model scores <strong>0.0565</strong>. The difference is
+    <code>&minus;0.002 [&minus;0.039, +0.033]</code>; the probability our model is better is
+    <strong>0.46</strong>. Giving the models Marcel's history does not change it. Eight model families
+    were eventually tried &mdash; ridge with a cross-validated penalty of 56,000, elastic net, partial
+    least squares, principal components, and three variants that use Marcel as an offset and model
+    only its residual. <strong>Not one of them beats it.</strong></p>
+    <p>The Marcel-as-offset result is the most informative. If tracking data held information Marcel
+    lacks, modelling Marcel's residual is exactly where it would appear. It does not appear.</p>
+  </div>
+
+  <p>On Marcel's home ground &mdash; forecasting a full season from prior seasons &mdash; it is worse
+  than a draw. Tuned Marcel scores 0.164. A twenty-feature model built on past Statcast scores
+  <strong>&minus;0.060</strong>, meaning it is worse than predicting league average for everyone. With
+  267 training seasons and twenty correlated predictors, that is a textbook variance failure. Meanwhile
+  a plain shrunk average of past expected wOBA ties Marcel exactly, 0.166 to 0.164.</p>
+
+  <blockquote>The value is in the shrinking, not in the features.</blockquote>
+
+  <p>We then tried to build a better Marcel, testing four evidence-backed improvements in sequence.
+  Only one worked, and it was not a feature. Changing the regression constant from the classic 1200 to
+  a tuned 3000 moved season accuracy from 0.0745 to <strong>0.1640</strong> &mdash; a bigger gain than
+  every Statcast feature in this project combined. The reason is stark: a hitter's weighted three-year
+  record correlates with his next season at only <strong>0.40</strong>, so roughly 60% of his apparent
+  deviation from league average should be discarded even with two thousand plate appearances of
+  history. Classic Marcel keeps 87%.</p>
+
+  <div class="sub">
+    <h3>Where measurement does win <span class="tag q">tentative</span></h3>
+    <p>One segment survives. Marcel's blind spot is a player it has never seen: with no history it can
+    only predict league average. Splitting the test set by how much prior playing time a hitter has,
+    the model beats Marcel by +0.049 in the bottom quartile and loses by 0.040 in the top, monotonically
+    across all four. By age, the only segment whose interval excludes zero is <strong>22 to 25 years
+    old</strong>, where the model wins by +0.065.</p>
+    <p>An important correction to the natural summary: <strong>expected wOBA alone loses to Marcel in
+    every age bucket</strong>, including the youngest. What beats Marcel is the full measurement model,
+    not the expected statistic. And this was a post-hoc split across eight segments, where one interval
+    excluding zero is roughly what chance produces. It is a hypothesis for next season, not a finding.</p>
+    <p>We also predicted the advantage would concentrate among hitters whose <em>measurements had just
+    moved</em> &mdash; Marcel literally cannot see a three-mph bat-speed gain. Among the top decile of
+    movers the gap was <code>&minus;0.001</code>, probability 0.50. Exactly nothing. The blind spot we
+    were most confident about does not matter at this horizon. <span class="tag r">prediction failed</span></p>
+  </div>
+</section>
+
+<!-- ======================================================= 8 -->
+<section class="sec" id="s8">
+  <p class="num">Section 8</p>
+  <h2>The gap between what happened and what should have</h2>
+
+  <p>When a hitter's actual wOBA exceeds his expected wOBA, the conventional reading is luck. We spent
+  several days on whether that is true, arrived at a confident mechanistic answer, and then had to
+  withdraw it.</p>
+
+  <p><strong>Within a season the gap behaves like noise.</strong> Its split-half reliability is 0.164,
+  near the bottom of everything we measured &mdash; against 0.978 for bat speed, 0.879 for exit
+  velocity and 0.448 for wOBA itself. A statistic that repeats with itself that weakly cannot support
+  a claim about any individual hitter.</p>
+
+  <p><strong>Across seasons, however, it persists.</strong> The same gap correlates with itself at
+  <strong>+0.267, +0.302 and +0.238</strong> over three independent year-pairs. Those two facts were in
+  tension, and the tension was the interesting part.</p>
+
+  <div class="box err">
+    <h4>The explanation we published and withdrew</h4>
+    <p class="note">We found that expected wOBA under-rated ground balls by 23 points per batted ball
+    and that roughly half of that was reached-on-error &mdash; a routine grounder that a fielder
+    mishandles, which the model scores as an out while the batter stands on first. It was specific,
+    quantified, and it explained the named over-performers (Altuve, Friedl, Trea Turner &mdash; fast
+    ground-ball hitters) and under-performers (Soto, Guerrero &mdash; slow air-ball hitters).</p>
+    <p class="note"><strong>It was wrong.</strong> The reader who commissioned this report asked
+    whether actual wOBA really credits a batter for reaching on an error. It does not &mdash; wOBA,
+    like on-base percentage, treats it as an out. But the pitch-level <code>woba_value</code> column in
+    this data <em>does</em>: it carries 0.900 for a fielding error, 0.900 for a fielder's choice, and
+    0.700 for a dropped third strike. That column records whether the batter reached base, not wOBA.
+    Every wOBA computed in this project was inflated by about nine points, and the "finding" was our
+    own numerator measured against a correctly specified expected wOBA.</p>
+    <p class="note">Corrected, the ground-ball gap is <code>+0.0008</code>. The effect disappears
+    entirely, and so does a supposed league-wide calibration offset that had appeared in every count.</p>
+  </div>
+
+  <p>What survives the correction: expected wOBA genuinely over-rates <strong>popups</strong>, by 17.6
+  points per batted ball, though popups are only 7% of batted balls. And the cross-season persistence
+  survives intact, which means it was never an error artifact. <strong>So the gap really does persist
+  for hitters, and we no longer have an explanation for it.</strong></p>
+
+  <p>One clean asymmetry did emerge and is worth keeping. Run identically on 1,335 pitcher-seasons, the
+  gap does <em>not</em> persist: +0.104, &minus;0.021, +0.161 across the same three year-pairs, and a
+  split-half reliability of 0.213. Whatever drives the hitter version is a batter attribute. A pitcher
+  does not choose his launch angles and does not run to first base.</p>
+
+  <p>On pitchers more generally, expected wOBA against beats actual wOBA against at predicting next
+  season by 34% in relative terms &mdash; a much larger edge than the hitter version. And strikeout
+  rate and walk rate <em>alone</em> reach 0.156 against expected wOBA's 0.170, using no batted-ball
+  data whatsoever. That is the DIPS result from 1999, reproduced with modern data: what a pitcher
+  controls is mostly the outcomes that never become a batted ball.</p>
+
+  <p class="note">On expected ERA, which is the natural next question: it is not in this archive, and
+  it would add nothing. Savant's own glossary defines it as "a simple 1:1 translation of xwOBA,
+  converted to the ERA scale." It is a rescaling and carries no independent information. A structural
+  decomposition of expected ERA against ERA would be the analysis above plus sequencing, bullpen
+  inheritance, and the official scorer's earned-versus-unearned judgement, which this data does not
+  contain at all.</p>
+</section>
+
+<!-- ======================================================= 9 -->
+<section class="sec" id="s9">
+  <p class="num">Section 9</p>
+  <h2>The count, and the largest effect we found</h2>
+
+  <p>The question was posed plainly: if a plate appearance <em>arrives</em> at a given count, what does
+  it eventually produce &mdash; counting everything that happens afterwards, not merely contact in that
+  count. A plate appearance that reaches 3&ndash;0 has also passed through 2&ndash;0, 1&ndash;0 and
+  0&ndash;0, so the cells are nested by construction.</p>
+
+  <div class="scroll"><table>
+    <caption>wOBA by count reached, 2023&ndash;2026. Absolute values are 6&ndash;9 points high pending
+    the numerator correction described in section 8; the relative structure is unaffected because the
+    inflation is near-uniform across counts.</caption>
+    <thead><tr><th>count</th><th class="n">PA reached</th><th class="n">wOBA</th><th class="n">K%</th><th class="n">BB%</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>0&ndash;2</td><td class="n">152,880</td><td class="n">.2074</td><td class="n">46.1%</td><td class="n">3.1%</td></tr>
+      <tr><td>0&ndash;0</td><td class="n">709,492</td><td class="n">.3237</td><td class="n">22.5%</td><td class="n">8.3%</td></tr>
+      <tr><td>2&ndash;1</td><td class="n">143,354</td><td class="n">.3628</td><td class="n">22.4%</td><td class="n">19.9%</td></tr>
+      <tr><td>2&ndash;0</td><td class="n">90,583</td><td class="n">.4337</td><td class="n">14.3%</td><td class="n">30.0%</td></tr>
+      <tr class="hl"><td>3&ndash;0</td><td class="n">28,170</td><td class="n">.5580</td><td class="n">8.4%</td><td class="n">62.1%</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The range from the worst count to the best is <strong>.351 of wOBA</strong>. Across 286 hitters
+  with a thousand or more plate appearances in these four seasons, the range from worst to best is
+  <strong>.185</strong>. The count matters <strong>1.89 times as much as the identity of the
+  hitter</strong>, and on standard deviations rather than ranges the factor is four.</p>
+
+  <p>Put concretely: <strong>an average major-league hitter, at 3&ndash;0, out-produces the best hitter
+  in baseball. The same hitter, at 0&ndash;2, is worse than the worst.</strong> The first strike is the
+  most expensive single event in the sequence &mdash; 0&ndash;0 to 0&ndash;1 costs .048, and
+  0&ndash;1 to 0&ndash;2 costs a further .068.</p>
+
+  <p>This is the largest effect in the report and it was the last thing we looked at. It also reframes
+  the pitching work in section 3: if the count dominates hitter identity by that margin, then the value
+  of any individual pitch is mostly its effect on the count, which makes pitch selection a
+  count-management problem rather than a deception problem. That reframing is untested.</p>
+</section>
+
+<!-- ======================================================= 10 -->
+<section class="sec" id="s10">
+  <p class="num">Section 10</p>
+  <h2>Slumps: what persists and what does not</h2>
+
+  <p>The final analysis addresses the question the project began with. A hitter is slumping. What, if
+  anything, does that tell you about next month?</p>
+
+  <div class="scroll"><table>
+    <caption>Correlation between one window and the next window of the same length, same hitter, same
+    season.</caption>
+    <thead><tr><th>metric</th><th class="n">1 month</th><th class="n">2 months</th><th class="n">3 months</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>bat speed</td><td class="n">.919</td><td class="n">.978</td><td class="n">.993</td></tr>
+      <tr><td>whiff per swing</td><td class="n">.711</td><td class="n">.922</td><td class="n">.971</td></tr>
+      <tr><td>exit velocity</td><td class="n">.598</td><td class="n">.883</td><td class="n">.960</td></tr>
+      <tr><td>strikeout rate</td><td class="n">.587</td><td class="n">.875</td><td class="n">.955</td></tr>
+      <tr><td>expected wOBA</td><td class="n">.321</td><td class="n">.447</td><td class="n">.516</td></tr>
+      <tr class="hl"><td>wOBA</td><td class="n">.135</td><td class="n">.213</td><td class="n">.240</td></tr>
+    </tbody>
+  </table></div>
+
+  <p><strong>Skills are stable. Results are not.</strong> And the gap between the two is enormous: bat
+  speed repeats at .919 over a single month while wOBA repeats at .135.</p>
+
+  <p>The sharper version removes each hitter's own career mean, which is what separates <em>the
+  slump</em> from <em>the hitter</em>. Once that is done, the carryover collapses to nothing: wOBA
+  &minus;.038, &minus;.080, &minus;.055 across the three window lengths, and expected wOBA +.004,
+  &minus;.000, +.072.</p>
+
+  <p class="note"><strong>Caveat, recorded because it matters.</strong> Demeaning a short panel induces
+  a mechanical negative bias of roughly &minus;1/(T&minus;1). The small negatives above are therefore
+  consistent with <em>zero</em> carryover rather than genuine anti-persistence, and should be read that
+  way.</p>
+
+  <div class="box key">
+    <h4>The operational conclusion</h4>
+    <p>A slump, measured as a deviation in results from a hitter's own norm, predicts essentially
+    nothing about the following month. But the underlying skills &mdash; whiff rate, bat speed, exit
+    velocity &mdash; persist strongly. So the correct response to a slumping hitter is not to ask how
+    bad the slump is, but to ask <strong>whether anything he does has changed</strong>. If his bat
+    speed and whiff rate are where they were, the slump carries no information. If they have moved,
+    that movement is real and will persist.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 11 -->
+<section class="sec" id="s11">
+  <p class="num">Section 11</p>
+  <h2>Every error, in full</h2>
+
+  <p>Twenty-three occasions on which something in this project was wrong. They are listed because the
+  ratio of caught to uncaught errors is the only evidence that the surviving results were checked at
+  all, and because several of them are more instructive than the findings.</p>
+
+  <div class="sub">
+    <h4>Errors of data handling</h4>
+    <ul>
+      <li><strong>The database was silently corrupted.</strong> Building an index across a network
+      mount produced a disk I/O error that was treated as a warning. The result under-counted by 23,523
+      pitches with no visible symptom. Recovered in full via SQLite's <code>.recover</code> and a
+      verification script comparing stored rows against the ingest log.</li>
+      <li><strong>A typo put the data range through 2028</strong>, a season that has not happened. Caught
+      by the reader, not by us.</li>
+      <li><strong>A command-line flag of <code>0</code> was falsy</strong>, so a limit of zero days
+      fetched everything instead of nothing.</li>
+      <li><strong>The audit ran 476 full table scans</strong> where 24 would do, by not grouping columns
+      that share an applicability rule.</li>
+      <li><strong>Player names were pulled from the wrong column.</strong> In pitch-level data
+      <code>player_name</code> is the <em>pitcher</em>. A hitter report printed bare numeric IDs. The
+      data dictionary warns about this in bold, which we had written ourselves.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h4>Errors of definition &mdash; the expensive category</h4>
+    <ul>
+      <li><strong>The wOBA column is not wOBA.</strong> Described in section 8. Four days of analysis
+      inherited a nine-point inflation and one published finding was entirely an artifact of it. Caught
+      by a reader question about whether on-base percentage rises on an error.</li>
+      <li><strong>The strike-zone reference column changed meaning between seasons.</strong> Described
+      in section 4. Produced a confident conclusion in exactly the wrong direction.</li>
+      <li><strong>A regression of the wOBA gap on ground-ball-single rate returned R&sup2; = 0.246 and
+      meant nothing.</strong> A ground ball that finds a hole <em>is</em> simultaneously a ground-ball
+      single and a positive gap &mdash; the same event on both sides of the equation. Ground-ball
+      single rate has a split-half reliability of 0.193, so this was luck explaining luck.</li>
+      <li><strong>A gap regression reported R&sup2; = 0.719</strong> by comparing full-season wOBA
+      against contact-only expected wOBA. Corrected to 0.133.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h4>Errors of inference</h4>
+    <ul>
+      <li><strong>Leakage in our own benchmark.</strong> Season-level Marcel scored R&sup2; = 0.575 and
+      the tuner chose "barely regress" &mdash; both symptoms of a history window that included the
+      season being forecast. The true value is 0.164. The diagnostic is now a standing rule: a baseline
+      suddenly outperforming its published behaviour, combined with tuning that says not to regress, is
+      leakage until proven otherwise.</li>
+      <li><strong>A verdict recorded on the wrong evidence.</strong> "Chase rate is a fast-moving
+      discipline signal" was scored as confirmed because chase-rate changes were <em>detectable</em>.
+      Detectability is not predictive value. Tested properly, this month's change in chase rate predicts
+      next month's change in production at +0.046 &plusmn; 0.036 &mdash; nothing &mdash; while the
+      same-month association is &minus;0.370 &plusmn; 0.041. Chase rate is coincident, not leading.</li>
+      <li><strong>A hypothesis was silently dropped.</strong> One of the pre-registered tests never
+      appeared in the scorecard. Run later, it returned a clean null.</li>
+      <li><strong>A positive control was overclaimed</strong> as showing no effect, when what it showed
+      was an inability to detect an effect below a certain size.</li>
+      <li><strong>A recommendation was reversed within a day.</strong> We advised that bat speed would
+      work at monthly resolution because it is highly reliable as a <em>level</em>. The reliability of a
+      level is not the reliability of a <em>change</em>: monthly bat-speed change is 34% signal against
+      85% seasonally.</li>
+      <li><strong>A mechanism was built on without checking its size.</strong> The ground-ball effect,
+      before it was retracted on other grounds, was worth 0.0014 of wOBA per standard deviation of
+      ground-ball rate against a gap spread of 0.0188 &mdash; 7.3% of the thing it purported to explain.
+      A one-line arithmetic check would have shown this before the modelling rather than after.</li>
+      <li><strong>A model was misspecified in a way that inverted a coefficient.</strong> Regressing the
+      Marcel <em>residual</em> on batted-ball profile made ground-ball rate load negative, because the
+      residual contains overall hitter quality and ground-ball hitters are worse hitters. It was
+      measuring the wrong thing entirely.</li>
+      <li><strong>A pre-registered prediction about the 2026 rule change was wrong on the rule.</strong>
+      We predicted effects of full automation; 2026 is a challenge system. The rule should have been
+      checked before the prediction was written.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h4>Errors of scope and communication</h4>
+    <ul>
+      <li><strong>An artifact was published claiming a win it had not earned.</strong> The forecasting
+      page stated that the model separates future performance four times better than actual wOBA, which
+      is true, before any benchmark existed. Marcel separates it 3.8 times better with none of the
+      machinery. The page was revised rather than left standing.</li>
+      <li><strong>A correct narrow finding was used to justify a wrong broad conclusion.</strong> That
+      batted-ball <em>rates</em> are low signal year over year was used to argue that batted-ball
+      outcomes were not worth studying. The correct statement is far narrower: a player-season
+      <em>change</em> in a batted-ball rate is low signal, because one hitter records roughly 450 balls
+      in play a year. At the unit of the batted ball there are 486,000 observations. The aggregation was
+      the problem, not the data.</li>
+      <li><strong>A claim about documentation was made without checking.</strong> We asserted that the
+      data provider published no usable glossary. It does, and fetching it corrected four dictionary
+      entries and surfaced the rule change noted above.</li>
+      <li><strong>Unverified configuration was shipped</strong> as a recommendation, with the
+      verification left to the reader. Withdrawn and replaced after testing.</li>
+      <li><strong>Two mutually inconsistent ceilings were reported</strong> in different documents,
+      0.186 and 0.315, because one included month-to-month drift in the denominator and the other did
+      not. Reconciled at 0.264.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h4>Predictions that failed</h4>
+    <p>Five directional predictions were registered before their tests ran. Three were wrong: that
+    expected wOBA's advantage would decline monotonically with window length (it is humped); that the
+    weight on expected wOBA would fall as sample grew (the weight on actual wOBA went negative); and
+    that the measurement models would beat Marcel most for hitters whose measurements had just moved
+    (no effect at all). Recording these is the only thing that makes the two that succeeded worth
+    anything.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 12 -->
+<section class="sec" id="s12">
+  <p class="num">Section 12</p>
+  <h2>Shortcomings</h2>
+
+  <ul>
+    <li><strong>One test year.</strong> Every forecasting number rests on the 2026 holdout. Season-level
+    results rest on 245 hitters in a single season. The bootstrap intervals reflect sampling within that
+    year, not the year-to-year variability of the whole exercise.</li>
+    <li><strong>A four-season archive is a short runway.</strong> The season-level model had 267 training
+    rows where professional systems train on twenty years. Its failure is most plausibly a sample-size
+    failure rather than a verdict on the features, but that is an explanation and not a test.</li>
+    <li><strong>Swing tracking cannot ever have a long history.</strong> It begins in 2024. Even
+    backfilling to 2015 would give exit velocity eight more seasons and swing geometry none.</li>
+    <li><strong>Marcel is the floor, not the standard.</strong> Steamer and ZiPS are substantially
+    stronger and neither was tested; access to their pre-season files is gated. "No better than the
+    baseline" is therefore a weaker statement than it sounds.</li>
+    <li><strong>Survivorship in the panel.</strong> Requiring forty plate appearances in both the input
+    and target window conditions on continued playing time, which is itself informative about
+    performance.</li>
+    <li><strong>Hyperparameters were fixed by judgement, not tuned,</strong> and model selection was not
+    nested inside the bootstrap, so the intervals do not account for specification search.</li>
+    <li><strong>Post-hoc segmentation.</strong> The age and history splits were run after the main result
+    was known. Eight segments were examined; one interval excluding zero is approximately what chance
+    produces.</li>
+    <li><strong>Several causal questions were left as correlations</strong> &mdash; most notably whether
+    shortening the swing with two strikes <em>causes</em> better two-strike results.</li>
+    <li><strong>Everything is hitters, almost.</strong> The pitcher side received one afternoon and
+    immediately showed a larger expected-statistic edge than the hitter side. It is the most obviously
+    under-explored area.</li>
+    <li><strong>No interactive exploration.</strong> Every analysis was written as a script and executed.
+    Nothing was examined column by column in a live session, which is precisely how the wOBA definition
+    error survived for four days.</li>
+  </ul>
+</section>
+
+<!-- ======================================================= 13 -->
+<section class="sec" id="s13">
+  <p class="num">Section 13</p>
+  <h2>What is still open</h2>
+
+  <ol>
+    <li><strong>Why does the hitter gap persist across seasons?</strong> It is real, replicated over
+    three year-pairs at roughly +0.27, it does not appear for pitchers, and the explanation we proposed
+    has been withdrawn. This is the best open question in the project.</li>
+    <li><strong>Benchmark against Steamer and ZiPS.</strong> Requires their pre-season files
+    specifically; the continuously-updated versions already contain the season being forecast and would
+    reproduce a leak we have already made once.</li>
+    <li><strong>Test whether the season-level failure is sample size.</strong> Backfilling 2015&ndash;2022
+    would roughly quintuple the training set and settle it.</li>
+    <li><strong>Build the slump diagnostic.</strong> Section 10 establishes that the skills persist and
+    the results do not. The usable product is a tool that, given a slumping hitter, reports which of his
+    measurements have actually moved.</li>
+    <li><strong>Compute true trajectory separation</strong> at the hitter's commit point and re-test
+    tunnelling honestly.</li>
+    <li><strong>Test the count reframing.</strong> If the count dominates hitter identity by a factor of
+    two, pitch selection is a count-management problem. Nothing has been done here.</li>
+    <li><strong>Run the whole battery on pitchers.</strong></li>
+    <li><strong>Replicate the young-hitter result prospectively</strong> on a season it did not generate.</li>
+  </ol>
+</section>
+
+<footer>
+  Sources: 2,843,142 pitches of Statcast data, 2023&ndash;2026 regular seasons, held locally. All
+  forecasting models fitted on 2023&ndash;2025 and evaluated once on 2026. Intervals are percentile
+  bootstraps with 3,000&ndash;4,000 resamples, paired within resample for head-to-head comparisons.
+  Seven characterization tests now assert the findings in this report directly against the data, so that
+  a re-backfill or a provider schema change makes a test fail rather than quietly rotting a conclusion.
+  Where this report disagrees with an earlier document, this one is correct.
+</footer>
+
+</div>
