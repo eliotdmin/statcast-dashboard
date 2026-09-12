@@ -1142,3 +1142,100 @@ Critical design point discovered while looking: FanGraphs shows *continuously up
 (`type=steameru`), which already incorporate the season being forecast — using those would reproduce
 C1 leakage exactly. **The benchmark requires PRE-season files** (`type=steamer`, published ~Feb).
 Blocked pending a manual export; see RESEARCH_BACKLOG S27.
+
+---
+
+## 2026-09-12 (evening) — Counts, the gap mechanism, pitchers, and a tested projection recipe
+
+### wOBA by COUNT REACHED (counts.py) — 2023-2026
+"Reached" = the PA passed through that count at any point; nested by construction.
+| count | PA reached | wOBA | xwOBA | gap | K% | BB% | in play |
+|---|---|---|---|---|---|---|---|
+| 0-0 | 709,492 | .3237 | .3169 | +.0068 | 22.5 | 8.3 | 68.5 |
+| 0-1 | 359,281 | .2755 | .2690 | +.0065 | 30.5 | 5.1 | 63.6 |
+| **0-2** | 152,880 | **.2074** | .2003 | +.0071 | 46.1 | 3.1 | 50.0 |
+| 1-0 | 268,935 | .3641 | .3583 | +.0058 | 18.7 | 15.0 | 65.7 |
+| 1-1 | 278,631 | .3050 | .3000 | +.0050 | 27.5 | 9.7 | 62.2 |
+| 1-2 | 212,632 | .2290 | .2233 | +.0057 | 43.1 | 6.0 | 50.1 |
+| 2-0 | 90,583 | .4337 | .4272 | +.0065 | 14.3 | 30.0 | 55.2 |
+| 2-1 | 143,354 | .3628 | .3581 | +.0047 | 22.4 | 19.9 | 57.2 |
+| 2-2 | 173,320 | .2745 | .2683 | +.0062 | 38.0 | 12.9 | 48.5 |
+| **3-0** | 28,170 | **.5580** | .5494 | +.0085 | 8.4 | 62.1 | 29.2 |
+| 3-1 | 59,532 | .4825 | .4771 | +.0054 | 13.7 | 45.3 | 40.8 |
+| 3-2 | 100,553 | .3801 | .3737 | +.0064 | 27.8 | 32.2 | 39.5 |
+
+**THE COUNT MATTERS ~2x AS MUCH AS THE HITTER.** Count range .351 (.2074 to .5580) vs the range
+across 286 hitters with 1000+ PA of .185 (.2695 to .4546) = **1.89x**. On SDs: .0992 vs .0247 = 4x.
+An average hitter at 3-0 is better than the best hitter in baseball; at 0-2 he is worse than the
+worst. First strike is the most expensive event: 0-0 -> 0-1 costs -.048, 0-1 -> 0-2 another -.068.
+
+The gap is **nearly constant across all 12 counts** (+.0047 to +.0085) — a league-wide calibration
+offset, not a count effect. A 5-point wOBA-minus-xwOBA reading is inside the metric's own offset.
+
+### THE GAP MECHANISM — solved (pitchers_gap.py)
+Per batted ball, 2023-2026:
+| bb_type | n | wOBA | xwOBA | gap |
+|---|---|---|---|---|
+| **ground_ball** | 203,667 | .2553 | .2319 | **+.0234** |
+| line_drive | 115,594 | .6525 | .6470 | +.0055 |
+| fly_ball | 128,642 | .4245 | .4276 | -.0031 |
+| **popup** | 34,346 | .0161 | .0315 | **-.0153** |
+
+**~52% of the ground-ball gap is REACHED-ON-ERROR; 70% including fielder's choice.**
+| ground balls | n | gap |
+|---|---|---|
+| all | 203,667 | +.0234 |
+| excluding field_error | 200,037 | +.0113 |
+| also excluding fielders_choice | 197,336 | +.0071 |
+field_error: n=4,081, gap **+.6816**, 88.9% ground balls. xwOBA models a routine grounder at .218;
+actual wOBA credits .900 for reaching. **xwOBA structurally cannot see an error.**
+Speed is secondary: GB gap +.0257 fast vs +.0208 slow (triples/BIP as an exogenous speed marker).
+Explains the negative EV coefficient (high-EV hitters hit fewer grounders), the named
+over/under-performers, and the +0.29 season-to-season persistence (GB rate is 78% reliable).
+
+### PITCHERS (pitchers_gap.py) — the xERA question
+**xERA is NOT in the archive** (expected_stats has est_ba/est_slg/est_woba only), and true ERA is
+not reconstructible (earned vs unearned is a scorer judgement, not in the data). The available and
+arguably cleaner analogue is wOBA-against vs xwOBA-against, which is what Savant's xERA is derived
+from anyway.
+Predicting next season's wOBA-against (426 train pairs, 193 test):
+| predictor | test R2 |
+|---|---|
+| wOBA against | 0.1263 |
+| **xwOBA against** | **0.1695** |
+| K% and BB% ONLY | 0.1558 |
+| xwOBA + K% + BB% | **0.1866** |
+xwOBA-against beats wOBA-against by 34% relative — a much bigger edge than the hitter version.
+**K% and BB% alone nearly match expected wOBA using no batted-ball data at all** — DIPS (1999),
+reproduced with modern data.
+Correlation with actual runs allowed/9: wOBA-against +0.776, xwOBA-against +0.595; the margin is
+the sequencing/defence/timing term.
+**Pitcher gap is pure noise**: split-half 0.213; season-to-season +0.104 / -0.021 / +0.161.
+Contrast hitters +0.293/+0.303/+0.274. Mechanism predicts this: the persistent hitter gap comes from
+batted-ball profile and foot speed, and a pitcher has neither.
+
+### MARCEL+ — a tested projection recipe (marcel_plus.py, gapfix.py)
+Season level, 245-hitter 2026 holdout, bootstrapped, each step cumulative:
+| step | R2 | vs classic | P |
+|---|---|---|---|
+| Marcel classic (wOBA, R=1200, age) | 0.0745 | — | — |
+| 1. built on xwOBA history | 0.0770 | +0.0038 | 0.53 |
+| **2. + regress harder (R=3000)** | **0.1640** | **+0.0928** | **0.97** |
+| 3. + my structural gap adjustment | 0.1516 | +0.0798 | 0.93 |
+
+**STEP 2 IS THE WHOLE IMPROVEMENT: +0.093, more than doubling R2, from one constant.**
+Classic Marcel's R=1200 badly under-regresses this data (past->future correlation is only 0.40).
+
+**STEP 3 FAILED — my own new finding does not help projection.** First attempt was misspecified
+(regressed the Marcel residual, so GB rate loaded negative, picking up "GB hitters are worse
+hitters"). Correct specification, on the actual gap:
+- corr(prior GB rate, this season's gap) = **-0.002 train, +0.113 test** — nothing.
+- Magnitude check: .0234 per grounder x .09 sd of GB rate x .65 BIP/PA = **.0014 of wOBA per sd**,
+  against a gap sd of .0188 = **7.3% of the gap's spread**. Real but far too small to matter.
+- Adding a player's OWN prior gap is actively harmful: **-0.181 (P=0.01)** — it injects noise.
+- Only the CONSTANT helps: add the league-average gap (+.0066) to any xwOBA-based projection
+  (+0.0073, P=0.61). Free and correctly signed, but not significant.
+
+**Lesson: a mechanism can be real, correctly identified, and still operationally useless.** The
+error effect is genuine at the batted-ball level and explains the direction of the persistent gap;
+it explains 7% of its magnitude, which is not enough to forecast with.

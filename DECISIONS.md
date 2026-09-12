@@ -231,3 +231,17 @@ point-estimate win with n in the hundreds is not a win.
 symptoms of the history window including the season being forecast. The rule: when a *baseline*
 jumps far above its published performance, or when tuning pushes a regression constant toward zero,
 stop and audit the time cutoff before interpreting anything.
+
+## D22 — Regress harder than feels right; it is the only free lunch found so far
+**2026-09-12.** Changing Marcel's regression constant from the classic 1200 to a tuned 3000 moved
+season-level R2 from 0.0745 to 0.1640 — a bigger improvement than every Statcast feature in this
+repo combined. The past-to-future correlation of a hitter's weighted record is only **0.40**, so the
+right move is to keep ~40% of a hitter's deviation from league average and discard the rest, even
+with 2,000 PA of history. Any new projection in this repo starts by tuning the shrinkage, and only
+then considers features.
+
+## D23 — Check a mechanism's MAGNITUDE before building on it
+**2026-09-12.** The ground-ball/error mechanism is real, correctly identified and well evidenced,
+and it improves projection by nothing. A one-line arithmetic check — per-unit effect x spread of the
+driver x exposure, compared against the sd of the thing being explained — showed it accounts for
+7.3% of the gap's spread. **Run that check before writing the model, not after.**
