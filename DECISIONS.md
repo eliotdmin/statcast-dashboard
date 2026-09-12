@@ -217,3 +217,17 @@ explainer's own split-half reliability is near zero, it is luck, and luck cannot
 **2026-09-12.** Plate appearances alone out-predict xwOBA (0.032 vs 0.015). It is real information —
 a manager's private read on health and matchups — but it is not a hitting skill. Any model reporting
 predictive performance runs with and without it and reports both.
+
+## D20 — Every predictive claim is benchmarked against Marcel before it is published
+**2026-09-12.** "Beats xwOBA" is not an achievement; xwOBA is a descriptive statistic, not a
+forecaster. Marcel — 5/4/3 weighted seasons, regression to the mean, age bump — is the floor.
+A model that does not clear it has shown nothing, and on this dataset none of ours does at the
+one-month horizon. Any future forecasting result in this repo reports Marcel alongside it, with the
+baseline's constants **tuned on training data** and the comparison **bootstrapped**, because a
+point-estimate win with n in the hundreds is not a win.
+
+## D21 — Suspiciously good baselines mean leakage, not insight
+**2026-09-12.** Season-level Marcel scored R2=0.575 and the tuner chose "barely regress". Both were
+symptoms of the history window including the season being forecast. The rule: when a *baseline*
+jumps far above its published performance, or when tuning pushes a regression constant toward zero,
+stop and audit the time cutoff before interpreting anything.

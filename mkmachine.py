@@ -129,13 +129,17 @@ BODY = r"""
   signal, and look at what those hitters <em>actually hit the following month</em>. A useful signal
   spreads the fifths apart. A useless one collapses them.</p>
   <div class="big">
-    <div><span class="v">.010</span><span class="l">spread when you sort by what he just hit</span></div>
-    <div><span class="v">.023</span><span class="l">spread when you sort by xwOBA</span></div>
-    <div><span class="v c">.041</span><span class="l">spread when you sort by the machine</span></div>
+    <div><span class="v">.010</span><span class="l">sort by what he just hit</span></div>
+    <div><span class="v">.023</span><span class="l">sort by xwOBA</span></div>
+    <div><span class="v w">.043</span><span class="l">sort by Marcel, a 2004 baseline with no Statcast at all</span></div>
+    <div><span class="v c">.047</span><span class="l">sort by the machine</span></div>
   </div>
   <p style="margin-top:18px" class="note">Sorting hitters by the month they just had separates next
   month's production by ten points of wOBA &mdash; barely more than nothing. The machine separates it
-  by forty-one. None of this was fit on 2026.</p>
+  by forty-seven. But the third number is the one that matters: <b>a five-line formula from 2004 that
+  has never heard of exit velocity gets to forty-three.</b> Everything Statcast adds is the gap
+  between .043 and .047, and that gap is not statistically distinguishable from zero. The benchmark
+  section below is the honest accounting.</p>
 </section>
 
 <section class="st">
@@ -203,6 +207,85 @@ BODY = r"""
     wOBA is not merely weak here &mdash; it is badly miscalibrated: the bottom fifth of hitters by
     last month's wOBA claimed .247 and then hit .329.</figcaption>
   </figure>
+</section>
+
+<section class="st">
+  <div class="rule"></div>
+  <p class="eb">the benchmark &middot; added after the fact</p>
+  <h2>Marcel the Monkey fights everything above to a draw</h2>
+  <p>The first version of this page had no benchmark, and said so in its own open questions. Here it
+  is. <b>Marcel</b> is Tom Tango's deliberately stupid 2004 baseline: weight a hitter's last three
+  seasons 5/4/3, regress hard toward the league mean, nudge for age. No batted-ball data, no swing
+  tracking, no model, about five lines of arithmetic. It exists to be the line a forecaster must
+  clear before anyone should care about it.</p>
+  <p>Two things had to be fixed to make the fight fair, both against my own models. Marcel's
+  regression constant was <b>tuned on training years</b> rather than left at its off-the-shelf value,
+  because comparing a tuned model to an untuned baseline is a strawman. And every model on this page
+  had seen only <em>one month</em>, while Marcel sees a whole career &mdash; a handicap I imposed on
+  myself, not a property of Statcast &mdash; so the models were re-run with the same weighted history
+  Marcel gets.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>one-month horizon, 2026 holdout</th><th class="n">R&sup2;</th>
+      <th class="n">95% interval</th><th class="n">sorting spread</th></tr></thead>
+    <tbody>
+      <tr><td>this month's xwOBA alone</td><td class="n">0.015</td><td class="n">[&minus;.016, +.044]</td><td class="n">+.023</td></tr>
+      <tr class="hl"><td><b>MARCEL, tuned</b></td><td class="n"><b>0.058</b></td><td class="n">[+.016, +.098]</td><td class="n">+.043</td></tr>
+      <tr><td>current window, 48 Statcast features</td><td class="n">0.057</td><td class="n">[+.013, +.097]</td><td class="n">+.047</td></tr>
+      <tr><td>weighted Statcast history, 19 features</td><td class="n">0.062</td><td class="n">[+.017, +.105]</td><td class="n">+.047</td></tr>
+      <tr><td>everything: now + history + Marcel</td><td class="n">0.060</td><td class="n">[+.016, +.103]</td><td class="n">+.045</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>They are the same forecaster.</b> Every head-to-head gap has a bootstrap interval straddling
+  zero: the 48-feature model minus Marcel is &minus;.002 [&minus;.039, +.033], probability the model
+  is better <b>0.46</b>. The best combination minus Marcel is +.002, probability <b>0.55</b>. A coin
+  flip. Two seasons of Statcast columns, 1.0 million tracked swings, gradient boosting &mdash; and the
+  monkey is level.</p>
+
+  <h3 style="margin-top:14px">On Marcel's home ground it is worse than that</h3>
+  <p class="note">Season-to-season, forecasting 2026 from prior seasons only, 245 hitters:
+  tuned Marcel <b>0.164</b>; the best thing I could build from past Statcast, a 20-feature boosted
+  model, <b>&minus;0.060</b> &mdash; actively worse than predicting league average for everyone
+  (gap &minus;0.228, probability it beats Marcel <b>0.00</b>). With 267 training seasons, a flexible
+  model on 20 correlated features overfits and a three-parameter formula does not. A simple shrunk
+  average of past xwOBA ties Marcel exactly (0.166 vs 0.164, probability 0.53), which is the real
+  lesson: <b>the value is in the shrinking, not in the features.</b></p>
+  <p class="note">Marcel's age adjustment, the crudest part of it, is doing genuine work: removing it
+  costs 0.062 of R&sup2; (probability the no-age version is better: 0.01). A 2004 heuristic with two
+  hard-coded constants survives contact with four seasons of tracking data.</p>
+
+  <h3 style="margin-top:14px">Where Statcast does win</h3>
+  <p class="note">Marcel's blind spot is a hitter it has never seen. Splitting the 2026 test months
+  into quarters by how much prior history the hitter has:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>prior history</th><th class="n">n</th><th class="n">Marcel</th><th class="n">model</th>
+      <th class="n">gap</th><th class="n">P(model better)</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>least history</td><td class="n">272</td><td class="n">0.007</td><td class="n">0.056</td><td class="n">+0.049</td><td class="n">0.94</td></tr>
+      <tr><td>second quarter</td><td class="n">271</td><td class="n">0.042</td><td class="n">0.052</td><td class="n">+0.011</td><td class="n">0.65</td></tr>
+      <tr><td>third quarter</td><td class="n">271</td><td class="n">0.117</td><td class="n">0.105</td><td class="n">&minus;0.014</td><td class="n">0.31</td></tr>
+      <tr><td>most history</td><td class="n">271</td><td class="n">0.048</td><td class="n">0.008</td><td class="n">&minus;0.040</td><td class="n">0.11</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Monotone across four buckets and in the direction theory predicts: measurement beats
+  history precisely where there is no history to average. For a rookie or a hitter with a few hundred
+  career plate appearances, a month of bat speed and exit velocity is worth having. For an
+  established veteran it is worse than his own track record.</p>
+  <p class="note"><b>A prediction of mine that failed.</b> I expected the largest Statcast advantage
+  among hitters whose measurements had just moved &mdash; Marcel literally cannot see a three-mph bat
+  speed gain. Splitting the test set by how far this month's bat speed and exit velocity sat from the
+  hitter's own history, the top decile of movers shows a gap of <b>&minus;0.001, probability 0.50</b>.
+  Exactly nothing. The blind spot I was sure mattered does not, at least at one month of sample.</p>
+
+  <div class="box" style="margin-top:6px">
+    <h3>What this does and does not license</h3>
+    <p class="note">It does not license "Statcast is useless for forecasting". Four seasons is a
+    short runway: the season-level model had 267 training rows, where real systems train on twenty
+    years, and its failure is a sample-size failure rather than a verdict on the features. It also
+    does not license "the machine works", which is what this page said before the benchmark existed.
+    What it licenses is narrow and worth stating plainly: <b>at one month, with four seasons of
+    training data, the entire Statcast apparatus is worth about as much as a 2004 weighted average
+    &mdash; except for hitters without a track record, where it is worth considerably more.</b></p>
+  </div>
 </section>
 
 <section class="st">
@@ -448,10 +531,28 @@ BODY = r"""
     Rest-of-season is what a roster decision actually needs, and it has a higher ceiling because the
     target is less noisy. One line of code; not yet run.</li>
 
-    <li><b>Nothing here has been tested against a public benchmark.</b> Marcel, Steamer and ZiPS all
-    forecast the same quantity and are the obvious reference points. A model that beats xwOBA but
-    loses to a thirty-year-old three-year-weighted average with an age adjustment has not achieved
-    much, and I do not currently know which side of that line this sits on.</li>
+    <li><b>Marcel is answered; Steamer and ZiPS are not.</b> The benchmark section above settles the
+    Marcel question: a draw overall, a loss on its home ground, a win only for hitters without a track
+    record. Steamer and ZiPS are considerably stronger than Marcel and neither has been tried. The
+    honest expectation is that they beat everything on this page.</li>
+
+    <li><b>Is the season-level failure really just sample size?</b> A 20-feature model scoring
+    &minus;0.06 on 267 training seasons is the textbook signature of overfitting, but that is a story,
+    not a test. Backfilling 2015&ndash;2022 would roughly quintuple the training set and settle it.
+    Exit velocity exists from 2015; bat tracking does not exist before 2024, so the swing-geometry
+    features can never have a long runway and may simply be unusable at season scale.</li>
+
+    <li><b>The low-history win is the most promising thread and the least explored.</b> The gradient
+    is monotone across four buckets but the top bucket's interval still touches zero. The natural
+    test is prospective and narrow: restrict to hitters in their first 200 career plate appearances
+    and see whether a Statcast-only forecast beats a full-regression-to-league-mean prior, which is
+    all Marcel can offer them.</li>
+
+    <li><b>If the value is in the shrinking rather than the features, build the shrinker properly.</b>
+    A shrunk average of past xwOBA ties Marcel exactly. That suggests the whole deliverable might be
+    two numbers &mdash; a per-metric regression constant and a weighting scheme &mdash; rather than a
+    model. Much easier to trust, much easier to ship, and it would make the interactive instrument
+    above simpler rather than more complex.</li>
   </ol>
 </section>
 
@@ -461,8 +562,9 @@ BODY = r"""
   coefficient. Weighted by target-window plate appearances throughout. The instrument above runs the
   22-feature ridge, whose out-of-sample R&sup2; is 0.030 against xwOBA's 0.015; the boosted-tree
   version reaches 0.057 but does not port to a web page. Forecast intervals use the holdout RMSE of
-  .037. Scripts: <code>extract_monthly.py</code>, <code>predict.py</code>, <code>predict2.py</code>,
-  <code>gapclean.py</code>.
+  .037. Marcel comparisons use tuned regression constants and 3,000-sample bootstraps throughout.
+  Scripts: <code>extract_monthly.py</code>, <code>predict.py</code>, <code>predict2.py</code>,
+  <code>gapclean.py</code>, <code>marcel.py</code>, <code>marcel3.py</code>, <code>marcel4.py</code>.
 </footer>
 
 </div>

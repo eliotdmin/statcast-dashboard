@@ -198,3 +198,26 @@ of injuries and platoons. Condition on consecutive healthy months and on a fixed
 ### S26 — Run the whole thing for pitchers
 Every result so far is hitters only. Prior: lower ceiling, larger xwOBA edge, since pitchers control
 batted-ball outcomes far less than hitters do.
+
+### S22 — CLOSED 2026-09-12. Marcel benchmark run; result is a draw (see FINDINGS).
+Superseded by S27-S30 below.
+
+### S27 — Benchmark against Steamer and ZiPS
+Marcel is the floor, not the standard. Both are considerably stronger and neither has been tried.
+Honest expectation: they beat everything currently in this repo.
+
+### S28 — Is the season-level failure sample size, or the features?
+A 20-feature GBM at R2 = -0.060 on 267 training seasons is textbook overfitting, but that is a story,
+not a test. Backfill 2015-2022 (~5x the training set) and re-run. Note the asymmetry: exit velocity
+exists from 2015, **bat tracking does not exist before 2024**, so swing-geometry features can never
+have a long runway and may be permanently unusable at season scale.
+
+### S29 — The low-history win: the project's only real niche, barely explored
+Model beats Marcel by +0.049 (P=0.94) in the bottom quartile of prior history, monotone across all
+four buckets. Narrow prospective test: hitters inside their first 200 career PA, Statcast-only
+forecast vs full regression to league mean (all Marcel can offer them).
+
+### S30 — If the value is in the shrinking, build the shrinker, not the model
+A shrunk average of past xwOBA ties Marcel exactly. That suggests the deliverable is two numbers —
+a per-metric regression constant and a weighting scheme — not a model. Easier to trust, easier to
+ship, and it makes the interactive instrument simpler rather than more complex.

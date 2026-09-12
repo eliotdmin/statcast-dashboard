@@ -1021,3 +1021,78 @@ explainable share quadruples.** Luck averaging out, physical residue surviving.
 Gap predicting future wOBA, controlling for xwOBA level: 1 month null (-0.038 +/- 0.024);
 3 months **-0.107 +/- 0.054, real**. Over a real stretch, beating your expected output forecasts
 giving it back.
+
+---
+
+## 2026-09-12 (later) — S22 answered: Marcel fights the whole project to a draw
+
+**Marcel** (Tango 2004): weight last 3 seasons 5/4/3, regress toward league mean, age bump.
+No batted-ball data, no swing tracking, ~5 lines. The line any forecaster must clear.
+
+Two fairness corrections made AGAINST my own models before judging:
+1. Marcel's regression constant **tuned on training years** (comparing a tuned model to an untuned
+   baseline is a strawman).
+2. Every model in predict.py saw only ONE window while Marcel sees a career — a handicap I imposed,
+   not a property of Statcast. Models re-run **with the same weighted history**.
+
+### One-month horizon, 2026 holdout, 3,000-sample bootstraps
+| forecaster | R2 | 95% | sort spread |
+|---|---|---|---|
+| this month's xwOBA | 0.015 | [-.016,+.044] | +.023 |
+| **MARCEL, tuned** | **0.058** | [+.016,+.098] | +.043 |
+| current window, 48 Statcast features | 0.057 | [+.013,+.097] | +.047 |
+| weighted Statcast history, 19 feats | 0.062 | [+.017,+.105] | +.047 |
+| everything (now + history + Marcel) | 0.060 | [+.016,+.103] | +.045 |
+
+**Every head-to-head gap straddles zero.** 48-feature minus Marcel = **-0.002 [-0.039,+0.033],
+P(model better) = 0.46**. Everything minus Marcel = +0.002, P = 0.55. **A coin flip.**
+
+### Season level (Marcel's home ground), prior seasons only, n=245
+| forecaster | R2 | 95% |
+|---|---|---|
+| MARCEL tuned | **0.164** | [+.011,+.290] |
+| weighted past xwOBA, shrunk | 0.166 | [+.030,+.280] |
+| MARCEL classic R=1200 | 0.075 | [-.123,+.235] |
+| MARCEL no age bump | 0.102 | [-.070,+.244] |
+| **Statcast history, 20 features (GBM)** | **-0.060** | [-.307,+.127] |
+
+The 20-feature GBM is **worse than predicting league average for everyone** (gap -0.228, P=0.00).
+267 training seasons, 20 correlated features -> overfit. A 3-parameter formula does not.
+**A shrunk average of past xwOBA ties Marcel exactly** (0.166 vs 0.164, P=0.53).
+**The value is in the shrinking, not the features.**
+Marcel's age adjustment is real: removing it costs 0.062 (P=0.01). A 2004 heuristic with two
+hard-coded constants survives four seasons of tracking data.
+
+### WHERE Statcast does win: hitters without a track record
+| prior history (quartile) | n | Marcel | model | gap | P(model better) |
+|---|---|---|---|---|---|
+| **least** | 272 | 0.007 | 0.056 | **+0.049** | **0.94** |
+| second | 271 | 0.042 | 0.052 | +0.011 | 0.65 |
+| third | 271 | 0.117 | 0.105 | -0.014 | 0.31 |
+| most | 271 | 0.048 | 0.008 | -0.040 | 0.11 |
+Monotone across four buckets, in the predicted direction. Measurement beats history exactly where
+there is no history to average. This is the project's real niche.
+
+### A PREDICTION OF MINE THAT FAILED
+I predicted the largest Statcast edge among hitters whose measurements had just MOVED, since Marcel
+cannot see a 3 mph bat-speed gain. Top decile of movers: gap **-0.001, P=0.50**. Exactly nothing.
+The blind spot I was sure mattered does not, at one month of sample.
+
+### A LEAK I CAUGHT IN MY OWN BENCHMARK
+First pass scored season-level Marcel at R2=0.575 with tuning driving the regression constant down
+to 200. Cause: `hist_sums(b, y, thru=99)` included the season being forecast. Signature to remember:
+**a baseline suddenly performing implausibly well, plus tuning that says "barely regress", is
+leakage until proven otherwise.** Fixed in marcel3.py (prior seasons only). The monthly arm was
+always clean — its cutoff is the input month.
+
+### What this licenses, precisely
+NOT "Statcast is useless for forecasting" — 4 seasons is a short runway and the season-level failure
+is a sample-size failure. NOT "the machine works". It licenses exactly: **at one month, with four
+seasons of training data, the entire Statcast apparatus is worth about as much as a 2004 weighted
+average — except for hitters without a track record, where it is worth considerably more.**
+
+### Ceiling, reconciled (two inconsistent numbers had been reported)
+var(baseline talent) .001190 / var(one month's drift) .000726 / var(noise at 87 PA) .002588.
+- realistic ceiling (knows talent, cannot foresee drift) **R2 = 0.264**
+- oracle ceiling (also foresees drift, unreachable) R2 = 0.425
+Marcel and the models all sit at **21-23% of the realistic ceiling**; xwOBA alone at 6%.
