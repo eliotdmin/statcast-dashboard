@@ -1,0 +1,726 @@
+<title>Forecasting Hitters from Short Samples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#fcfbf8; --card:#fffefc; --sunk:#f2efe9; --rule:#ddd8cf; --hair:#e8e4dc;
+  --ink:#15161a; --ink2:#4c4f57; --ink3:#85878f;
+  --ac:#7a2e3e; --ac-soft:#f4e9eb; --slate:#42536b; --ok:#2f6144;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --paper:#0e0f12; --card:#15171b; --sunk:#1a1c21; --rule:#2e3138; --hair:#25282d;
+  --ink:#eceef1; --ink2:#a6a9b1; --ink3:#757982;
+  --ac:#d2929d; --ac-soft:#2c1a1e; --slate:#8ea4c4; --ok:#7fb99a;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0e0f12; --card:#15171b; --sunk:#1a1c21; --rule:#2e3138; --hair:#25282d;
+  --ink:#eceef1; --ink2:#a6a9b1; --ink3:#757982;
+  --ac:#d2929d; --ac-soft:#2c1a1e; --slate:#8ea4c4; --ok:#7fb99a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;font-size:16.5px;line-height:1.66;
+  font-variant-numeric:oldstyle-nums}
+.wrap{max-width:820px;margin:0 auto;padding-block:52px 110px;padding-left:22px;padding-right:22px;
+  display:flex;flex-direction:column;gap:34px}
+.m,code,.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-size:.86em;background:var(--sunk);padding:1px 5px;color:var(--ink2)}
+h1{font-size:clamp(30px,4.6vw,40px);font-weight:700;letter-spacing:-.015em;margin:0;line-height:1.12;
+  text-wrap:balance}
+h2{font-size:22px;font-weight:700;margin:0;letter-spacing:-.008em;text-wrap:balance;
+  display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ac);font-weight:600;
+  flex:none;padding-top:2px}
+h3{font-size:17px;font-weight:600;margin:0;display:flex;gap:10px;align-items:baseline}
+h3 .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3);font-weight:500;flex:none}
+p{margin:0;max-width:68ch}
+.sec{display:flex;flex-direction:column;gap:14px;padding-top:6px;border-top:1px solid var(--rule)}
+.sub{display:flex;flex-direction:column;gap:10px}
+.abs{background:var(--sunk);padding:20px 22px;display:flex;flex-direction:column;gap:12px;
+  border-left:3px solid var(--ac)}
+.abs p{max-width:66ch}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink3)}
+.eq{background:var(--card);border:1px solid var(--hair);padding:14px 18px;margin:2px 0;
+  font-family:"IBM Plex Mono",monospace;font-size:14px;line-height:1.9;overflow-x:auto;color:var(--ink)}
+.eq .c{color:var(--ink3);font-size:12.5px}
+.note{font-size:14.5px;color:var(--ink2)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:470px;font-family:"IBM Plex Mono",monospace;
+  font-size:12.8px;font-variant-numeric:tabular-nums lining-nums}
+caption{text-align:left;font-family:"Source Serif 4",serif;font-size:14px;color:var(--ink2);
+  padding-bottom:7px;font-style:italic}
+th,td{padding:6px 9px;text-align:left;border-bottom:1px solid var(--hair)}
+thead th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);font-weight:500;
+  border-bottom:1px solid var(--rule);white-space:nowrap;vertical-align:bottom}
+td.n,th.n{text-align:right}
+tbody tr:last-child td{border-bottom:1px solid var(--rule)}
+tr.hl td{background:var(--sunk)}
+td.name{font-family:"Source Serif 4",serif;font-size:14px}
+.v-y{color:var(--ok);font-weight:600}.v-n{color:var(--ac);font-weight:600}.v-p{color:var(--ink3);font-weight:600}
+ul,ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:9px}
+li{max-width:67ch}
+ol.hang{list-style:none;padding-left:0;counter-reset:h}
+ol.hang>li{counter-increment:h;position:relative;padding-left:38px}
+ol.hang>li::before{content:"[" counter(h) "]";position:absolute;left:0;top:0;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ac);font-weight:600}
+.corr{border-left:3px solid var(--ac);background:var(--ac-soft);padding:14px 17px;
+  display:flex;flex-direction:column;gap:8px}
+.corr .lbl{color:var(--ac)}
+.corr p{color:var(--ink2)}
+.box{background:var(--card);border:1px solid var(--hair);padding:15px 18px;
+  display:flex;flex-direction:column;gap:9px}
+.toc{columns:2;column-gap:30px;font-size:14px}
+.toc a{display:block;color:var(--ink2);text-decoration:none;padding:3px 0;break-inside:avoid}
+.toc a:hover{color:var(--ac)}
+.toc a .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3);margin-right:8px}
+footer{border-top:1px solid var(--rule);padding-top:16px;color:var(--ink3);font-size:13px;max-width:70ch}
+sup{font-size:.7em;color:var(--ac);font-family:"IBM Plex Mono",monospace}
+@media(max-width:560px){.toc{columns:1}body{font-size:16px}}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <p class="lbl">statcast-dashboard &middot; technical record &middot; 12 September 2026</p>
+  <h1>Forecasting Hitters from Short Samples</h1>
+  <p class="note" style="font-size:15px">A formal record of the forecasting work: estimators,
+  assumptions, hypotheses with their pre-registration status, test statistics with intervals, and a
+  log of the errors found and corrected. Companion to the interactive instrument; this document is
+  the arithmetic, not the argument.</p>
+</header>
+
+<section class="abs">
+  <p class="lbl">abstract</p>
+  <p>Using 10,287 hitter-months of Statcast data (2023&ndash;2026), we ask whether expected
+  statistics forecast future production better than realised ones, whether a richer feature set
+  improves on them, and what explains the residual between the two. At a one-month horizon,
+  realised wOBA has <em>negative</em> out-of-sample R&sup2; (&minus;0.004); xwOBA reaches 0.015; a
+  48-feature gradient-boosted model reaches 0.057. All three are dominated by the noise floor: at
+  the mean test sample of 87 plate appearances, a forecaster with perfect knowledge of stable talent
+  attains R&sup2; = 0.264, so the best model captures 21% of what is attainable.</p>
+  <p>Benchmarked against Marcel &mdash; a 2004 three-year weighted average with regression to the
+  mean and an age adjustment &mdash; every model is statistically indistinguishable (48-feature model
+  minus Marcel: &minus;0.002, 95% CI [&minus;0.039, +0.033]). At season level Marcel is superior to
+  a Statcast-history model (0.164 vs &minus;0.060). The exception is hitters aged 22&ndash;25, where
+  the model exceeds Marcel by +0.065 (CI [+0.003, +0.125]).</p>
+  <p>The wOBA&ndash;xwOBA residual is not a within-season skill (split-half &rho; = 0.164) but is
+  weakly persistent across seasons (r = +0.27 to +0.30 over three year-pairs), driven by foot speed
+  and pull tendency; exit velocity carries a negative coefficient at every window length. Three
+  pre-registered predictions failed and are reported as such.</p>
+</section>
+
+<section class="sec">
+  <h2><span class="n">&sect;</span>Contents</h2>
+  <nav class="toc">
+    <a href="#s1"><span class="n">1</span>Data and scope</a>
+    <a href="#s2"><span class="n">2</span>Definitions and estimators</a>
+    <a href="#s3"><span class="n">3</span>The predictability ceiling</a>
+    <a href="#s4"><span class="n">4</span>Forecasters compared</a>
+    <a href="#s5"><span class="n">5</span>Hypotheses and status</a>
+    <a href="#s6"><span class="n">6</span>Results</a>
+    <a href="#s7"><span class="n">7</span>Threats to validity</a>
+    <a href="#s8"><span class="n">8</span>Corrections log</a>
+    <a href="#s9"><span class="n">9</span>Open questions</a>
+    <a href="#s10"><span class="n">10</span>Reproducibility</a>
+  </nav>
+</section>
+
+<!-- ============================================================ 1 -->
+<section class="sec" id="s1">
+  <h2><span class="n">1</span>Data and scope</h2>
+
+  <div class="sub">
+    <h3><span class="n">1.1</span>Source</h3>
+    <p>Pitch-level Statcast data retrieved via <code>pybaseball</code> into a local SQLite database:
+    2,843,142 pitches, 119 columns, regular seasons 2023&ndash;2026, the 2026 season complete
+    through 11 September. Aggregated to one row per (batter, season, calendar month) with 15+ plate
+    appearances, giving the panel below. All aggregation is by summed counts rather than averaged
+    rates, so any window length can be composed by addition.</p>
+    <div class="scroll"><table>
+      <caption>Table 1. Panel coverage. Swing-geometry share is the fraction of hitter-months with
+      any tracked <code>attack_angle</code>.</caption>
+      <thead><tr><th>season</th><th class="n">hitter-months</th><th class="n">plate appearances</th>
+        <th class="n">swing geometry</th></tr></thead>
+      <tbody>
+        <tr><td>2023</td><td class="n">2,507</td><td class="n">177,473</td><td class="n">49.9%</td></tr>
+        <tr><td>2024</td><td class="n">2,579</td><td class="n">175,968</td><td class="n">96.4%</td></tr>
+        <tr><td>2025</td><td class="n">2,635</td><td class="n">176,759</td><td class="n">100%</td></tr>
+        <tr><td>2026</td><td class="n">2,566</td><td class="n">159,685</td><td class="n">100%</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">1.2</span>Scope limits that bind the conclusions</h3>
+    <ol class="hang">
+      <li><b>The archive begins in 2023.</b> Nothing here observes a hitter before that season. Any
+      Marcel-style forecast needs three prior years, so only the 2026 season can be forecast at
+      season level, giving a single test year (n = 245). This is the binding constraint on every
+      season-level result and the most likely explanation for one of them (&sect;6.2).</li>
+      <li><b>Bat tracking does not exist before 2024.</b> <code>attack_angle</code>,
+      <code>attack_direction</code>, <code>swing_path_tilt</code> and contact-point coordinates are
+      half-populated in 2023 and complete thereafter. Swing-geometry features are therefore a
+      2024&ndash;2026 asset and can never acquire a long history, regardless of further backfill.</li>
+      <li><b>2026 is a temporal holdout</b> and was never used for fitting, tuning, or feature
+      selection in any arm.</li>
+      <li><b>No sprint speed, no umpire identity, no fielder coordinates.</b> The
+      <code>sprint_speed</code> table holds 552 rows (one season); <code>umpire</code> is an empty
+      column. Fielding alignment (<code>if_fielding_alignment</code>) <em>is</em> present on 99.8% of
+      batted balls and is used.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="sec" id="s2">
+  <h2><span class="n">2</span>Definitions and estimators</h2>
+
+  <div class="sub">
+    <h3><span class="n">2.1</span>wOBA and xwOBA</h3>
+    <p><b>wOBA</b> (weighted on-base average) assigns each plate-appearance outcome its average run
+    value, scaled to the on-base-percentage range. It is a <em>descriptive</em> statistic: it records
+    what happened. <b>xwOBA</b> replaces each batted ball's actual outcome with the league-average
+    wOBA of balls hit at the same exit velocity and launch angle
+    (<code>estimated_woba_using_speedangle</code>), leaving strikeouts and walks as they are. It is
+    therefore a statement about how the ball was struck, deliberately blind to where it was hit, to
+    the park, and to the defence.</p>
+    <div class="eq">
+      wOBA  = &Sigma; w(outcome) / PA<br>
+      xwOBA = &Sigma; E[w | exit velocity, launch angle] / PA<br>
+      <span class="c">both summed over plate appearances with woba_denom = 1</span>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">2.2</span>Split-half reliability and Spearman&ndash;Brown</h3>
+    <p>Reliability asks how much of the spread in a measured statistic is real and how much is
+    sampling noise. Operationally: split a player's season into two halves that should be
+    equivalent &mdash; here, odd-numbered calendar months against even-numbered ones &mdash; compute
+    the statistic in each, and correlate the two halves across players.</p>
+    <p>A correlation of 1 means the statistic is perfectly repeatable and every difference between
+    players is real. A correlation of 0 means the two halves are unrelated and the entire apparent
+    spread was noise. Because each half has only half the data, this understates the reliability of
+    the full season, and the <b>Spearman&ndash;Brown</b> correction restores it:</p>
+    <div class="eq">
+      &rho;<sub>full</sub> = 2r / (1 + r)
+      <span class="c">&nbsp;&nbsp;where r is the half-to-half correlation</span>
+    </div>
+    <p class="note">Equivalently: reliability = var(true) / var(observed). It is the fraction of the
+    variance in what you measured that reflects genuine differences between players. This is the
+    quantity that decides whether a statistic is worth discussing at all. A statistic with reliability
+    0.16 cannot support a claim about any individual, however large the number looks.</p>
+    <p class="note"><b>Two caveats on the odd/even split.</b> It assumes the halves are exchangeable,
+    which fails if a hitter genuinely changed mid-season &mdash; real change is then scored as
+    unreliability. And it assumes both halves have similar sample sizes; Spearman&ndash;Brown is
+    derived for parallel tests of equal length. Both caveats push the estimate <em>down</em>, so the
+    reliabilities in Table 6 are lower bounds.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">2.3</span>Variance decomposition and signal share</h3>
+    <p>For any observed quantity that is a true value plus independent sampling error, variances add:</p>
+    <div class="eq">
+      var(observed) = var(true) + var(noise)<br>
+      signal share  = var(true) / var(observed)  =  1 &minus; var(noise)/var(observed)
+    </div>
+    <p>var(noise) is computable from sample sizes alone &mdash; for a rate, <span class="m">p(1&minus;p)/n</span>;
+    for a mean, <span class="m">s&sup2;/n</span> &mdash; so the true spread is recoverable by subtraction
+    without ever observing a true value. Applied to <em>changes</em> rather than levels, the same
+    identity gives the fraction of an observed year-over-year change worth believing.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">2.4</span>Shrinkage</h3>
+    <p>The signal share is also the optimal multiplier on an observed deviation. For an observation
+    with standard error <span class="m">se</span> drawn from a population with true variance
+    <span class="m">&sigma;&sup2;<sub>true</sub></span>:</p>
+    <div class="eq">
+      estimate = league mean + (observed &minus; league mean) &times; k<br>
+      k = &sigma;&sup2;<sub>true</sub> / (&sigma;&sup2;<sub>true</sub> + se&sup2;)
+    </div>
+    <p class="note">This is the posterior mean under a normal prior &mdash; empirical Bayes &mdash;
+    and is the estimator Stein (1961) proved dominates the raw observation for three or more
+    parameters. Efron and Morris (1977) illustrated it using the batting averages of 18 players after
+    45 at-bats, reducing total squared error against rest-of-season by roughly a factor of 3.5. The
+    principal empirical finding of this project (&sect;6.2) is a rediscovery of that result.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">2.5</span>Evaluation metric</h3>
+    <p>All forecasts are scored by out-of-sample R&sup2; against the test set's own weighted mean,
+    weighted by the <em>target</em> window's plate appearances so that a 40-PA month does not count
+    as much as a 120-PA one:</p>
+    <div class="eq">
+      R&sup2; = 1 &minus; &Sigma; w<sub>i</sub>(y<sub>i</sub> &minus; &#374;<sub>i</sub>)&sup2;
+      / &Sigma; w<sub>i</sub>(y<sub>i</sub> &minus; &#563;<sub>w</sub>)&sup2;
+      <span class="c">&nbsp;&nbsp;w<sub>i</sub> = target-window PA</span>
+    </div>
+    <p class="note">A negative value therefore means the forecaster is worse than assuming every
+    hitter is exactly league average. Intervals are percentile bootstraps over test rows, 3,000
+    resamples, resampling the row and recomputing the whole statistic including the denominator.
+    Head-to-head gaps are computed <em>within</em> each resample, which is the paired comparison and
+    is far tighter than differencing two independent intervals.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="sec" id="s3">
+  <h2><span class="n">3</span>The predictability ceiling</h2>
+  <p>R&sup2; against a one-month target is bounded well below 1 because the target is mostly
+  sampling noise. Establishing that bound is a precondition for interpreting any of the results.</p>
+  <p>For two months of the same hitter within one season, assume the observed rates differ by true
+  drift plus independent sampling error. Then:</p>
+  <div class="eq">
+    E[(w<sub>1</sub> &minus; w<sub>2</sub>)&sup2;] = &sigma;&sup2;(1/pa<sub>1</sub> + 1/pa<sub>2</sub>)
+    + var(&Delta;true)<br>
+    <span class="c">regress the squared differences on (1/pa&#8321; + 1/pa&#8322;):</span><br>
+    <span class="c">slope = &sigma;&sup2;, intercept = var(&Delta;true)</span>
+  </div>
+  <p>Estimated on 16,228 within-season month pairs (both months 30+ PA):</p>
+  <div class="scroll"><table>
+    <caption>Table 2. Variance components of a hitter's monthly wOBA.</caption>
+    <thead><tr><th>component</th><th class="n">variance</th><th class="n">sd</th><th>source</th></tr></thead>
+    <tbody>
+      <tr><td class="name">per-plate-appearance outcome</td><td class="n">0.22578</td><td class="n">0.475</td><td class="name">regression slope</td></tr>
+      <tr><td class="name">one month's drift off baseline</td><td class="n">0.000726</td><td class="n">0.0269</td><td class="name">intercept &divide; 2</td></tr>
+      <tr><td class="name">stable talent, across 670 hitters</td><td class="n">0.001190</td><td class="n">0.0345</td><td class="name">between-hitter variance</td></tr>
+      <tr class="hl"><td class="name">sampling noise at 87 PA</td><td class="n">0.002588</td><td class="n">0.0509</td><td class="name">&sigma;&sup2;/n</td></tr>
+    </tbody>
+  </table></div>
+  <p>At the test set's mean target of 87 plate appearances, sampling noise is <b>more than twice the
+  combined variance of talent and drift</b>. Two ceilings follow:</p>
+  <div class="eq">
+    R&sup2;<sub>stable</sub> = var(talent) / [var(talent) + var(drift) + &sigma;&sup2;/n] = <b>0.264</b><br>
+    R&sup2;<sub>oracle</sub> = [var(talent) + var(drift)] / [same denominator] = <b>0.425</b>
+  </div>
+  <p class="note">The first is the realistic ceiling: a forecaster with perfect knowledge of every
+  hitter's stable talent, unable to foresee which month he will run hot. The second is unattainable
+  &mdash; it requires foreseeing the drift itself. <b>Every R&sup2; in &sect;6 should be read against
+  0.264, not against 1.0.</b></p>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="sec" id="s4">
+  <h2><span class="n">4</span>Forecasters compared</h2>
+  <div class="sub">
+    <h3><span class="n">4.1</span>Marcel</h3>
+    <p>Tango (2004). Three steps, no batted-ball data:</p>
+    <div class="eq">
+      1.  weighted record = &Sigma;<sub>j=1..3</sub> w<sub>j</sub>&middot;num<sub>y&minus;j</sub>
+          / &Sigma;<sub>j</sub> w<sub>j</sub>&middot;PA<sub>y&minus;j</sub>,
+          &nbsp; w = (5, 4, 3)<br>
+      2.  regressed = (&Sigma;w&middot;num + R&middot;lg) / (&Sigma;w&middot;PA + R)<br>
+      3.  &times; (1 + (29 &minus; age)&middot;0.006) if age &lt; 29, else &times; (1 + (29 &minus; age)&middot;0.003)
+    </div>
+    <p class="note">R is the regression constant, classically 1200. Here it is <b>tuned on training
+    years only</b> (grid 200&ndash;3000) so that the baseline receives the same courtesy as the
+    challengers; comparing a tuned model to an untuned baseline is a strawman. The tuner selected
+    R = 3000 at season level and R = 1200 with xwOBA history at month level. The monthly variant adds
+    the current season through the input month at the top weight.</p>
+  </div>
+  <div class="sub">
+    <h3><span class="n">4.2</span>Statcast models</h3>
+    <p>Nested feature sets: base (wOBA, xwOBA) &rarr; contact quality (8) &rarr; plate discipline (8)
+    &rarr; batted-ball mix (8) &rarr; speed proxies (3) &rarr; context and playing time (10) &rarr;
+    swing geometry (9); 48 total. Three learners: ridge with generalised cross-validated &alpha;;
+    histogram gradient boosting (350 iterations, depth 3, learning rate 0.04, min leaf 40, L2 = 1);
+    random forest (300 trees, min leaf 12). Median imputation fitted on training rows only. A
+    19-feature <em>weighted-history</em> variant applies Marcel's (5,4,3,2) weights to every Statcast
+    feature rather than to wOBA alone.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="sec" id="s5">
+  <h2><span class="n">5</span>Hypotheses and status</h2>
+  <p>Pre-registered means the direction was written down before the query ran. Three of the five
+  pre-registered predictions failed. They are reported at the same weight as the successes.</p>
+  <div class="scroll"><table>
+    <caption>Table 3. Hypothesis register. &sect; references the result.</caption>
+    <thead><tr><th>#</th><th>prediction</th><th>status</th><th>outcome</th><th class="n">&sect;</th></tr></thead>
+    <tbody>
+      <tr><td class="n">P1</td><td class="name">xwOBA's edge over wOBA declines monotonically as the window lengthens</td>
+        <td class="name">pre-registered</td><td class="v-n">FAILED &mdash; humped, peaks at 2&ndash;3 months</td><td class="n">6.1</td></tr>
+      <tr><td class="n">P2</td><td class="name">weight on xwOBA falls as input sample grows</td>
+        <td class="name">pre-registered</td><td class="v-n">FAILED &mdash; weight on wOBA turns negative</td><td class="n">6.1</td></tr>
+      <tr><td class="n">P3</td><td class="name">the explainable share of the wOBA&minus;xwOBA gap rises with window length</td>
+        <td class="name">pre-registered</td><td class="v-y">CONFIRMED &mdash; 0.034 &rarr; 0.137</td><td class="n">6.4</td></tr>
+      <tr><td class="n">P4</td><td class="name">Statcast beats Marcel most for hitters with little history</td>
+        <td class="name">pre-registered</td><td class="v-y">CONFIRMED &mdash; monotone over four quartiles</td><td class="n">6.3</td></tr>
+      <tr><td class="n">P5</td><td class="name">Statcast beats Marcel most for hitters whose measurements just moved</td>
+        <td class="name">pre-registered</td><td class="v-n">FAILED &mdash; gap &minus;0.001, P = 0.50</td><td class="n">6.3</td></tr>
+      <tr class="hl"><td class="n">O1</td><td class="name">realised wOBA has negative out-of-sample R&sup2; at one month</td>
+        <td class="name">post-hoc</td><td class="v-p">observed</td><td class="n">6.1</td></tr>
+      <tr class="hl"><td class="n">O2</td><td class="name">playing time alone out-predicts xwOBA</td>
+        <td class="name">post-hoc</td><td class="v-p">observed</td><td class="n">6.1</td></tr>
+      <tr class="hl"><td class="n">O3</td><td class="name">the gap is not a within-season skill but persists across seasons</td>
+        <td class="name">post-hoc</td><td class="v-p">observed</td><td class="n">6.4</td></tr>
+      <tr class="hl"><td class="n">O4</td><td class="name">exit velocity predicts <em>under</em>-performance of xwOBA</td>
+        <td class="name">post-hoc</td><td class="v-p">observed</td><td class="n">6.4</td></tr>
+      <tr class="hl"><td class="n">O5</td><td class="name">the Statcast advantage concentrates in ages 22&ndash;25</td>
+        <td class="name">post-hoc</td><td class="v-p">observed, CI excludes 0</td><td class="n">6.3</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">O1&ndash;O5 were not predicted in advance and carry correspondingly less evidential
+  weight. O5 in particular emerged from a split requested after the main result was known; its
+  interval excludes zero but it has not been replicated out of sample and should be treated as a
+  hypothesis for the next season's data rather than a finding.</p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="sec" id="s6">
+  <h2><span class="n">6</span>Results</h2>
+
+  <div class="sub">
+    <h3><span class="n">6.1</span>Expected versus realised production</h3>
+    <div class="scroll"><table>
+      <caption>Table 4. Out-of-sample R&sup2; on the 2026 holdout by window length. Fitted on
+      2023&ndash;2025.</caption>
+      <thead><tr><th>window</th><th class="n">n</th><th class="n">wOBA</th><th class="n">xwOBA</th>
+        <th class="n">both</th><th class="n">edge</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="name">1 month</td><td class="n">1,085</td><td class="n">&minus;0.0038</td><td class="n">0.0153</td><td class="n">0.0178</td><td class="n">+0.019</td></tr>
+        <tr><td class="name">1 month, 70+ PA</td><td class="n">674</td><td class="n">0.0032</td><td class="n">0.0216</td><td class="n">0.0234</td><td class="n">+0.018</td></tr>
+        <tr><td class="name">2 months</td><td class="n">856</td><td class="n">0.0366</td><td class="n">0.0732</td><td class="n">0.0717</td><td class="n">+0.037</td></tr>
+        <tr><td class="name">3 months</td><td class="n">318</td><td class="n">&minus;0.0074</td><td class="n">0.0297</td><td class="n">0.0359</td><td class="n">+0.037</td></tr>
+        <tr><td class="name">season &rarr; season</td><td class="n">213</td><td class="n">0.1194</td><td class="n">0.1274</td><td class="n">0.1305</td><td class="n">+0.008</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>O1.</b> At one month, realised wOBA scores below zero: using it is worse than assuming every
+    hitter is league average. <b>P1 failed</b> &mdash; the edge is humped rather than declining, rising
+    from one month to two and collapsing over a full season. No mechanism is established; the
+    three-month row also has the smallest test sample and its negative wOBA value may be noise.</p>
+    <p><b>P2 failed, and informatively.</b> Fitting
+    <span class="m">next ~ b&#8321;&middot;wOBA + b&#8322;&middot;xwOBA</span> within buckets of input
+    playing time, b&#8321; is negative in every bucket above 55 PA
+    (&minus;0.022, &minus;0.104, &minus;0.075, &minus;0.041). Conditional on xwOBA, the residual of
+    realised production is not merely uninformative but points the wrong way.</p>
+    <p><b>O2.</b> In an ablation, plate appearances alone score 0.0316 against xwOBA's 0.0153.
+    Removing playing time from the full model costs roughly a fifth of its performance
+    (0.057 &rarr; 0.044). Playing time is a manager's private information about health and matchups,
+    not a hitting skill; it is retained in headline figures because a real forecaster would observe
+    it, and always reported with the ablation.</p>
+    <div class="scroll"><table>
+      <caption>Table 5. Nested feature sets, one-month horizon, 2026 holdout.</caption>
+      <thead><tr><th>feature set</th><th class="n">k</th><th class="n">ridge</th><th class="n">GBM</th><th class="n">forest</th></tr></thead>
+      <tbody>
+        <tr><td class="name">wOBA only</td><td class="n">1</td><td class="n">&minus;0.003</td><td class="n">&minus;0.012</td><td class="n">&minus;0.069</td></tr>
+        <tr><td class="name">xwOBA only</td><td class="n">1</td><td class="n">0.015</td><td class="n">0.007</td><td class="n">&minus;0.037</td></tr>
+        <tr><td class="name">+ contact quality</td><td class="n">10</td><td class="n">0.024</td><td class="n">0.014</td><td class="n">0.021</td></tr>
+        <tr><td class="name">+ plate discipline</td><td class="n">18</td><td class="n">0.030</td><td class="n">0.027</td><td class="n">0.035</td></tr>
+        <tr><td class="name">+ batted-ball mix</td><td class="n">26</td><td class="n">0.028</td><td class="n">0.019</td><td class="n">0.035</td></tr>
+        <tr><td class="name">+ speed proxies</td><td class="n">29</td><td class="n">0.027</td><td class="n">0.020</td><td class="n">0.035</td></tr>
+        <tr><td class="name">+ context, playing time</td><td class="n">39</td><td class="n">0.044</td><td class="n">0.049</td><td class="n">0.055</td></tr>
+        <tr class="hl"><td class="name">+ swing geometry</td><td class="n">48</td><td class="n">0.043</td><td class="n">0.057</td><td class="n">0.054</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">6.2</span>Marcel benchmark</h3>
+    <div class="scroll"><table>
+      <caption>Table 6. One-month horizon, 2026 holdout, 3,000-sample paired bootstrap.</caption>
+      <thead><tr><th>forecaster</th><th class="n">R&sup2;</th><th class="n">95% CI</th>
+        <th class="n">vs Marcel</th><th class="n">P(better)</th></tr></thead>
+      <tbody>
+        <tr><td class="name">this month's xwOBA</td><td class="n">0.0153</td><td class="n">[&minus;.016, .044]</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+        <tr class="hl"><td class="name">Marcel, tuned</td><td class="n">0.0584</td><td class="n">[.016, .098]</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+        <tr><td class="name">current window, 48 features</td><td class="n">0.0565</td><td class="n">[.013, .097]</td><td class="n">&minus;0.0020</td><td class="n">0.46</td></tr>
+        <tr><td class="name">weighted history, 19 features</td><td class="n">0.0618</td><td class="n">[.017, .105]</td><td class="n">+0.0028</td><td class="n">0.58</td></tr>
+        <tr><td class="name">everything combined</td><td class="n">0.0604</td><td class="n">[.016, .103]</td><td class="n">+0.0017</td><td class="n">0.55</td></tr>
+      </tbody>
+    </table></div>
+    <p>No arm is distinguishable from Marcel. Against the ceiling of 0.264, Marcel and every model sit
+    at 21&ndash;23% of what is attainable; xwOBA alone at 6%.</p>
+    <div class="scroll"><table>
+      <caption>Table 7. Season level, forecasting 2026 from prior seasons only, n = 245.</caption>
+      <thead><tr><th>forecaster</th><th class="n">R&sup2;</th><th class="n">95% CI</th>
+        <th class="n">vs Marcel</th><th class="n">P(better)</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="name">Marcel, tuned (R = 3000)</td><td class="n">0.1640</td><td class="n">[.011, .290]</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+        <tr><td class="name">weighted past xwOBA, shrunk</td><td class="n">0.1657</td><td class="n">[.030, .280]</td><td class="n">+0.0025</td><td class="n">0.53</td></tr>
+        <tr><td class="name">weighted past wOBA, shrunk</td><td class="n">0.1354</td><td class="n">[.007, .237]</td><td class="n">&minus;0.0270</td><td class="n">0.28</td></tr>
+        <tr><td class="name">Marcel, classic R = 1200</td><td class="n">0.0745</td><td class="n">[&minus;.123, .235]</td><td class="n">&minus;0.0907</td><td class="n">0.04</td></tr>
+        <tr><td class="name">Marcel, no age adjustment</td><td class="n">0.1024</td><td class="n">[&minus;.070, .244]</td><td class="n">&minus;0.0617</td><td class="n">0.01</td></tr>
+        <tr class="hl"><td class="name">Statcast history, 20 features (GBM)</td><td class="n">&minus;0.0599</td><td class="n">[&minus;.307, .127]</td><td class="n">&minus;0.2278</td><td class="n">0.00</td></tr>
+      </tbody>
+    </table></div>
+    <p>Three readings. First, a <b>shrunk weighted average of past xwOBA ties Marcel exactly</b>; the
+    value lies in the shrinkage, not the features. Second, the <b>age adjustment is load-bearing</b>
+    &mdash; removing two hard-coded constants costs 0.062 (P = 0.01). Third, the 20-feature model is
+    <b>worse than predicting league average for everyone</b>. With 267 training seasons and 20
+    correlated predictors this is the expected bias-variance failure, and is most plausibly a
+    consequence of &sect;1.2[1] rather than a verdict on the features; it is not, however, a tested
+    claim.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">6.3</span>Where the measurement models do win</h3>
+    <div class="scroll"><table>
+      <caption>Table 8. Segment analysis, 2026 holdout. "Model" is the combined arm. xwOBA column is
+      calibrated xwOBA alone, for contrast.</caption>
+      <thead><tr><th>segment</th><th class="n">n</th><th class="n">Marcel</th><th class="n">xwOBA</th>
+        <th class="n">model</th><th class="n">gap</th><th class="n">95% CI</th><th class="n">P</th></tr></thead>
+      <tbody>
+        <tr><td class="name" colspan="8" style="padding-top:11px"><b>by age</b></td></tr>
+        <tr class="hl"><td class="name">22&ndash;25</td><td class="n">253</td><td class="n">0.049</td><td class="n">0.008</td><td class="n">0.116</td><td class="n">+0.065</td><td class="n">[+.003, +.125]</td><td class="n">0.98</td></tr>
+        <tr><td class="name">26&ndash;28</td><td class="n">327</td><td class="n">&minus;0.024</td><td class="n">0.002</td><td class="n">&minus;0.043</td><td class="n">&minus;0.020</td><td class="n">[&minus;.074, +.035]</td><td class="n">0.23</td></tr>
+        <tr><td class="name">29&ndash;31</td><td class="n">268</td><td class="n">0.102</td><td class="n">0.030</td><td class="n">0.089</td><td class="n">&minus;0.014</td><td class="n">[&minus;.070, +.041]</td><td class="n">0.32</td></tr>
+        <tr><td class="name">32+</td><td class="n">237</td><td class="n">0.110</td><td class="n">0.013</td><td class="n">0.088</td><td class="n">&minus;0.023</td><td class="n">[&minus;.081, +.034]</td><td class="n">0.21</td></tr>
+        <tr><td class="name" colspan="8" style="padding-top:11px"><b>by prior playing time</b></td></tr>
+        <tr class="hl"><td class="name">Q1 least</td><td class="n">272</td><td class="n">0.007</td><td class="n">&minus;0.011</td><td class="n">0.056</td><td class="n">+0.049</td><td class="n">[&minus;.011, +.106]</td><td class="n">0.94</td></tr>
+        <tr><td class="name">Q2</td><td class="n">271</td><td class="n">0.042</td><td class="n">&minus;0.006</td><td class="n">0.052</td><td class="n">+0.011</td><td class="n">[&minus;.041, +.063]</td><td class="n">0.66</td></tr>
+        <tr><td class="name">Q3</td><td class="n">271</td><td class="n">0.117</td><td class="n">0.052</td><td class="n">0.105</td><td class="n">&minus;0.013</td><td class="n">[&minus;.070, +.042]</td><td class="n">0.33</td></tr>
+        <tr><td class="name">Q4 most</td><td class="n">271</td><td class="n">0.048</td><td class="n">0.007</td><td class="n">0.008</td><td class="n">&minus;0.040</td><td class="n">[&minus;.108, +.024]</td><td class="n">0.12</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>P4 confirmed</b>, monotone across four quartiles of history. <b>O5</b>: the age split is
+    sharper &mdash; ages 22&ndash;25 is the only segment whose interval excludes zero. Age and prior
+    playing time correlate at +0.549, so these are not independent findings.</p>
+    <p>Crossing the two separates them. The only clearly negative cell is established veterans:</p>
+    <div class="scroll"><table>
+      <caption>Table 9. Model minus Marcel, age &times; history.</caption>
+      <thead><tr><th>cell</th><th class="n">n</th><th class="n">Marcel</th><th class="n">model</th><th class="n">gap</th></tr></thead>
+      <tbody>
+        <tr><td class="name">young (&le;27), thin history</td><td class="n">353</td><td class="n">&minus;0.004</td><td class="n">0.018</td><td class="n">+0.022</td></tr>
+        <tr><td class="name">young (&le;27), thick history</td><td class="n">131</td><td class="n">&minus;0.011</td><td class="n">0.026</td><td class="n">+0.037</td></tr>
+        <tr><td class="name">older (&gt;27), thin history</td><td class="n">190</td><td class="n">0.067</td><td class="n">0.108</td><td class="n">+0.041</td></tr>
+        <tr class="hl"><td class="name">older (&gt;27), thick history</td><td class="n">411</td><td class="n">0.112</td><td class="n">0.065</td><td class="n">&minus;0.047</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><b>Correction to a plausible reading.</b> It is tempting to summarise this as
+    "expected statistics beat track record for young players". The data do not support that sentence
+    as written: <b>xwOBA alone loses to Marcel in every age bucket</b> (0.008 vs 0.049 at ages
+    22&ndash;25). What beats Marcel is the full 48-feature measurement model, not the expected
+    statistic. The correct summary is narrower: <em>a rich measurement model beats a track-record
+    forecast wherever the track record is thin or the player is still developing, and loses to it for
+    established veterans.</em></p>
+    <p><b>P5 failed.</b> Splitting instead by how far the month's bat speed and exit velocity sat from
+    the hitter's own weighted history, the top decile of movers shows a gap of &minus;0.001,
+    P = 0.50. The mechanism most often proposed for Statcast's value &mdash; that it detects change a
+    track record cannot &mdash; is unsupported at this horizon.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">6.4</span>The wOBA&ndash;xwOBA residual</h3>
+    <div class="scroll"><table>
+      <caption>Table 10. Split-half reliability, odd against even months, 1,264 hitter-seasons with
+      100+ PA in each half, Spearman&ndash;Brown corrected.</caption>
+      <thead><tr><th>statistic</th><th class="n">half-to-half r</th><th class="n">&rho;<sub>full</sub></th></tr></thead>
+      <tbody>
+        <tr><td class="name">bat speed</td><td class="n">0.958</td><td class="n">0.978</td></tr>
+        <tr><td class="name">attack angle</td><td class="n">0.944</td><td class="n">0.971</td></tr>
+        <tr><td class="name">whiff per swing</td><td class="n">0.859</td><td class="n">0.924</td></tr>
+        <tr><td class="name">strikeout rate</td><td class="n">0.791</td><td class="n">0.883</td></tr>
+        <tr><td class="name">exit velocity</td><td class="n">0.784</td><td class="n">0.879</td></tr>
+        <tr><td class="name">launch angle</td><td class="n">0.736</td><td class="n">0.848</td></tr>
+        <tr><td class="name">spray angle</td><td class="n">0.654</td><td class="n">0.791</td></tr>
+        <tr><td class="name">xwOBA</td><td class="n">0.542</td><td class="n">0.703</td></tr>
+        <tr><td class="name">wOBA</td><td class="n">0.289</td><td class="n">0.448</td></tr>
+        <tr><td class="name">ground-ball single rate</td><td class="n">0.107</td><td class="n">0.193</td></tr>
+        <tr class="hl"><td class="name">wOBA &minus; xwOBA</td><td class="n">0.089</td><td class="n">0.164</td></tr>
+      </tbody>
+    </table></div>
+    <p>The residual is near the bottom: within a season it behaves as luck. <b>O3</b>: nevertheless it
+    correlates with itself across seasons at <b>+0.293, +0.303, +0.274</b> over three independent
+    year-pairs. These two facts are in tension and the tension is not fully resolved; the
+    within-season estimate is a lower bound (&sect;2.2) and the cross-season figure is measured on
+    larger samples, but the discrepancy is larger than that alone comfortably explains.</p>
+    <p>Decomposing the residual requires separating predictors that are knowable before the ball lands
+    from those derived from the outcome:</p>
+    <div class="scroll"><table>
+      <caption>Table 11. In-sample R&sup2; explaining the residual, training years, PA-weighted.</caption>
+      <thead><tr><th>window</th><th class="n">n</th><th class="n">sd of residual</th>
+        <th class="n">ante-hoc predictors</th><th class="n">outcome-derived</th></tr></thead>
+      <tbody>
+        <tr><td class="name">1 month</td><td class="n">4,127</td><td class="n">0.042</td><td class="n">0.034</td><td class="n">0.189</td></tr>
+        <tr><td class="name">2 months</td><td class="n">2,469</td><td class="n">0.031</td><td class="n">0.065</td><td class="n">0.182</td></tr>
+        <tr class="hl"><td class="name">3 months</td><td class="n">885</td><td class="n">0.026</td><td class="n">0.137</td><td class="n">0.168</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>P3 confirmed</b>: as the window lengthens the residual shrinks (0.042 &rarr; 0.026) while the
+    ante-hoc explainable share quadruples (0.034 &rarr; 0.137) &mdash; the signature of luck averaging
+    out over a stable physical component. <b>O4</b>: exit velocity carries a negative coefficient at
+    every window length (&minus;0.006 at one month, &minus;0.008 at three) and pull-side spray a
+    positive one. Since xwOBA maps exit velocity and launch angle to a league-average outcome and is
+    blind to direction, it systematically over-credits hard contact from slow hitters and
+    under-credits speed and extreme pull. The persistent over-performers (Altuve +.048, Friedl +.048,
+    Paredes +.040, Turner +.030) and under-performers (S. Perez &minus;.024, Soto &minus;.021,
+    Guerrero &minus;.016) are consistent with this reading.</p>
+    <p>Controlling for the level of xwOBA, the residual's predictive value for future wOBA is null at
+    one month (&minus;0.038 &plusmn; 0.024) and negative at three
+    (<b>&minus;0.107 &plusmn; 0.054</b>): over a meaningful stretch, out-performing expectation
+    forecasts giving it back.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="n">6.5</span>Descriptive, reliable, predictive</h3>
+    <div class="scroll"><table>
+      <caption>Table 12. Correlations. "Repeats" is the metric against its own next-window value.</caption>
+      <thead><tr><th>metric</th><th class="n">describes now</th><th class="n">repeats</th><th class="n">predicts next</th></tr></thead>
+      <tbody>
+        <tr><td class="name">wOBA</td><td class="n">1.000</td><td class="n">0.135</td><td class="n">0.065</td></tr>
+        <tr><td class="name">xwOBA</td><td class="n">0.747</td><td class="n">0.321</td><td class="n">0.136</td></tr>
+        <tr class="hl"><td class="name">fitted ridge (22 features)</td><td class="n">0.485</td><td class="n">0.665</td><td class="n">0.205</td></tr>
+      </tbody>
+    </table></div>
+    <p>The three properties trade off monotonically. A statistic that describes the past perfectly is
+    the worst available forecaster of the future, because a perfect description includes all of the
+    noise.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="sec" id="s7">
+  <h2><span class="n">7</span>Threats to validity</h2>
+  <ol class="hang">
+    <li><b>One test year.</b> Every headline figure rests on the 2026 holdout. Season-level results
+    rest on 245 hitters in a single season; the bootstrap intervals reflect sampling within that year
+    but not the year-to-year variability of the whole exercise.</li>
+    <li><b>Marcel is handicapped by the archive.</b> It is designed for three prior seasons and gets
+    exactly three, all of which this project also used for training. A longer archive would help
+    Marcel as well as the models, and it is not obvious which benefits more.</li>
+    <li><b>Neither Steamer nor ZiPS has been tested.</b> Marcel is the floor of the field, not its
+    standard. The conclusion "no better than the baseline" is therefore weaker than it sounds: the
+    relevant comparison is to systems substantially stronger than Marcel, and remains unrun
+    (&sect;9).</li>
+    <li><b>Survivorship in the panel.</b> Requiring 40+ PA in both the input and target window
+    conditions on continued playing time, which is itself informative about performance. This biases
+    all forecasters in the same direction but not necessarily by the same amount.</li>
+    <li><b>The odd/even split-half is not a clean instrument</b> for a statistic that genuinely
+    drifts within a season (&sect;2.2), which is precisely the case for the residual in Table 10.</li>
+    <li><b>Post-hoc segmentation.</b> O5 and the age &times; history crossing were run after the main
+    result was known. Four age buckets and four history quartiles is eight tests; one interval
+    excluding zero at the 5% level is roughly what chance produces.</li>
+    <li><b>Model selection was not nested inside the bootstrap.</b> Hyperparameters were fixed by
+    judgement rather than tuned, which avoids one form of optimism but means the intervals do not
+    account for specification search.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="sec" id="s8">
+  <h2><span class="n">8</span>Corrections log</h2>
+  <p class="note">Errors found during this work and what was changed. Recorded because the
+  discrimination between these and the surviving results is the only evidence that the surviving
+  results were checked at all.</p>
+
+  <div class="corr">
+    <p class="lbl">C1 &middot; leakage in the benchmark</p>
+    <p>Season-level Marcel initially scored R&sup2; = 0.575, with the tuner selecting a regression
+    constant of 200 ("barely regress"). Cause: the history window was specified as
+    <code>thru = 99</code>, which included the season being forecast. Corrected to prior seasons only;
+    the true value is 0.164. <b>Diagnostic retained:</b> a baseline suddenly outperforming its
+    published behaviour, together with tuning that says not to regress, indicates leakage until
+    proven otherwise.</p>
+  </div>
+
+  <div class="corr">
+    <p class="lbl">C2 &middot; circular explanation of the residual</p>
+    <p>The residual regression initially reported R&sup2; = 0.246 with ground-ball single rate as the
+    dominant term. A ground ball that finds a hole is simultaneously a ground-ball single and a
+    positive residual: the same event on both sides of the equation. Ground-ball single rate has
+    split-half reliability 0.193, i.e. it is itself mostly luck. Predictors are now partitioned into
+    ante-hoc and outcome-derived and reported separately (Table 11); the honest ante-hoc figure at one
+    month is 0.034.</p>
+  </div>
+
+  <div class="corr">
+    <p class="lbl">C3 &middot; two inconsistent ceilings</p>
+    <p>The ceiling was reported as 0.186 in one place and 0.315 in another. The first included
+    month-to-month drift in the denominator, the second omitted it. Reconciled in &sect;3: 0.264 with
+    drift treated as unforecastable, 0.425 as an unattainable oracle bound.</p>
+  </div>
+
+  <div class="corr">
+    <p class="lbl">C4 &middot; a verdict recorded on the wrong evidence</p>
+    <p>The hypothesis "chase rate is a fast-moving discipline signal" was initially scored confirmed
+    because chase-rate changes were detectable. Detectability is not predictive value. Tested
+    properly &mdash; within hitter, 1,119 month-triples &mdash; this month's change in chase rate
+    predicts next month's change in wOBA at +0.046 &plusmn; 0.036 (null), while the same-month
+    association is &minus;0.370 &plusmn; 0.041. Chase rate is coincident, not leading. Rescored.</p>
+  </div>
+
+  <div class="corr">
+    <p class="lbl">C5 &middot; a published artifact that overclaimed</p>
+    <p>The interactive companion was published before the Marcel benchmark existed, stating that the
+    fitted model separates future performance four times better than realised wOBA. True, but
+    incomplete: Marcel separates it 3.8 times better with none of the apparatus. The page was revised
+    rather than left standing.</p>
+  </div>
+
+  <div class="corr">
+    <p class="lbl">C6 &middot; a scope error inherited from earlier work</p>
+    <p>An earlier finding that batted-ball rates are "low signal" was used to argue that batted-ball
+    outcomes were not worth studying. The correct statement is narrower: a <em>player-season change</em>
+    in a batted-ball rate is low signal, because one hitter records roughly 450 balls in play a year.
+    At the unit of the batted ball there are 486,000 observations and the power is ample. The
+    aggregation, not the data, was the problem.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="sec" id="s9">
+  <h2><span class="n">9</span>Open questions</h2>
+  <ol class="hang">
+    <li><b>Steamer and ZiPS.</b> The decisive benchmark and the one still missing. It requires
+    <em>pre-season</em> projections &mdash; the in-season updated versions already incorporate the
+    target period and would reproduce C1 exactly. FanGraphs publishes both but gates CSV export
+    behind membership.</li>
+    <li><b>Is the season-level failure sample size or specification?</b> A 20-feature model at
+    &minus;0.060 on 267 training seasons is the textbook signature of overfitting, but that is an
+    explanation, not a test. Backfilling 2015&ndash;2022 would roughly quintuple the training set.
+    Note the asymmetry in &sect;1.2[2]: exit velocity would gain eight seasons, swing geometry none.</li>
+    <li><b>Replicate O5 prospectively.</b> The 22&ndash;25 result should be treated as a hypothesis
+    and tested on 2027 rather than cited as a finding.</li>
+    <li><b>Build the shrinkage estimator rather than the model.</b> If a shrunk average of past xwOBA
+    ties Marcel, the deliverable may be two numbers &mdash; a per-metric regression constant and a
+    weighting scheme &mdash; rather than a fitted model. This is both more trustworthy and simpler to
+    deploy.</li>
+    <li><b>Rest-of-season is the operationally relevant target</b> and has a higher ceiling than next
+    month, since the target is less noisy. Not yet run.</li>
+    <li><b>Pitchers are entirely untouched.</b> The prior is a lower ceiling and a larger expected-statistic
+    edge, since pitchers exert less control over batted-ball outcomes.</li>
+    <li><b>Resolve the Table 10 tension.</b> A statistic with within-season reliability 0.164 that
+    correlates +0.29 with itself across seasons is not fully explained by the lower-bound argument.
+    A variance-components model with player, season and residual terms would settle it.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="sec" id="s10">
+  <h2><span class="n">10</span>Reproducibility</h2>
+  <div class="scroll"><table>
+    <caption>Table 13. Scripts, in execution order. Repository <code>statcast-dashboard</code>,
+    branch <code>data-integrity</code>.</caption>
+    <thead><tr><th>script</th><th>produces</th></tr></thead>
+    <tbody>
+      <tr><td class="m">extract_monthly.py</td><td class="name">the 10,287-row panel from SQLite</td></tr>
+      <tr><td class="m">predict.py</td><td class="name">noise floor, horse race, blend weights, model zoo, residual study</td></tr>
+      <tr><td class="m">predict2.py</td><td class="name">crossover sweep, playing-time ablation, portable ridge</td></tr>
+      <tr><td class="m">gapclean.py</td><td class="name">ante-hoc vs outcome-derived residual decomposition, reliabilities</td></tr>
+      <tr><td class="m">marcel.py, marcel3.py</td><td class="name">Marcel; marcel3 is the leak-free season-level version (C1)</td></tr>
+      <tr><td class="m">marcel2.py</td><td class="name">tuned Marcel, history-fed models, bootstraps, ceiling reconciliation</td></tr>
+      <tr><td class="m">marcel4.py, age_test.py</td><td class="name">segment analysis by history, movement and age</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Random seeds fixed (7 for learners, 11 and 5 for bootstraps). Weighting by target
+  plate appearances throughout. Imputation and scaling fitted on training rows only. All intervals
+  are percentile bootstraps with 3,000&ndash;4,000 resamples; head-to-head gaps are paired within
+  resample.</p>
+</section>
+
+<footer>
+  Companion document to the interactive instrument. Statistics computed 11&ndash;12 September 2026
+  against a 1.9 GB local Statcast archive. Where this document and any earlier artifact disagree,
+  this one is correct: it was written after the corrections in &sect;8 and the earlier pages were
+  revised to match. References: Stein (1961), <i>Proc. 3rd Berkeley Symp.</i>; Efron &amp; Morris
+  (1977), <i>Scientific American</i> 236(5); Tango (2004), Marcel the Monkey Forecasting System.
+</footer>
+
+</div>

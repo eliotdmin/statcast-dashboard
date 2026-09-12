@@ -1,0 +1,705 @@
+<title>The Batted Ball Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ground:#f4f6f2; --card:#fffffe; --sunk:#ecefe8; --line:#d5dbd0; --line-soft:#e4e8de;
+  --ink:#12171a; --ink-2:#4c5650; --ink-3:#818b84;
+  --accent:#1f6b53; --accent-soft:#dcebe3; --ochre:#8a5a12; --ochre-soft:#f5ecd8;
+  --risk:#9e3629; --risk-soft:#f7e4e1;
+  --rule:#c3cbbd;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --ground:#0d110f; --card:#151a17; --sunk:#1a201c; --line:#2b332e; --line-soft:#222925;
+  --ink:#eef2ee; --ink-2:#a5afa8; --ink-3:#76807a;
+  --accent:#5cb996; --accent-soft:#163026; --ochre:#cfa04e; --ochre-soft:#2e2513;
+  --risk:#e0776a; --risk-soft:#321a17; --rule:#333c36;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0d110f; --card:#151a17; --sunk:#1a201c; --line:#2b332e; --line-soft:#222925;
+  --ink:#eef2ee; --ink-2:#a5afa8; --ink-3:#76807a;
+  --accent:#5cb996; --accent-soft:#163026; --ochre:#cfa04e; --ochre-soft:#2e2513;
+  --risk:#e0776a; --risk-soft:#321a17; --rule:#333c36;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,sans-serif;font-size:15px;line-height:1.6}
+.wrap{max-width:940px;margin:0 auto;padding-block:46px 100px;padding-left:20px;padding-right:20px;
+  display:flex;flex-direction:column;gap:40px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em;background:var(--sunk);
+  padding:1px 5px;border-radius:2px;color:var(--ink-2)}
+h1{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-weight:700;
+  font-size:clamp(31px,5vw,44px);letter-spacing:-.02em;margin:0;text-wrap:balance;line-height:1.08}
+h2{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:24px;margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+h3{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;font-size:19px;margin:0;
+  letter-spacing:-.005em;text-wrap:balance}
+p{margin:0;max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:13px}
+.stack-s{display:flex;flex-direction:column;gap:8px}
+.lede{font-size:17px;color:var(--ink-2);max-width:64ch}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.note{font-size:13.5px;color:var(--ink-2)}
+
+/* phase header */
+.phase{display:flex;flex-direction:column;gap:6px;padding-bottom:12px;border-bottom:2px solid var(--rule)}
+.phase .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);font-weight:600}
+
+/* theory card */
+.t{background:var(--card);border:1px solid var(--line-soft);border-left:3px solid var(--accent);
+  padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.t.speculative{border-left-color:var(--ochre)}
+.thead{display:flex;flex-direction:column;gap:7px}
+.tid{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tid .n{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--accent);
+  letter-spacing:.04em}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 7px;border:1px solid var(--line);color:var(--ink-3);border-radius:2px;white-space:nowrap}
+.chip.hot{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600}
+.chip.warn{background:var(--ochre-soft);border-color:transparent;color:var(--ochre);font-weight:600}
+.claim{font-size:15.5px}
+.claim strong{font-weight:600}
+ol.steps{margin:0;padding-left:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:9px}
+ol.steps li{counter-increment:s;position:relative;padding-left:30px;font-size:14px;color:var(--ink-2);
+  max-width:66ch}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:20px;height:20px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--accent);
+  background:var(--accent-soft);display:grid;place-items:center;border-radius:2px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft);margin-top:2px}
+.meta>div{background:var(--card);padding:11px 13px;display:flex;flex-direction:column;gap:3px}
+.meta .l{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3)}
+.meta .v{font-size:13px;color:var(--ink-2)}
+.ctx{background:var(--sunk);padding:12px 14px;font-size:13.5px;color:var(--ink-2);
+  border-left:2px solid var(--rule)}
+.ctx b{color:var(--ink);font-weight:600}
+
+/* tables */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);border-bottom:1px solid var(--line);font-weight:500;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+
+.callout{background:var(--ochre-soft);border:1px solid color-mix(in srgb,var(--ochre) 30%,transparent);
+  padding:16px 19px;display:flex;flex-direction:column;gap:10px}
+.callout .eyebrow{color:var(--ochre)}
+.callout p{color:var(--ink-2)}
+.correct{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 28%,transparent);
+  padding:16px 19px;display:flex;flex-direction:column;gap:10px}
+.correct .eyebrow{color:var(--accent)}
+
+ul.plain{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:7px}
+ul.plain li{font-size:14px;color:var(--ink-2);max-width:66ch}
+ul.plain li b{color:var(--ink);font-weight:600}
+
+.decisions{display:flex;flex-direction:column;gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft)}
+.dec{background:var(--card);padding:15px 17px;display:flex;flex-direction:column;gap:5px}
+.dec .q{font-weight:600;font-size:14.5px}
+.dec .a{font-size:13.5px;color:var(--ink-2);max-width:70ch}
+
+figure{margin:0;display:flex;flex-direction:column;gap:9px}
+figcaption{font-size:12.5px;color:var(--ink-3)}
+svg{display:block;max-width:100%;height:auto}
+footer{border-top:1px solid var(--line);padding-top:17px;color:var(--ink-3);font-size:12.5px;max-width:74ch}
+@media(max-width:560px){.meta{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+
+<header class="stack">
+  <p class="eyebrow">statcast-dashboard &middot; research program &middot; for approval</p>
+  <h1>The Batted Ball Program</h1>
+  <p class="lede">Eleven theories about what determines whether a struck ball becomes a run, built
+  on the layer of this dataset we have not touched: 1.0 million tracked swings with the geometry of
+  the bat at contact.</p>
+</header>
+
+<section class="correct">
+  <p class="eyebrow">correcting yesterday's framing</p>
+  <p>I said batted-ball metrics were low signal and should be de-emphasised. What is actually true is
+  narrower: <b>a player's season-to-season change in a batted-ball rate</b> is mostly noise, because
+  one hitter puts about 450 balls in play a year. Ground-ball rate at 18% signal is a statement about
+  450 events, not about ground balls.</p>
+  <p>The batted ball itself is a different unit. There are <strong>486,000</strong> of them here, each
+  carrying exit velocity, launch angle, landing coordinates, the pitch that caused it and &mdash; from
+  2024 &mdash; the full geometry of the swing that produced it. At that unit the power is enormous.
+  I aggregated away the thing that matters and then blamed the data for being quiet.</p>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">the frame</p>
+  <h2>A batted ball is the output of a chain, and every link is measured</h2>
+  <p>Most public batted-ball analysis starts at exit velocity and launch angle, because that is where
+  <code>estimated_woba_using_speedangle</code> starts. That skips the two most interesting links:
+  what the swing did to produce those numbers, and what the park and the defence did to them
+  afterwards. Both are in this database.</p>
+
+  <figure>
+  <div class="scroll">
+  <svg viewBox="0 0 940 262" width="940" role="img"
+       aria-label="Five-stage chain from pitch to outcome, with the theories that sit on each link.">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,1 L9,5 L0,9 z" fill="var(--rule)"/>
+      </marker>
+    </defs>
+    <g font-family="IBM Plex Sans, sans-serif">
+      <!-- stage boxes -->
+      <g>
+        <rect x="0" y="44" width="168" height="104" fill="var(--card)" stroke="var(--line)"/>
+        <text x="12" y="66" font-size="11" font-weight="600" fill="var(--accent)"
+              font-family="IBM Plex Mono, monospace" letter-spacing="1">PITCH</text>
+        <text x="12" y="88" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">release_speed</text>
+        <text x="12" y="105" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">plate_x / plate_z</text>
+        <text x="12" y="122" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">vz0, az &rarr; VAA</text>
+        <text x="12" y="139" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">pfx_x, pfx_z</text>
+      </g>
+      <g>
+        <rect x="193" y="44" width="168" height="104" fill="var(--card)" stroke="var(--line)"/>
+        <text x="205" y="66" font-size="11" font-weight="600" fill="var(--accent)"
+              font-family="IBM Plex Mono, monospace" letter-spacing="1">SWING</text>
+        <text x="205" y="88" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">attack_angle</text>
+        <text x="205" y="105" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">attack_direction</text>
+        <text x="205" y="122" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">swing_path_tilt</text>
+        <text x="205" y="139" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">bat_speed</text>
+      </g>
+      <g>
+        <rect x="386" y="44" width="168" height="104" fill="var(--card)" stroke="var(--line)"/>
+        <text x="398" y="66" font-size="11" font-weight="600" fill="var(--accent)"
+              font-family="IBM Plex Mono, monospace" letter-spacing="1">CONTACT</text>
+        <text x="398" y="88" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">intercept_x / _y</text>
+        <text x="398" y="105" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">launch_speed</text>
+        <text x="398" y="122" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">launch_angle</text>
+        <text x="398" y="139" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">hc_x &rarr; spray</text>
+      </g>
+      <g>
+        <rect x="579" y="44" width="168" height="104" fill="var(--card)" stroke="var(--line)"/>
+        <text x="591" y="66" font-size="11" font-weight="600" fill="var(--accent)"
+              font-family="IBM Plex Mono, monospace" letter-spacing="1">FIELD</text>
+        <text x="591" y="88" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">home_team (park)</text>
+        <text x="591" y="105" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">if_fielding_</text>
+        <text x="591" y="122" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">  alignment</text>
+        <text x="591" y="139" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">hit_location</text>
+      </g>
+      <g>
+        <rect x="772" y="44" width="168" height="104" fill="var(--sunk)" stroke="var(--accent)"/>
+        <text x="784" y="66" font-size="11" font-weight="600" fill="var(--accent)"
+              font-family="IBM Plex Mono, monospace" letter-spacing="1">OUTCOME</text>
+        <text x="784" y="88" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">events</text>
+        <text x="784" y="105" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">woba_value</text>
+        <text x="784" y="122" font-size="11.5" fill="var(--ink-2)" font-family="IBM Plex Mono, monospace">delta_run_exp</text>
+        <text x="784" y="139" font-size="11.5" fill="var(--ink-3)" font-family="IBM Plex Mono, monospace">486,000 of these</text>
+      </g>
+      <!-- arrows -->
+      <line x1="170" y1="96" x2="189" y2="96" stroke="var(--rule)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="363" y1="96" x2="382" y2="96" stroke="var(--rule)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="556" y1="96" x2="575" y2="96" stroke="var(--rule)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line x1="749" y1="96" x2="768" y2="96" stroke="var(--rule)" stroke-width="1.5" marker-end="url(#ar)"/>
+      <!-- brackets -->
+      <path d="M0,168 L0,176 L554,176 L554,168" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+      <text x="277" y="196" font-size="12" font-weight="600" fill="var(--accent)" text-anchor="middle"
+            font-family="IBM Plex Sans Condensed, sans-serif">PHASE A &mdash; how the swing makes the ball</text>
+      <text x="277" y="213" font-size="11.5" fill="var(--ink-3)" text-anchor="middle"
+            font-family="IBM Plex Mono, monospace">T1  T2  T3  T4</text>
+      <text x="277" y="230" font-size="11" fill="var(--ink-3)" text-anchor="middle">1.0M tracked swings, 2024&ndash;2026</text>
+
+      <path d="M386,240 L386,248 L940,248 L940,240" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+      <path d="M579,168 L579,176 L940,176 L940,168" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+      <text x="759" y="196" font-size="12" font-weight="600" fill="var(--accent)" text-anchor="middle"
+            font-family="IBM Plex Sans Condensed, sans-serif">PHASE B &mdash; what happens to it</text>
+      <text x="759" y="213" font-size="11.5" fill="var(--ink-3)" text-anchor="middle"
+            font-family="IBM Plex Mono, monospace">T5  T6  T7</text>
+      <text x="759" y="230" font-size="11" fill="var(--ink-3)" text-anchor="middle">486k batted balls, 2023&ndash;2026</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption>Phase C (T8&ndash;T11) cuts across the whole chain: who, when, and how much of it any
+  one party controls.</figcaption>
+  </figure>
+</section>
+
+<section class="stack">
+  <p class="eyebrow">what is actually populated</p>
+  <h2>The inventory, verified this morning</h2>
+  <p>I checked rather than recalled, because I told you yesterday that fielder positioning and umpires
+  were absent. Positioning is present on 99.8% of batted balls. Umpires are genuinely an empty column.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>field group</th><th>applies to</th><th class="num">2023</th><th class="num">2024</th>
+    <th class="num">2025</th><th class="num">2026</th><th>verdict</th></tr></thead>
+    <tbody>
+    <tr><td>EV, launch angle, distance, spray</td><td>balls in play</td><td class="num">99.7%</td>
+      <td class="num">99.7%</td><td class="num">99.6%</td><td class="num">99.6%</td><td>complete</td></tr>
+    <tr><td><code>attack_angle</code>, <code>attack_direction</code>, <code>swing_path_tilt</code></td>
+      <td>swings</td><td class="num">42.4%</td><td class="num">93.1%</td><td class="num">97.4%</td>
+      <td class="num">97.4%</td><td><strong>2024+ only</strong></td></tr>
+    <tr><td><code>intercept_ball_minus_batter_pos_x/y</code></td><td>swings</td><td class="num">42.4%</td>
+      <td class="num">93.0%</td><td class="num">97.3%</td><td class="num">97.2%</td><td><strong>2024+ only</strong></td></tr>
+    <tr><td><code>if_/of_fielding_alignment</code></td><td>balls in play</td><td class="num">99.7%</td>
+      <td class="num">99.6%</td><td class="num">99.9%</td><td class="num">99.8%</td><td>complete</td></tr>
+    <tr><td><code>hit_location</code> (fielder who took it)</td><td>balls in play</td><td class="num">94.9%</td>
+      <td class="num">95.3%</td><td class="num">95.1%</td><td class="num">95.2%</td><td>complete</td></tr>
+    <tr><td><code>age_bat</code>, <code>n_thruorder_pitcher</code></td><td>every pitch</td>
+      <td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td>
+      <td>complete</td></tr>
+    <tr><td><code>umpire</code></td><td>every pitch</td><td class="num">0.0%</td><td class="num">0.0%</td>
+      <td class="num">0.0%</td><td class="num">0.0%</td><td>dead column</td></tr>
+    <tr><td><code>sprint_speed</code> table</td><td>&mdash;</td><td colspan="4" class="num">552 rows total</td>
+      <td>one season only</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Balls in play per season: 124,234 / 124,203 / 124,888 / 112,656. Tracked swings per
+  season: 341,050 / 340,198 / 338,924 / 307,519. Ground balls outnumber fly balls 52,916 to 33,281.
+  Infield alignment is Standard on 65% of batted balls, Infield shade on 25%, Strategic on 10%.</p>
+</section>
+
+<!-- ===================== PHASE A ===================== -->
+<section class="stack">
+  <div class="phase">
+    <span class="tag">Phase A &middot; swing &rarr; contact</span>
+    <h2>How the swing makes the ball</h2>
+    <p class="note">This is the part nobody outside a team has done at depth, because the data is
+    eighteen months old. Four theories, all on 2024&ndash;2026, all within-hitter.</p>
+  </div>
+</section>
+
+<section class="stack">
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T1</span><h3>Attack angle only matters relative to the pitch</h3>
+      <span class="chip hot">high value</span><span class="chip">1.0M swings</span></div>
+  </div>
+  <p class="claim">The bat's upward tilt at contact is meaningless on its own. What determines whether
+  the ball is squared up is the <strong>difference between the bat's attack angle and the pitch's
+  descent angle</strong>, and the optimum is a specific positive offset, not zero.</p>
+  <div class="ctx"><b>Where this comes from.</b> Ted Williams drew this diagram in <i>The Science of
+  Hitting</i> in 1970 &mdash; a slight uppercut matched to the roughly ten-degree downward plane of
+  the pitch. It has been coaching orthodoxy on faith for fifty-five years. Bat tracking shipped in
+  2024, so this is close to the first moment it can be measured at scale rather than asserted.</div>
+  <ol class="steps">
+    <li>Compute the pitch's vertical approach angle at the plate from the trajectory constants:
+      <code>vz_f = &minus;&radic;(vz0&sup2; + 2&middot;az&middot;(y0 &minus; 17/12))</code>, then
+      <code>VAA = atan2(vz_f, vy_f)</code> in degrees. <b>Validate before use</b> &mdash; league mean
+      four-seam VAA must land near &minus;5&deg;, sinkers steeper. If it does not, the sign convention
+      is wrong and everything downstream is garbage.</li>
+    <li>Define <code>offset = attack_angle + VAA</code>. Bin in 1&deg; buckets.</li>
+    <li>Within each bucket compute mean exit velocity, mean launch angle, barrel rate, and
+      <b>xwOBA per swing</b> &mdash; whiffs and fouls included at their real value, not dropped.
+      This is the design point the published versions of this analysis get wrong: a steeper swing buys
+      loft and costs contact, and only a per-swing denominator prices both sides.</li>
+    <li>De-mean offset and outcome within hitter-season, so the curve describes a hitter's own
+      variation rather than which hitters swing which way.</li>
+    <li>Add controls for pitch location bucket and pitch type &mdash; a hitter's offset is correlated
+      with what he chose to swing at, which is a confound, not an effect.</li>
+    <li>Refit on 2024&ndash;2025 only and check the optimum reproduces on 2026 untouched.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Attack angle alone predicts as well as
+      the offset does, meaning the pitch's plane adds nothing.</span></div>
+    <div><span class="l">main risk</span><span class="v">Everything will be significant at 1M swings.
+      Effects get reported in mph and run value, never in p-values.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T2</span><h3>Every hitter has a different optimal attack angle, set by his bat speed</h3>
+      <span class="chip hot">actionable</span><span class="chip">~450 hitter-seasons</span></div>
+  </div>
+  <p class="claim">There is no league-wide correct swing plane. Each hitter has an attack angle that
+  maximises his own production per swing, and <strong>the optimum is lower for slower bats</strong>,
+  because a slower hitter cannot afford to trade contact for loft.</p>
+  <ol class="steps">
+    <li>Reliability first: split-half on attack angle within hitter-season, Spearman&ndash;Brown
+      corrected. If attack angle is not a stable individual trait, T2 is dead and we learn that in
+      ten minutes. Expect high &mdash; swing length was 87% signal.</li>
+    <li>Per hitter-season with 300+ tracked swings, fit xwOBA-per-swing against a quadratic in attack
+      angle. The vertex is that hitter's optimum.</li>
+    <li>Shrink each optimum toward the league optimum by its own standard error, using the machinery
+      already built in <code>calibrate.py</code>.</li>
+    <li>Regress the shrunk optimum on the hitter's mean bat speed. Predicted direction, recorded now:
+      <b>positive</b>.</li>
+    <li>Deliverable: a per-hitter <i>distance from your own optimum</i>, in degrees and in runs. That
+      is a number a hitting coach can act on, which almost nothing in this project has been.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Flat or non-concave curves, or optimum
+      uncorrelated with bat speed once shrunk.</span></div>
+    <div><span class="l">main risk</span><span class="v">Fitting a vertex per hitter on 300 swings is
+      noisy; the shrinkage has to do real work and must be shown to.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T3</span><h3>"Staying back on the breaking ball" is measurable, and adjusting is the skill</h3>
+      <span class="chip hot">novel</span><span class="chip">1.0M swings</span></div>
+  </div>
+  <p class="claim"><code>intercept_ball_minus_batter_pos_y_inches</code> is the depth of contact
+  relative to the hitter's own body. The optimal depth differs by pitch type &mdash; out front on
+  offspeed, deeper on fastballs &mdash; and <strong>hitters who vary their contact depth by pitch
+  type outperform hitters with a fixed contact point</strong>, holding overall quality constant.</p>
+  <div class="ctx"><b>Why this one is interesting.</b> "He stays back well" is one of the oldest
+  scouting phrases in the sport and has never had a number attached to it. This column attaches one.</div>
+  <ol class="steps">
+    <li>Sanity-check sign and units against a known truth: changeups must be contacted further out
+      front than four-seamers. If that does not reproduce, stop and read the field definition.</li>
+    <li>League baseline: mean and spread of contact depth by pitch-type family &times; count.</li>
+    <li>Outcome curves: xwOBA per swing against contact depth, computed separately within each
+      pitch-type family, within hitter.</li>
+    <li>Define <b>adjustability</b> = a hitter's mean depth on offspeed minus his mean depth on
+      fastballs, shrunk by its standard error.</li>
+    <li>Split-half adjustability to confirm it is a trait and not a residue.</li>
+    <li>Test whether adjustability predicts offspeed xwOBA controlling for overall hitting quality.
+      Then the causal version: within hitter across seasons, does his offspeed production move with
+      his own adjustability?</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Adjustability is unreliable, or
+      reliable but unrelated to offspeed performance.</span></div>
+    <div><span class="l">main risk</span><span class="v">Depth is mechanically tied to pitch velocity,
+      so the fastball/offspeed gap may be arithmetic rather than skill. Control on velocity, not just
+      pitch name.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T4</span><h3>Pull rate is geometry, not intent &mdash; and that rescues it as a metric</h3>
+      <span class="chip hot">highest value</span><span class="chip">486k batted balls</span></div>
+  </div>
+  <p class="claim">Spray angle should be close to determined by attack direction, contact depth and
+  pitch location. If it is, <strong>"he is trying to pull the ball more" is a description of timing,
+  not a decision</strong> &mdash; and the right way to measure a hitter's pull tendency is through the
+  swing that causes it rather than the outcomes that result.</p>
+  <div class="ctx"><b>This is the direct answer to your objection.</b> Pull rate measured as an outcome
+  was 29% signal year to year &mdash; the noisy kind of batted-ball stat I was dismissing. But
+  <code>attack_direction</code> is measured on every swing, not just the ~450 that become batted
+  balls, so it should carry several times the sample and far more signal. If pull rate is geometry,
+  we can rescue a batted-ball metric by measuring its cause instead of its effect. That pattern, if it
+  works here, generalises to launch angle and to ground-ball rate.</div>
+  <ol class="steps">
+    <li>Compute spray angle from <code>hc_x</code>/<code>hc_y</code>, handedness-corrected. The
+      formula already exists in <code>team_changes.py</code> and has been validated.</li>
+    <li>Within hitter, regress spray angle on attack direction, contact depth, plate location, pitch
+      type and pitch velocity. Report R&sup2;. Above roughly 0.6 and spray is mechanically determined.</li>
+    <li>Split-half reliability of <code>attack_direction</code> versus split-half reliability of
+      observed pull rate, on identical hitter-season samples. Predicted: attack direction is
+      dramatically more reliable.</li>
+    <li>Re-run the season-over-season signal-share calculation using attack direction in place of pull
+      rate, and compare directly against the 29% baseline.</li>
+    <li>Take the residual &mdash; pull tendency after geometry is removed &mdash; and ask whether it is
+      itself a repeatable skill or noise.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Low R&sup2;, meaning spray angle is
+      driven by something not in the swing-geometry columns.</span></div>
+    <div><span class="l">main risk</span><span class="v">Contact depth and attack direction may be
+      near-collinear, which would inflate R&sup2; without identifying either. Check the condition
+      number.</span></div>
+  </div>
+</article>
+
+</section>
+
+<!-- ===================== PHASE B ===================== -->
+<section class="stack">
+  <div class="phase">
+    <span class="tag">Phase B &middot; contact &rarr; outcome</span>
+    <h2>What happens to the ball once it is struck</h2>
+    <p class="note">Where the run value actually lands. The point of this phase is one reusable
+    output: a batted-ball residual that is genuinely luck, which every other study can then subtract.</p>
+  </div>
+</section>
+
+<section class="stack">
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T5</span><h3>xwOBA leaves money on the table, and we can say exactly how much</h3>
+      <span class="chip hot">infrastructure</span><span class="chip">486k batted balls</span></div>
+  </div>
+  <p class="claim"><code>estimated_woba_using_speedangle</code> uses exit velocity and launch angle and
+  deliberately nothing else. Adding <strong>spray angle, park, fielding alignment and batter
+  speed</strong> should improve out-of-sample prediction of what actually happened, materially.</p>
+  <div class="ctx"><b>Not novel, but load-bearing.</b> This is roughly what THE BAT X and Baseball
+  Prospectus's DRC+ do commercially. The exclusion of spray angle from xwOBA is a deliberate design
+  choice by MLB &mdash; they wanted a metric describing what the hitter controls, not what happened
+  &mdash; so this is not a flaw being corrected, it is a different question being asked.</div>
+  <ol class="steps">
+    <li>Baseline: actual <code>woba_value</code> predicted by the existing xwOBA. Record out-of-sample
+      R&sup2; on 2026. <b>Out of sample from the first line</b> &mdash; the earlier gap regression
+      reported in-sample R&sup2; and that was a mistake I do not want to repeat.</li>
+    <li>Model 2 adds spray angle and its interaction with handedness.</li>
+    <li>Model 3 adds park, infield alignment and outfield alignment.</li>
+    <li>Model 4 adds a batter speed proxy. The <code>sprint_speed</code> table has 552 rows &mdash;
+      one season &mdash; so either backfill it or fall back on <code>age_bat</code> plus infield-hit
+      rate as a proxy, and say which.</li>
+    <li>Fit on 2024&ndash;2025, test on 2026. Gradient boosting and a spline GLM, both, so the answer
+      is not an artifact of one functional form.</li>
+    <li>Decompose the improvement by variable, so the output is "spray angle is worth X points of
+      R&sup2;, park is worth Y" rather than one number.</li>
+    <li>Ship the residual as a column other studies can use.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Out-of-sample gain under about 0.02
+      R&sup2;, meaning EV and LA already carry nearly everything.</span></div>
+    <div><span class="l">main risk</span><span class="v">Park and alignment partly encode <i>who</i>
+      is hitting. The holdout protects against overfitting but not against that confound.</span></div>
+  </div>
+</article>
+
+<article class="t speculative">
+  <div class="thead">
+    <div class="tid"><span class="n">T6</span><h3>The shift ban, and the 2022 problem</h3>
+      <span class="chip warn">needs a decision</span><span class="chip">see below</span></div>
+  </div>
+  <p class="claim">The 2023 infield-shift restriction should have helped left-handed pull hitters most.
+  But 35% of batted balls are still non-Standard alignment, so the question is how much of the shift's
+  value teams have quietly recovered through "Infield shade".</p>
+  <div class="callout">
+    <p class="eyebrow">this is the one that needs your input</p>
+    <p><b>The backfill starts in 2023, which is already post-ban.</b> There is no before in this
+    database, so the natural experiment cannot be run as written. Two honest options:
+    <b>(a)</b> extend the backfill to 2021&ndash;2022 &mdash; roughly 1.4 million more pitches and
+    250,000 more batted balls, the code already exists and it is a few hours of unattended download;
+    or <b>(b)</b> drop the before/after and ask only the within-era question: <i>on identical batted
+    balls, does alignment still change the outcome?</i> That is answerable today and is arguably the
+    more useful question anyway, since no one can bring the shift back.</p>
+  </div>
+  <ol class="steps">
+    <li>Option (b) version: bucket batted balls by exit velocity, launch angle and spray angle, and
+      compare outcomes across Standard / Infield shade / Strategic <i>within</i> bucket.</li>
+    <li>Split by handedness. The prediction on record: alignment matters most for left-handed pulled
+      ground balls and essentially not at all for anything in the air.</li>
+    <li>Convert to runs per 600 plate appearances so the number means something.</li>
+    <li>If option (a) is approved, add the 2021&ndash;2022 seasons and run the full difference-in-differences
+      with right-handed hitters as the control group.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">No outcome difference across alignments
+      within matched batted-ball buckets.</span></div>
+    <div><span class="l">main risk</span><span class="v">Alignment is chosen in response to the hitter,
+      so it is not random. Matching on the batted ball helps but does not fully close it.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T7</span><h3>Park factors, done as "the same ball in a different yard"</h3>
+      <span class="chip">cheap</span><span class="chip">486k batted balls</span></div>
+  </div>
+  <p class="claim">A park factor should mean: <strong>this exact batted ball, hit in that park
+  instead</strong>. Traditional park factors compare team run totals and therefore confound the park
+  with the roster that plays in it half the time.</p>
+  <ol class="steps">
+    <li>Predict outcome from exit velocity, launch angle and spray angle, pooled across the league.</li>
+    <li>Each park's mean residual is its effect, measured on physically identical batted balls.</li>
+    <li>Split by spray-angle bucket to recover the <i>shape</i> &mdash; Fenway's left field and Yankee
+      Stadium's right field should appear as opposite-signed bumps in different spray bands, and if
+      they do not, the method is broken.</li>
+    <li>Feed the result back into T5 as a park adjustment, and separately into yesterday's finding
+      that bat speed itself is park-dependent (sd 0.23 mph, correlated +0.46 with the exit-velocity
+      park effect). Physics should move exit velocity and not bat speed; the ratio separates the
+      ballpark from the instrument.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Park residuals with no spatial
+      structure, i.e. noise rather than geometry.</span></div>
+    <div><span class="l">main risk</span><span class="v">Altitude and temperature vary within park by
+      date; Coors is the control that separates air density from wall distance.</span></div>
+  </div>
+</article>
+
+</section>
+
+<!-- ===================== PHASE C ===================== -->
+<section class="stack">
+  <div class="phase">
+    <span class="tag">Phase C &middot; across the chain</span>
+    <h2>Who controls contact, and when it changes</h2>
+    <p class="note">Cheaper, more conventional, and each one is a few hours. Worth running as a block
+    once the infrastructure from A and B exists.</p>
+  </div>
+</section>
+
+<section class="stack">
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T8</span><h3>Consistency of launch angle beats average launch angle</h3>
+      <span class="chip">moderate</span></div>
+  </div>
+  <p class="claim">A hitter averaging 12&deg; with a spread of 12&deg; is better than one averaging
+  12&deg; with a spread of 20&deg;. Tightness, not centre, is the skill.</p>
+  <ol class="steps">
+    <li>First establish that the spread is even measurable: split-half reliability of a hitter's
+      launch-angle standard deviation. If it is not reliable there is nothing to study.</li>
+    <li>If reliable, test whether it predicts wOBA controlling for mean launch angle and exit velocity.</li>
+    <li>Then connect it upstream: does launch-angle spread track <code>swing_path_tilt</code>
+      consistency from Phase A? That would turn an outcome statistic into a mechanical one.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Spread is unreliable, or adds nothing
+      over the mean.</span></div>
+    <div><span class="l">main risk</span><span class="v">Launch-angle spread is mechanically tied to
+      batted-ball-type mix, so it may just be a restatement of ground-ball rate.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T9</span><h3>What the two-strike approach actually costs, in runs</h3>
+      <span class="chip">quick</span></div>
+  </div>
+  <p class="claim">We established yesterday that 89% of hitters slow their bat with two strikes. This
+  prices it: <strong>how much worse is the batted ball that results</strong>, and therefore what is
+  avoiding two strikes worth?</p>
+  <ol class="steps">
+    <li>Within hitter, compare exit velocity, launch angle and xwOBA on contact with two strikes
+      versus without.</li>
+    <li>Control for pitch quality &mdash; pitchers throw differently with two strikes, so the raw gap
+      is partly the pitch, not the swing.</li>
+    <li>Combine with the contact-rate gain to get a net run value of the adjustment, per hitter.</li>
+    <li>Cross-check against T2: hitters whose two-strike attack angle moves closer to their own
+      optimum should gain most.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">No batted-ball penalty once pitch
+      quality is controlled.</span></div>
+    <div><span class="l">main risk</span><span class="v">Two-strike pitches are genuinely harder; the
+      control has to be at the pitch level, not the count level.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T10</span><h3>Aging shows up in exit velocity years before it shows up in results</h3>
+      <span class="chip">quick</span></div>
+  </div>
+  <p class="claim">Peak exit-velocity age is earlier than peak wOBA age, because plate discipline
+  improves with age and masks the physical decline for several seasons.</p>
+  <ol class="steps">
+    <li>Delta method: year-over-year changes within player, bucketed by age. This avoids the survivor
+      bias that ruins naive age curves &mdash; bad old players retire, so cross-sectional curves make
+      aging look gentler than it is.</li>
+    <li>Build the curve separately for exit velocity, bat speed, chase rate, walk rate and wOBA.</li>
+    <li>Compare peak ages. Predicted, recorded now: bat speed and exit velocity peak earliest, walk
+      rate latest, wOBA in between.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">All curves peak at the same age.</span></div>
+    <div><span class="l">main risk</span><span class="v">Four seasons is a short window for an age
+      curve; each player contributes at most three deltas.</span></div>
+  </div>
+</article>
+
+<article class="t">
+  <div class="thead">
+    <div class="tid"><span class="n">T11</span><h3>Who controls contact quality: the pitcher, the hitter, or the location</h3>
+      <span class="chip">moderate</span></div>
+  </div>
+  <p class="claim">A variance decomposition of batted-ball quality into the pitch's contribution
+  (type, velocity, movement, location), the hitter's, and the interaction. Prediction on record:
+  <strong>location dominates both identities</strong>.</p>
+  <ol class="steps">
+    <li>Fit xwOBA-on-contact with crossed random effects for batter and pitcher plus fixed effects for
+      pitch characteristics and location bucket.</li>
+    <li>Report the variance share of each component.</li>
+    <li>Sanity check against the known result that pitchers have far less control over batted-ball
+      outcomes than hitters do &mdash; the foundational finding behind FIP. If this does not reproduce
+      that, the model is wrong, not the literature.</li>
+  </ol>
+  <div class="meta">
+    <div><span class="l">would falsify it</span><span class="v">Nothing, strictly &mdash; this is a
+      measurement rather than a hypothesis, so it must be framed as one.</span></div>
+    <div><span class="l">main risk</span><span class="v">Crossed random effects on 486k rows is the
+      one computationally heavy item here.</span></div>
+  </div>
+</article>
+
+</section>
+
+<!-- ===================== GUARDRAILS ===================== -->
+<section class="stack">
+  <div class="phase">
+    <span class="tag">standing rules</span>
+    <h2>What keeps this honest</h2>
+  </div>
+  <ul class="plain">
+    <li><b>2026 is the holdout, and it is not touched during development.</b> Everything is fit on
+      2024&ndash;2025 and evaluated once on 2026. Yesterday every result was fit and read on the same
+      seasons, which is the single biggest weakness of that work.</li>
+    <li><b>No p-values as headline results.</b> At 486,000 batted balls and 1.0 million swings,
+      statistical significance carries no information. Every finding is reported in mph, degrees, or
+      runs per 600 plate appearances, alongside the league true-change spread from
+      <code>calibrate.py</code>.</li>
+    <li><b>Every study begins with a positive control.</b> It must first recover something already
+      known &mdash; barrels are good, higher exit velocity is better, pitchers control batted balls
+      less than hitters do. A study that cannot reproduce a known truth is a broken pipeline, and
+      finding that out at the end is expensive.</li>
+    <li><b>Absolute units only.</b> D15 from yesterday: no analysis is measured relative to a
+      provider-derived column that can be redefined between seasons. That rule is what caught the
+      <code>sz_top</code> trap and it applies here to <code>zone</code> and
+      <code>launch_speed_angle</code>.</li>
+    <li><b>Predicted directions are written down before the query runs</b> &mdash; they are in each
+      card above, and they go into <code>RESEARCH_BACKLOG.md</code> before any of this executes.
+      Eleven theories will produce roughly one false positive at conventional thresholds even if every
+      one is false.</li>
+    <li><b>Phase A is a 2024&ndash;2026 program.</b> 2023 swing tracking is 42% populated and will be
+      excluded rather than silently down-weighted.</li>
+  </ul>
+</section>
+
+<section class="stack">
+  <div class="phase">
+    <span class="tag">for approval</span>
+    <h2>Four decisions before anything runs</h2>
+  </div>
+  <div class="decisions">
+    <div class="dec"><span class="q">1. Scope &mdash; all three phases, or Phase A first?</span>
+      <span class="a">Phase A is the novel part and the part that answers your objection directly:
+      it rescues batted-ball metrics by measuring the swing that causes them. Phase B builds
+      infrastructure everything else uses. Phase C is conventional and cheap. My recommendation is
+      A first, then B, with C as filler &mdash; but running A and B together is defensible since T5's
+      residual feeds T4.</span></div>
+    <div class="dec"><span class="q">2. Backfill 2021&ndash;2022 for the shift ban?</span>
+      <span class="a">Roughly 1.4M more pitches, 250k more batted balls, a few hours unattended. It
+      unlocks a genuine before/after natural experiment, and it also doubles the runway for the aging
+      curves in T10. Against: it is the only item here with a real time cost, and the within-era
+      version of T6 is answerable today.</span></div>
+    <div class="dec"><span class="q">3. Sprint speed &mdash; backfill it or proxy around it?</span>
+      <span class="a">The <code>sprint_speed</code> table has 552 rows, one season. T5 wants batter
+      speed as a predictor and the earlier wOBA-gap study wanted it too. It is a small, separate
+      Savant endpoint. Backfilling four seasons is cheap; proxying with age and infield-hit rate is
+      free but worse.</span></div>
+    <div class="dec"><span class="q">4. Deliverable shape?</span>
+      <span class="a">Each theory can land as a section in one long report, or each phase can get its
+      own interactive page &mdash; Phase A in particular wants an explorer, since "xwOBA per swing
+      against attack-angle offset, filtered by hitter" is a shape you want to poke at rather than
+      read. Default if you have no preference: one written report per phase, plus one interactive
+      explorer for Phase A.</span></div>
+  </div>
+</section>
+
+<footer>
+  Column coverage verified 12 September 2026 against the 1.9 GB local snapshot; 2,843,142 pitches,
+  486,000 balls in play, 1,327,691 tracked swings across 2023&ndash;2026 regular seasons. Nothing in
+  this document has been run. Predicted directions are recorded above so that they cannot be adjusted
+  after the fact, and will be committed to <code>RESEARCH_BACKLOG.md</code> before the first query
+  executes.
+</footer>
+
+</div>

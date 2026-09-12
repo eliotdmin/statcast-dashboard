@@ -22,3 +22,17 @@ output/*
 !output/profiles.json
 !output/league_changes.json
 !output/monthly.json
+!output/*.html
+!output/calibration.json
+!output/counts.json
+!output/explore.json
+!output/predict.json
+!output/predict2.json
+!output/gapclean.json
+!output/marcel2.json
+!output/marcel3.json
+!output/marcel4.json
+!output/age_test.json
+!output/woba_fix.json
+!output/pitchers_gap.json
+!output/marcel_plus.json

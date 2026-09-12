@@ -1,0 +1,576 @@
+<title>Statcast Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f5f5f3; --card:#fffffe; --sunk:#ebebe7; --line:#d6d6d1; --hair:#e5e5e0;
+  --ink:#16171c; --ink2:#4d4f58; --ink3:#84868f;
+  --ac:#4a3e93; --ac-soft:#e9e6f6; --ok:#2a6347; --ok-soft:#e2efe8;
+  --no:#9b3a33; --no-soft:#f6e6e4; --warn:#8a6516; --warn-soft:#f7eeda;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0f1014; --card:#17181d; --sunk:#1c1e24; --line:#2e3038; --hair:#25272d;
+  --ink:#ecedf0; --ink2:#a4a7b0; --ink3:#74777f;
+  --ac:#9b8ee8; --ac-soft:#221d3d; --ok:#6db794; --ok-soft:#132a20;
+  --no:#e08078; --no-soft:#2e1a18; --warn:#d4a94e; --warn-soft:#2d2412;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f1014; --card:#17181d; --sunk:#1c1e24; --line:#2e3038; --hair:#25272d;
+  --ink:#ecedf0; --ink2:#a4a7b0; --ink3:#74777f;
+  --ac:#9b8ee8; --ac-soft:#221d3d; --ok:#6db794; --ok-soft:#132a20;
+  --no:#e08078; --no-soft:#2e1a18; --warn:#d4a94e; --warn-soft:#2d2412;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.6}
+.wrap{max-width:1000px;margin:0 auto;padding-left:20px;padding-right:20px;padding-block:0 90px}
+.m,code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-size:.87em;background:var(--sunk);padding:1px 5px;color:var(--ink2)}
+h1{font-family:Chivo,sans-serif;font-weight:900;font-size:clamp(32px,5.2vw,46px);letter-spacing:-.035em;
+  margin:0;line-height:1;text-wrap:balance}
+h2{font-family:Chivo,sans-serif;font-weight:700;font-size:23px;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h3{font-family:Chivo,sans-serif;font-weight:600;font-size:17px;margin:0;letter-spacing:-.01em}
+p{margin:0;max-width:72ch}
+header.top{padding-block:44px 26px;display:flex;flex-direction:column;gap:13px}
+.eb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--ink3)}
+.lede{font-size:17px;color:var(--ink2);max-width:64ch}
+.note{font-size:13.5px;color:var(--ink2)}
+
+/* tabs */
+.tabs{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;gap:0;overflow-x:auto;margin-bottom:30px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:Chivo,sans-serif;font-weight:600;font-size:14px;color:var(--ink3);padding:14px 16px;
+  cursor:pointer;white-space:nowrap;letter-spacing:-.01em}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ac);border-bottom-color:var(--ac)}
+.tabs button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+.panel{display:flex;flex-direction:column;gap:30px}
+.sec{display:flex;flex-direction:column;gap:13px}
+
+/* findings */
+.fgroup{display:flex;flex-direction:column;gap:2px}
+.fgroup>.gh{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);padding:14px 0 6px;border-bottom:1px solid var(--line);
+  margin-bottom:4px}
+.f{display:grid;grid-template-columns:74px 1fr 128px;gap:14px;padding:10px 12px;background:var(--card);
+  border:1px solid var(--hair);align-items:start}
+.f .st{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 6px;text-align:center;font-weight:600;white-space:nowrap}
+.st.y{background:var(--ok-soft);color:var(--ok)}
+.st.n{background:var(--no-soft);color:var(--no)}
+.st.q{background:var(--warn-soft);color:var(--warn)}
+.st.c{background:var(--ac-soft);color:var(--ac)}
+.f .tx{font-size:14px}
+.f .tx b{font-weight:600}
+.f .vl{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink2);text-align:right;
+  font-variant-numeric:tabular-nums}
+@media(max-width:640px){.f{grid-template-columns:70px 1fr}.f .vl{grid-column:2;text-align:left;font-size:11.5px}}
+
+/* tables */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:500px;font-size:13px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--hair)}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);border-bottom:1px solid var(--line);font-weight:500;white-space:nowrap}
+td.n,th.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tr.hl td{background:var(--sunk)}
+caption{text-align:left;font-size:13px;color:var(--ink2);padding-bottom:7px}
+
+.box{background:var(--card);border:1px solid var(--hair);padding:17px 19px;display:flex;
+  flex-direction:column;gap:10px}
+.box.key{border-left:3px solid var(--ac)}
+.box.warnb{border-left:3px solid var(--warn);background:var(--warn-soft)}
+.box.warnb p{color:var(--ink2)}
+.big{display:flex;gap:30px;flex-wrap:wrap}
+.big div{display:flex;flex-direction:column;gap:1px}
+.big .v{font-family:Chivo,sans-serif;font-weight:900;font-size:34px;letter-spacing:-.03em;line-height:1;
+  color:var(--ac)}
+.big .l{font-size:11.5px;color:var(--ink3);max-width:20ch;line-height:1.35}
+
+/* count grid */
+.cgrid{display:grid;grid-template-columns:auto repeat(3,1fr);gap:3px;max-width:520px}
+.cgrid .hd{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3);text-align:center;
+  padding:4px;letter-spacing:.06em}
+.cgrid .rh{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3);
+  display:flex;align-items:center;justify-content:flex-end;padding-right:7px}
+.cell{padding:9px 6px;text-align:center;font-family:"IBM Plex Mono",monospace;border-radius:2px}
+.cell .w{font-size:15px;font-weight:600;display:block}
+.cell .s{font-size:9.5px;opacity:.75;display:block}
+
+/* artifact cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px}
+.ac{background:var(--card);border:1px solid var(--hair);padding:14px 16px;display:flex;
+  flex-direction:column;gap:6px;text-decoration:none;color:inherit}
+.ac:hover{border-color:var(--ac)}
+.ac .t{font-family:Chivo,sans-serif;font-weight:600;font-size:15px;display:flex;gap:7px;align-items:baseline}
+.ac .d{font-size:12.5px;color:var(--ink2);line-height:1.45}
+.ac .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3)}
+ul.p{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+ul.p li{font-size:14px;color:var(--ink2);max-width:72ch}
+ul.p li b{color:var(--ink);font-weight:600}
+ol.q{margin:0;padding-left:0;list-style:none;counter-reset:q;display:flex;flex-direction:column;gap:12px}
+ol.q li{counter-increment:q;position:relative;padding-left:36px;font-size:14px;color:var(--ink2);max-width:72ch}
+ol.q li::before{content:"S" counter(q);position:absolute;left:0;top:1px;font-family:"IBM Plex Mono",monospace;
+  font-size:10px;font-weight:600;color:var(--ac);background:var(--ac-soft);padding:2px 5px}
+ol.q li b{color:var(--ink);font-weight:600}
+footer{border-top:1px solid var(--line);padding-top:16px;margin-top:34px;color:var(--ink3);font-size:12.5px;
+  max-width:74ch}
+svg{display:block;max-width:100%;height:auto}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eb">statcast-dashboard &middot; 2,843,142 pitches &middot; 2023&ndash;2026</p>
+  <h1>Statcast Atlas</h1>
+  <p class="lede">Everything this project has established, everything it has retracted, and every
+  page it has produced &mdash; in one place.</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-p="new">New findings</button>
+  <button role="tab" aria-selected="false" data-p="counts">The count</button>
+  <button role="tab" aria-selected="false" data-p="gap">The gap, solved</button>
+  <button role="tab" aria-selected="false" data-p="pitch">Pitchers</button>
+  <button role="tab" aria-selected="false" data-p="all">All findings</button>
+  <button role="tab" aria-selected="false" data-p="map">The pages</button>
+  <button role="tab" aria-selected="false" data-p="open">Open</button>
+</div>
+
+<!-- ================================================== NEW -->
+<div class="panel" id="p-new">
+  <section class="sec">
+    <h2>Three results from today</h2>
+    <p>The first two are the strongest candidates this project has produced for a genuinely
+    interesting finding, in the sense of being specific, quantified, mechanistic and checkable.</p>
+  </section>
+
+  <div class="box key">
+    <p class="eb">finding 1</p>
+    <h3>The count matters roughly twice as much as the hitter</h3>
+    <div class="big" style="margin-top:4px">
+      <div><span class="v">.351</span><span class="l">wOBA swing from the worst count to the best</span></div>
+      <div><span class="v">.185</span><span class="l">wOBA swing from the worst everyday hitter to the best, over four seasons</span></div>
+      <div><span class="v">1.89&times;</span><span class="l">ratio</span></div>
+    </div>
+    <p style="margin-top:6px">Reaching an 0&ndash;2 count drops a plate appearance to <b>.2074</b>;
+    reaching 3&ndash;0 lifts it to <b>.5580</b>. Across 286 hitters with 1,000+ plate appearances the
+    worst is .2695 and the best .4546. So an average hitter at 3&ndash;0 is <b>better than the best
+    hitter in baseball</b>, and the same hitter at 0&ndash;2 is <b>worse than the worst</b>. On
+    standard deviations rather than ranges the gap is wider still: .0992 across counts against .0247
+    across hitters, a factor of four.</p>
+  </div>
+
+  <div class="box key">
+    <p class="eb">finding 2</p>
+    <h3>The wOBA&ndash;xwOBA gap is mostly reached-on-error</h3>
+    <p>xwOBA has been described here for days as mysteriously favouring fast contact hitters. The
+    mechanism turns out to be specific and mostly not about speed. Measured per batted ball,
+    2023&ndash;2026:</p>
+    <div class="scroll"><table>
+      <thead><tr><th>batted-ball type</th><th class="n">n</th><th class="n">wOBA</th><th class="n">xwOBA</th><th class="n">gap</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>ground ball</td><td class="n">203,667</td><td class="n">.2553</td><td class="n">.2319</td><td class="n">+.0234</td></tr>
+        <tr><td>line drive</td><td class="n">115,594</td><td class="n">.6525</td><td class="n">.6470</td><td class="n">+.0055</td></tr>
+        <tr><td>fly ball</td><td class="n">128,642</td><td class="n">.4245</td><td class="n">.4276</td><td class="n">&minus;.0031</td></tr>
+        <tr class="hl"><td>popup</td><td class="n">34,346</td><td class="n">.0161</td><td class="n">.0315</td><td class="n">&minus;.0153</td></tr>
+      </tbody>
+    </table></div>
+    <p>Ground balls are where the gap lives. Removing one event class collapses it:</p>
+    <div class="scroll"><table>
+      <thead><tr><th>ground balls</th><th class="n">n</th><th class="n">gap</th><th class="n">share of gap</th></tr></thead>
+      <tbody>
+        <tr><td>all</td><td class="n">203,667</td><td class="n">+.0234</td><td class="n">&mdash;</td></tr>
+        <tr class="hl"><td>excluding reached-on-error</td><td class="n">200,037</td><td class="n">+.0113</td><td class="n">errors = 52%</td></tr>
+        <tr><td>also excluding fielder's choice</td><td class="n">197,336</td><td class="n">+.0071</td><td class="n">the two = 70%</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>xwOBA structurally cannot see an error.</b> It models the batted ball &mdash; a routine
+    grounder, expected wOBA .218 &mdash; while actual wOBA credits the batter .900 for reaching. There
+    are 4,081 such plate appearances, 88.9% of them ground balls, each carrying a gap of +.682.
+    Fielder's choice does the same thing for another 1,503.</p>
+    <p>Speed is real but secondary. Splitting ground balls by an independent speed marker (triples per
+    batted ball, which is not endogenous to infield hits the way infield-hit rate would be), the gap
+    runs <b>+.0257 for fast hitters against +.0208 for slow</b> &mdash; a five-point difference, against
+    the twenty-three-point structural effect.</p>
+    <div class="box warnb" style="margin-top:4px">
+      <p><b>This chains all the way back.</b> It explains why exit velocity carried a negative
+      coefficient in every gap regression: high-EV hitters hit fewer ground balls, so they collect less
+      of the structural bonus. It explains the persistent over-performers (Altuve, Friedl, Turner,
+      Rafaela &mdash; ground-ball contact hitters who are also fast, both effects aligned) and the
+      under-performers (Soto, Guerrero, Perez &mdash; slow air-ball hitters). And it explains why the
+      gap persists across seasons at r &asymp; +0.29 for hitters: batted-ball profile is a stable trait.</p>
+    </div>
+  </div>
+
+  <div class="box key">
+    <p class="eb">finding 3</p>
+    <h3>And the same gap is pure noise for pitchers</h3>
+    <p>Run identically on 1,335 pitcher-seasons, the gap has split-half reliability <b>0.213</b> and
+    season-to-season correlations of <b>+0.104, &minus;0.021, +0.161</b> &mdash; centred on nothing.
+    For hitters the same three-year-pair test gives +0.293, +0.303, +0.274.</p>
+    <p>Which follows directly from finding 2: the persistent part of the hitter gap comes from
+    batted-ball profile and foot speed, and <b>a pitcher has neither</b>. He does not choose his
+    launch angles and he does not run to first base. This is a clean, mechanistic prediction that the
+    data confirms, and it is the sort of asymmetry that makes the explanation credible rather than
+    merely fitted.</p>
+  </div>
+</div>
+
+<!-- ================================================== COUNTS -->
+<div class="panel" id="p-counts" hidden>
+  <section class="sec">
+    <h2>wOBA by count reached</h2>
+    <p>The question asked was: given that a plate appearance <em>arrives</em> at a count, what does it
+    eventually produce &mdash; counting everything that happens afterwards, not just contact in that
+    count. A plate appearance reaching 3&ndash;0 has also passed through 2&ndash;0, 1&ndash;0 and
+    0&ndash;0, so the cells are nested by construction. 2023&ndash;2026 regular season.</p>
+  </section>
+
+  <div class="box">
+    <p class="eb">wOBA by count &middot; colour is value</p>
+    <div class="cgrid" id="cg"></div>
+    <p class="note" style="margin-top:12px">Read across a row to see what one more ball is worth;
+    read down a column for one more strike. The first strike is the most expensive single event in the
+    count: 0&ndash;0 to 0&ndash;1 costs <b>&minus;.048</b>, and 0&ndash;1 to 0&ndash;2 costs another
+    <b>&minus;.068</b>.</p>
+  </div>
+
+  <div class="scroll"><table>
+    <caption>Every count, with the components. "PA reached" counts plate appearances that passed
+    through the count at any point.</caption>
+    <thead><tr><th>count</th><th class="n">PA reached</th><th class="n">wOBA</th><th class="n">xwOBA</th>
+      <th class="n">gap</th><th class="n">K%</th><th class="n">BB%</th><th class="n">in play</th>
+      <th class="n">exit velo</th></tr></thead>
+    <tbody id="ctab"></tbody>
+  </table></div>
+
+  <div class="box">
+    <h3>The thing that is not in this table</h3>
+    <p class="note">The gap column barely moves: every count sits between +.0047 and +.0085, all
+    positive. That is not a count effect &mdash; it is the league-wide calibration offset explained in
+    the gap tab, showing up identically everywhere. Which is itself worth knowing: <b>a five-point
+    wOBA-minus-xwOBA reading is inside the metric's own baseline offset</b>, in any count, for any
+    hitter.</p>
+  </div>
+</div>
+
+<!-- ================================================== GAP -->
+<div class="panel" id="p-gap" hidden>
+  <section class="sec">
+    <h2>What explains wOBA minus xwOBA</h2>
+    <p>Four days of work converged here. The answer has three layers, and the first two were wrong
+    before they were right.</p>
+  </section>
+
+  <div class="box">
+    <p class="eb">layer 1 &middot; retracted</p>
+    <h3>"Ground-ball singles explain it" &mdash; circular</h3>
+    <p class="note">The first regression found ground-ball single rate dominant at R&sup2; = .246. A
+    ground ball that finds a hole <em>is</em> both a ground-ball single and a positive gap: the same
+    event on both sides. Its own split-half reliability is .193. Splitting predictors into knowable
+    before the ball lands versus derived from the outcome gives the honest figure: <b>.034 at one
+    month, .137 at three</b>.</p>
+  </div>
+
+  <div class="box">
+    <p class="eb">layer 2 &middot; correct but incomplete</p>
+    <h3>It is not a within-season skill, but it persists across seasons</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>statistic</th><th class="n">split-half &rho;</th></tr></thead>
+      <tbody>
+        <tr><td>bat speed</td><td class="n">0.978</td></tr>
+        <tr><td>exit velocity</td><td class="n">0.879</td></tr>
+        <tr><td>xwOBA</td><td class="n">0.703</td></tr>
+        <tr><td>wOBA</td><td class="n">0.448</td></tr>
+        <tr class="hl"><td>wOBA &minus; xwOBA</td><td class="n">0.164</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Yet across seasons it correlates with itself at <b>+0.293, +0.303, +0.274</b> over
+    three independent year-pairs. Those two facts were in tension for two days.</p>
+  </div>
+
+  <div class="box key">
+    <p class="eb">layer 3 &middot; the mechanism</p>
+    <h3>It is a structural property of what xwOBA can see</h3>
+    <p>xwOBA is a function of exit velocity and launch angle. It therefore cannot represent three
+    things that decide what a ground ball becomes: <b>where it was hit, how fast the batter runs,</b>
+    and <b>whether a fielder mishandled it</b>. The third is the largest.</p>
+    <div class="big">
+      <div><span class="v">+.023</span><span class="l">xwOBA's error on a ground ball</span></div>
+      <div><span class="v">52%</span><span class="l">of that is reached-on-error alone</span></div>
+      <div><span class="v">70%</span><span class="l">adding fielder's choice</span></div>
+      <div><span class="v">&minus;.015</span><span class="l">xwOBA's error on a popup, the other direction</span></div>
+    </div>
+    <p style="margin-top:6px">The tension in layer 2 resolves cleanly. Within a season the gap looks
+    like noise because on any given ground ball an error is a coin flip. Across seasons it persists
+    because <b>ground-ball rate is a stable trait</b> (split-half .783) and a hitter who puts more
+    balls on the ground collects more of a structural bonus that xwOBA can never award him.</p>
+  </div>
+
+  <div class="box">
+    <h3>What this licenses you to say</h3>
+    <ul class="p">
+      <li><b>Not</b> "he is unlucky" for a hitter under-performing xwOBA by five points. That is
+      inside the league-wide calibration offset (+.004 to +.013 depending on season).</li>
+      <li><b>Yes</b> "xwOBA systematically under-rates ground-ball hitters and over-rates popup-prone
+      ones, by about twenty-three and fifteen points per batted ball respectively."</li>
+      <li><b>Yes</b> "a hitter's persistent gap is mostly his batted-ball profile, not his luck" &mdash;
+      and it is predictable from ground-ball rate before the season starts.</li>
+      <li><b>Not</b> the same sentence about a pitcher. For pitchers the gap has no persistence at all.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ================================================== PITCHERS -->
+<div class="panel" id="p-pitch" hidden>
+  <section class="sec">
+    <h2>Pitchers, and the xERA question</h2>
+    <div class="box warnb">
+      <p><b>xERA is not in this archive.</b> The <code>expected_stats</code> table carries est_ba,
+      est_slg and est_woba only &mdash; no ERA of any kind. True ERA is also not reconstructible from
+      the pitch data, because earned versus unearned is an official scorer's judgement that is not
+      recorded here.</p>
+      <p>What <em>is</em> available is the same structure one layer down, and arguably cleaner:
+      <b>wOBA-against versus xwOBA-against</b>, which is what Savant's xERA is derived from anyway
+      (it is a rescaling of expected wOBA onto the ERA scale), plus actual <b>runs allowed</b>
+      computed from the score columns. ERA adds nothing to that except bullpen inheritance, official
+      scoring, and a less convenient scale.</p>
+    </div>
+  </section>
+
+  <div class="box key">
+    <h3>Expected beats realised by more for pitchers than for hitters</h3>
+    <div class="scroll"><table>
+      <caption>Predicting next season's wOBA-against. 426 training pairs (2023&rarr;24, 2024&rarr;25),
+      193 test pairs (2025&rarr;26). Pitchers with 200+ batters faced in both seasons.</caption>
+      <thead><tr><th>predictor</th><th class="n">test R&sup2;</th></tr></thead>
+      <tbody>
+        <tr><td>this season's wOBA against</td><td class="n">0.1263</td></tr>
+        <tr class="hl"><td>this season's xwOBA against</td><td class="n">0.1695</td></tr>
+        <tr><td>both</td><td class="n">0.1697</td></tr>
+        <tr><td>strikeout rate and walk rate only</td><td class="n">0.1558</td></tr>
+        <tr class="hl"><td>xwOBA against + K% + BB%</td><td class="n">0.1866</td></tr>
+      </tbody>
+    </table></div>
+    <p>Two things stand out. xwOBA-against beats wOBA-against by <b>34% in relative terms</b>, a much
+    larger edge than the hitter version showed at season level (0.127 vs 0.119). And <b>strikeout and
+    walk rates alone reach 0.156</b> &mdash; nearly matching expected wOBA, using no batted-ball data
+    whatsoever. That is the DIPS result from 1999 reproduced with modern data: what a pitcher controls
+    is mostly the outcomes that never become a batted ball.</p>
+  </div>
+
+  <div class="box">
+    <h3>How much of run prevention is contact quality?</h3>
+    <p class="note">Correlation with actual runs allowed per nine innings, 1,335 pitcher-seasons:
+    wOBA-against <b>+0.776</b>, xwOBA-against <b>+0.595</b>. wOBA-against should win by construction
+    &mdash; it contains the hits that scored the runs. The margin between them is the combined
+    sequencing, defence and timing term, and it is substantial: roughly a third of the explained
+    variance in runs allowed is <em>not</em> contact quality.</p>
+    <div class="scroll"><table>
+      <caption>Split-half reliability, odd against even months, 946 pitcher-seasons with 120+ batters
+      faced in each half.</caption>
+      <thead><tr><th>statistic</th><th class="n">split-half r</th><th class="n">Spearman&ndash;Brown</th></tr></thead>
+      <tbody>
+        <tr><td>ground-ball rate</td><td class="n">0.697</td><td class="n">0.822</td></tr>
+        <tr><td>strikeout rate</td><td class="n">0.653</td><td class="n">0.790</td></tr>
+        <tr><td>exit velocity allowed</td><td class="n">0.479</td><td class="n">0.648</td></tr>
+        <tr><td>xwOBA against</td><td class="n">0.430</td><td class="n">0.602</td></tr>
+        <tr><td>wOBA against</td><td class="n">0.321</td><td class="n">0.486</td></tr>
+        <tr class="hl"><td>the gap</td><td class="n">0.119</td><td class="n">0.213</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ================================================== ALL FINDINGS -->
+<div class="panel" id="p-all" hidden>
+  <section class="sec">
+    <h2>Every finding, with its status</h2>
+    <p class="note">Status codes: <span class="st y" style="padding:1px 5px">holds</span> survived its
+    test &middot; <span class="st n" style="padding:1px 5px">null</span> tested and found absent
+    &middot; <span class="st c" style="padding:1px 5px">retracted</span> claimed then withdrawn
+    &middot; <span class="st q" style="padding:1px 5px">tentative</span> real but under-powered or
+    post-hoc.</p>
+  </section>
+  <div id="findings"></div>
+</div>
+
+<!-- ================================================== MAP -->
+<div class="panel" id="p-map" hidden>
+  <section class="sec">
+    <h2>The pages</h2>
+    <p>Thirteen published pages from this project. All of them live in your gallery at
+    <code>claude.ai/code/artifacts</code>.</p>
+  </section>
+  <div class="cards" id="cards"></div>
+  <div class="box" style="margin-top:6px">
+    <h3>The repository</h3>
+    <p class="note"><code>~/Projects/statcast-dashboard</code>, branch <code>data-integrity</code>,
+    <b>17 commits unpushed</b>. Knowledge lives in three files that survive the session:
+    <code>CLAUDE.md</code> (reading order and environment traps), <code>DECISIONS.md</code>
+    (D1&ndash;D21, the standing rules), <code>FINDINGS.md</code> (dated results), plus
+    <code>RESEARCH_BACKLOG.md</code> (S1&ndash;S32, pre-registered).</p>
+  </div>
+</div>
+
+<!-- ================================================== OPEN -->
+<div class="panel" id="p-open" hidden>
+  <section class="sec">
+    <h2>What is still open</h2>
+    <p>Ordered by what would change the most if answered.</p>
+  </section>
+  <ol class="q">
+    <li><b>Steamer and ZiPS.</b> Marcel is the floor of the field, not its standard. Blocked on a
+    manual export: FanGraphs gates CSV behind membership, and the live page serves the continuously
+    updated variant which already contains 2026 &mdash; using it would reproduce the leak already
+    caught once. The pre-season files (<code>type=steamer</code>, not <code>steameru</code>) are what
+    is needed.</li>
+    <li><b>Confirm the error mechanism on a holdout.</b> Today's finding is measured on all four
+    seasons at once. The clean version predicts a hitter's next-season gap from his prior-season
+    ground-ball rate alone, out of sample. If that works it is a usable projection adjustment, not
+    just an explanation.</li>
+    <li><b>Is the season-level model failure sample size?</b> A 20-feature model at R&sup2; = &minus;0.060
+    on 267 training seasons is textbook overfitting, but that is a story, not a test. Backfilling
+    2015&ndash;2022 quintuples the training set &mdash; though bat tracking cannot follow, since it
+    does not exist before 2024.</li>
+    <li><b>Replicate the 22&ndash;25 age result prospectively.</b> Eight segments were tested; one
+    interval excluding zero is about what chance produces.</li>
+    <li><b>The count table invites a real question.</b> If the count swings production twice as much
+    as hitter identity, the value of a pitch is mostly its effect on the count. That reframes pitch
+    selection as count management and is directly testable against the sequencing work already done.</li>
+    <li><b>Build the shrinkage estimator rather than the model.</b> A shrunk average of past xwOBA
+    ties Marcel exactly. If the value is in the shrinking, the deliverable is two numbers, not a
+    fitted model.</li>
+    <li><b>Pitchers beyond the gap.</b> Everything in the Marcel benchmark is hitters. The pitcher
+    prior is a lower ceiling and a larger expected-statistic edge, which the season-level result here
+    already hints at.</li>
+    <li><b>Resolve the reliability tension formally.</b> A statistic with within-season reliability
+    .164 that correlates +0.29 with itself across seasons deserves a variance-components model with
+    player, season and residual terms rather than an argument.</li>
+  </ol>
+</div>
+
+<footer>
+  Regular-season data only. Models fitted on 2023&ndash;2025 and evaluated once on 2026; no test-year
+  data influenced any coefficient. Scripts and knowledge files in the repository; the technical
+  record page carries the derivations, the hypothesis register and the corrections log.
+</footer>
+</div>
+
+<script>
+(function(){
+const CT=[
+ ["0-0",709492,.3237,.3169,22.5,8.3,68.5,88.43],["0-1",359281,.2755,.2690,30.5,5.1,63.6,87.87],
+ ["0-2",152880,.2074,.2003,46.1,3.1,50.0,87.32],["1-0",268935,.3641,.3583,18.7,15.0,65.7,89.38],
+ ["1-1",278631,.3050,.3000,27.5,9.7,62.2,88.66],["1-2",212632,.2290,.2233,43.1,6.0,50.1,87.94],
+ ["2-0",90583,.4337,.4272,14.3,30.0,55.2,90.41],["2-1",143354,.3628,.3581,22.4,19.9,57.2,89.69],
+ ["2-2",173320,.2745,.2683,38.0,12.9,48.5,88.68],["3-0",28170,.5580,.5494,8.4,62.1,29.2,91.36],
+ ["3-1",59532,.4825,.4771,13.7,45.3,40.8,91.12],["3-2",100553,.3801,.3737,27.8,32.2,39.5,89.90]];
+const f3=v=>(v<0?"-":"")+Math.abs(v).toFixed(3).replace(/^0/,"");
+const f4=v=>(v<0?"−":"+")+Math.abs(v).toFixed(4).replace(/^0/,"");
+// count grid
+const map={}; CT.forEach(r=>map[r[0]]=r);
+const lo=.2074,hi=.5580;
+const cg=document.getElementById("cg");
+let h='<div class="hd"></div>'+[0,1,2].map(s=>`<div class="hd">${s} STRIKE${s===1?"":"S"}</div>`).join("");
+for(let b=0;b<4;b++){
+  h+=`<div class="rh">${b} ball${b===1?"":"s"}</div>`;
+  for(let s=0;s<3;s++){
+    const r=map[`${b}-${s}`], t=(r[2]-lo)/(hi-lo);
+    const bg=`color-mix(in srgb, var(--ac) ${Math.round(12+t*72)}%, var(--card))`;
+    const fg=t>0.55?"#fff":"var(--ink)";
+    h+=`<div class="cell" style="background:${bg};color:${fg}">
+      <span class="w">${f3(r[2])}</span><span class="s">${(r[1]/1000).toFixed(0)}k PA</span></div>`;
+  }
+}
+cg.innerHTML=h;
+document.getElementById("ctab").innerHTML=CT.map(r=>
+  `<tr${r[0]==="0-2"||r[0]==="3-0"?' class="hl"':''}><td class="m">${r[0]}</td>
+   <td class="n">${r[1].toLocaleString()}</td><td class="n">${f3(r[2])}</td><td class="n">${f3(r[3])}</td>
+   <td class="n">${f4(r[2]-r[3])}</td><td class="n">${r[4].toFixed(1)}%</td><td class="n">${r[5].toFixed(1)}%</td>
+   <td class="n">${r[6].toFixed(1)}%</td><td class="n">${r[7].toFixed(2)}</td></tr>`).join("");
+
+const F=[
+ ["Data and integrity",[
+  ["holds","y","Archive: <b>2,843,142 pitches</b>, 119 columns, 486k balls in play, 1.33M tracked swings","2023–2026"],
+  ["retracted","c","A 1.8 GB database was silently corrupted by an index build over the mount; under-counted by 23,523 pitches. Recovered whole","D9"],
+  ["holds","y","<b>sz_top was redefined in 2026</b> — per-pitch operator estimate to per-batter formula, 353,643 distinct values to 390. Any season-over-season zone analysis measured against it compares different rulers","D15"],
+  ["retracted","c","My first zone analysis did exactly that and reported the top of the zone <b>expanding</b>. In absolute feet it contracted 23.5 points","D15"],
+  ["holds","y","Bat speed is <b>park-dependent</b>: home-minus-road sd 0.23 mph, correlated +0.456 with the exit-velo park effect — a shared installation effect","sd .23 mph"]]],
+ ["The 2026 challenge zone",[
+  ["holds","y","Top of the zone contracted sharply: 3.4–3.6 ft fell from 41.1% called strikes to <b>17.6%</b>","−23.5 pp"],
+  ["holds","y","Bottom expanded: 1.4–1.6 ft rose from 42.0% to <b>52.5%</b>","+10.5 pp"],
+  ["holds","y","The boundary sharpened — the 20%-to-80% transition band narrowed from 2.61 to <b>1.90 inches</b> on the outside edge","crisper"],
+  ["holds","y","Between-catcher framing spread collapsed from 15.5 runs to <b>10.6</b>, which the crisper zone explains","15.5 → 10.6"]]],
+ ["Pitching and sequencing",[
+  ["null","n","Pitch-mix entropy does not predict results. Re-run where it had the best chance — the third time through the order — arsenal breadth still does nothing","−0.0027 ± 0.0040"],
+  ["holds","y","The times-through-order penalty is real and within-pitcher: <b>+24 points of wOBA</b> from the first pass to the third","+.0146 vs own avg"],
+  ["null","n","Tunnelling: 340,000 swings, consecutive different pitch types baselined on (previous type, this type, count). Excess whiff wanders between −0.24 and +0.14 points with no ordering","no effect"],
+  ["null","n","Within-pitcher velocity decay does not predict late-game damage. The between-pitcher version said it did, monotonically across five quintiles, at r = +0.905 — entirely selection","+0.0031 ± 0.0024"]]],
+ ["Hitting",[
+  ["holds","y","<b>89% of hitters slow their bat with two strikes</b>, by 1.37 mph on average. Those who shorten most strike out less and produce more","r = −0.147"],
+  ["holds","y","Platoon split is a real individual trait at <b>72% signal</b>, but 28% of any published leaderboard's spread is noise","sd_true .0353"],
+  ["holds","y","Signal share ordering: what a hitter <em>does</em> is measurable in one season; what happens to the ball is not. Swing length 87%, bat speed 85%, GB% 18%, <b>sweet-spot% 0%</b>","see technical record"]]],
+ ["Forecasting",[
+  ["holds","y","At a one-month horizon <b>realised wOBA has negative out-of-sample R²</b> — worse than assuming everyone is league average","−0.0038"],
+  ["holds","y","Once xwOBA is known, wOBA is <b>negative information</b>: its coefficient is negative in every input-sample bucket above 55 PA","−0.02 to −0.10"],
+  ["holds","y","<b>Playing time alone out-predicts xwOBA</b>, 0.032 to 0.015. Not a hitting skill — the manager's private information","2× xwOBA"],
+  ["holds","y","The noise ceiling: at 87 PA a forecaster knowing every hitter's true talent exactly reaches R² = <b>0.264</b>. Everything must be read against that, not against 1.0","ceiling .264"],
+  ["null","n","<b>Marcel — a 2004 weighted average — ties everything built here.</b> 48 Statcast features minus Marcel: −0.002 [−0.039, +0.033], P(model better) = 0.46","a draw"],
+  ["null","n","At season level a 20-feature Statcast model scores <b>−0.060</b>, worse than predicting league average. A shrunk average of past xwOBA ties Marcel exactly","the value is in the shrinking"],
+  ["tentative","q","The model beats Marcel for hitters with <b>no settled track record</b> — ages 22–25 by +0.065 [+0.003, +0.125]. Monotone across four history quartiles","P = 0.98"],
+  ["retracted","c","I predicted the edge would concentrate among hitters whose measurements had just moved. Top decile of movers: <b>−0.001, P = 0.50</b>","prediction failed"],
+  ["retracted","c","I predicted xwOBA's edge would shrink monotonically with window length. It is <b>humped</b>, peaking at 2–3 months","prediction failed"],
+  ["holds","y","Describing, repeating and predicting trade off almost perfectly. wOBA 1.000 / 0.135 / 0.065; xwOBA 0.747 / 0.321 / 0.136; fitted 0.485 / 0.665 / 0.205","trichotomy"]]],
+ ["The gap (today)",[
+  ["holds","y","<b>xwOBA under-rates ground balls by 23 points</b> and over-rates popups by 15","per batted ball"],
+  ["holds","y","<b>52% of the ground-ball gap is reached-on-error</b>, 70% including fielder's choice. xwOBA structurally cannot see an error","the mechanism"],
+  ["holds","y","Speed is secondary: fast hitters +.0257 on grounders, slow +.0208","+.005"],
+  ["holds","y","The gap persists across seasons for hitters (+0.29) and <b>not at all for pitchers</b> (+0.10, −0.02, +0.16) — exactly as the mechanism predicts","asymmetry confirmed"],
+  ["retracted","c","The first gap regression found ground-ball singles dominant at R² = .246. That is the same event counted twice","D18"]]],
+ ["Counts (today)",[
+  ["holds","y","<b>0–2 is worth .2074 and 3–0 is worth .5580.</b> The count swings production 1.89× the full range of hitter quality, 4× on standard deviations","range .351 vs .185"],
+  ["holds","y","The wOBA−xwOBA gap is nearly constant across all twelve counts (+.0047 to +.0085) — a league-wide calibration offset, not a count effect","offset ≈ +.006"]]],
+ ["Pitchers (today)",[
+  ["holds","y","xwOBA-against beats wOBA-against at predicting next season by <b>34% relative</b> — a bigger edge than the hitter version","0.170 vs 0.126"],
+  ["holds","y","<b>Strikeout and walk rates alone reach 0.156</b>, nearly matching expected wOBA with no batted-ball data. DIPS, reproduced","1999 → 2026"]]]];
+document.getElementById("findings").innerHTML=F.map(([g,items])=>
+ `<div class="fgroup"><div class="gh">${g}</div>`+items.map(([s,c,t,v])=>
+  `<div class="f"><span class="st ${c}">${s}</span><span class="tx">${t}</span><span class="vl">${v}</span></div>`).join("")+`</div>`).join("");
+
+const A=[
+ ["Statcast Atlas","a5f9","index","this page — every finding and every page in one place","#"],
+ ["Forecasting Hitters from Short Samples","a5f987e3-cb73-4283-a9f4-a19453aeaaf9","paper","the technical record: derivations, hypothesis register, seven threats to validity, six-entry corrections log"],
+ ["The Regression Machine","b5e9b066-8d41-45d4-8739-e893e865b3d2","tool","pick any hitter-month, see the forecast, then see what actually happened — with the Marcel benchmark"],
+ ["The Batted Ball Program","943c32d0-009c-42db-b0a8-13cac17c70ed","plan","eleven pre-registered theories on the swing-geometry layer; four decisions still awaiting you"],
+ ["Statcast Lab Notebook","5f676031-24d3-4d23-9770-8423dbe68fe7","log","nine exploratory studies — three positive, three clean nulls, two self-corrections"],
+ ["Mets Change Profiles","19556569-ade9-4076-a2df-89020911e920","report","2025 vs 2026 player changes, every one shrunk by that metric's signal share"],
+ ["Two Studies, One Retraction","ba5ff18b-8dd0-45b3-a346-19b3384a16c9","report","the wOBA−xwOBA gap regression and the correction that followed it"],
+ ["Pitch Sequencing Explorer","de7934ae-723e-4998-8397-992eed957775","tool","interactive transition effects by count and previous pitch"],
+ ["Does Mixing Pitches Work?","34376812-ce31-496e-80cd-2897a8b7d885","report","the original mixing null, since confirmed a second time"],
+ ["Breakout & Regression Board","462519d7-309c-423c-8708-e0bb1fd7dc32","board","league-wide breakout candidates — predates the calibration work and shows raw changes"],
+ ["Breakout Lab","667afb77-f7e6-40c2-bcd9-a3e11a40bd76","tool","earlier exploration of the same question"],
+ ["Statcast Data Audit","9b2c2467-e7b7-4597-9afd-da119d472711","audit","coverage, missingness and integrity checks on the backfill"],
+ ["Project Handoff System","4366da16-60f1-4b8d-b151-a100fdf4037d","method","how project knowledge survives between sessions"]];
+document.getElementById("cards").innerHTML=A.map(([t,id,k,d])=>{
+  const href=id==="a5f9"?null:`https://claude.ai/code/artifact/${id}`;
+  const inner=`<span class="k">${k}</span><span class="t">${t}</span><span class="d">${d}</span>`;
+  return href?`<a class="ac" href="${href}" target="_blank" rel="noopener">${inner}</a>`
+             :`<div class="ac" style="border-style:dashed">${inner}</div>`;}).join("");
+
+const tabs=[...document.querySelectorAll('.tabs button')];
+tabs.forEach(b=>b.addEventListener("click",()=>{
+  tabs.forEach(o=>o.setAttribute("aria-selected",String(o===b)));
+  document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!=="p-"+b.dataset.p);
+  window.scrollTo({top:0,behavior:"instant"});
+}));
+})();
+</script>

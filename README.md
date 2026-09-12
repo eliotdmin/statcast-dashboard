@@ -7,7 +7,7 @@ they land the rest of the season.
 ## Setup (one time)
 
 ```bash
-cd ~/Desktop/statcast-dashboard
+cd ~/Projects/statcast-dashboard
 pip install -r requirements.txt        # or: conda activate <env> && pip install -r requirements.txt
 ```
 
