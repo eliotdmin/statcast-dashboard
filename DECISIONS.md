@@ -245,3 +245,17 @@ then considers features.
 and it improves projection by nothing. A one-line arithmetic check — per-unit effect x spread of the
 driver x exposure, compared against the sd of the thing being explained — showed it accounts for
 7.3% of the gap's spread. **Run that check before writing the model, not after.**
+
+## D24 — Never compute a public metric from a raw column without an acceptance test
+**2026-09-12.** `woba_value` looks like wOBA and is not: it credits reached-on-error, fielder's
+choice and dropped third strikes as reaches. Four days of analysis inherited a 9-point inflation,
+and one published finding was entirely an artifact of it.
+
+**Rule.** Any metric this repo computes from pitch-level columns is first reconciled against an
+independent published version of the same metric for the same players — `expected_stats.woba` for
+wOBA, and the equivalent leaderboard for anything else. The check is two lines and it is not
+optional. Prefer the downloaded value outright wherever the unit of analysis is player-season;
+compute from pitches only at units no leaderboard publishes (per count, per batted ball, per month).
+
+**Diagnostic.** A systematic offset with correlation ~0.99 against the published version is a
+definition mismatch, not noise. Chase the events, not the arithmetic.

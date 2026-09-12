@@ -1239,3 +1239,62 @@ hitters"). Correct specification, on the actual gap:
 **Lesson: a mechanism can be real, correctly identified, and still operationally useless.** The
 error effect is genuine at the batted-ball level and explains the direction of the persistent gap;
 it explains 7% of its magnitude, which is not enough to forecast with.
+
+---
+
+## 2026-09-12 (late) — RETRACTION: the stored woba_value column is not wOBA
+
+**Caught by a reader question about the definition.** Real wOBA treats reached-on-error as an out,
+exactly as OBP does. Statcast's pitch-level `woba_value` does not.
+
+| event | n (2023-26) | stored woba_value | correct |
+|---|---|---|---|
+| field_error | 4,081 | **0.900** | 0 |
+| fielders_choice | 1,499 | **0.900** | 0 |
+| catcher_interf | 359 | 0.700 | (excluded from wOBA) |
+| strikeout (dropped 3rd) | 221 | **0.700** | 0 |
+
+The column tracks **whether the batter reached base**, not wOBA.
+
+### Acceptance test against Savant's own published wOBA (expected_stats.woba)
+| year | n | Savant | as stored | CORRECTED | corrected diff |
+|---|---|---|---|---|---|
+| 2023 | 293 | .3243 | .3349 | .3273 | +.0029 |
+| 2024 | 286 | .3159 | .3255 | .3177 | +.0018 |
+| 2025 | 277 | .3207 | .3300 | .3227 | +.0020 |
+| 2026 | 247 | .3255 | .3324 | .3248 | -.0007 |
+**Every wOBA in this repo was inflated ~9 points.** Corrected numerator = Savant's weights but
+credited only on `events IN ('single','double','triple','home_run','walk','hit_by_pitch')`.
+
+### WHAT THIS KILLS
+The 2026-09-12 headline finding. Gap by batted-ball type:
+| type | xwOBA | gap as published | **gap CORRECTED** |
+|---|---|---|---|
+| ground_ball | .2319 | +.0234 | **+.0008** |
+| line_drive | .6470 | +.0055 | +.0043 |
+| fly_ball | .4276 | -.0031 | -.0046 |
+| popup | .0315 | -.0153 | **-.0176** |
+**The ground-ball effect and the "52% is reached-on-error" decomposition were measuring my own
+numerator.** The near-constant +.006 "calibration offset" across all 12 counts dies with it —
+corrected, the on-contact gap is +.0016 / -.0061 / -.0021 / +.0023 by season, i.e. no offset.
+
+### WHAT SURVIVES
+- **xwOBA over-rates popups by 17.6 points** — the one real batted-ball bias (7% of BIP, so small).
+- **The persistent hitter gap is REAL and not an artifact**: corrected season-to-season r =
+  **+0.267, +0.302, +0.238** (vs +0.291, +0.280, +0.272 stored). Replicated across three year-pairs
+  and now **unexplained again**.
+- The count table's relative structure (0-2 .207 vs 3-0 .558) is unaffected — the inflation is
+  near-uniform across counts, so the 1.89x count-vs-hitter ratio stands. Absolute wOBA values in
+  that table are ~6-9 points high.
+- Forecasting R2 comparisons are near-invariant to a near-constant additive offset in the target,
+  so the Marcel benchmark conclusions stand. Not re-run.
+
+### xERA — resolved without downloading it
+Savant glossary: **"Expected Earned Run Avg (xERA) is a simple 1:1 translation of xwOBA, converted
+to the ERA scale."** It is a monotone rescaling of xwOBA-against and contains no extra information.
+A structural xERA-vs-ERA decomposition is therefore the xwOBA-against vs wOBA-against analysis
+already run, PLUS whatever ERA adds over runs allowed — sequencing, bullpen inheritance, and the
+official scorer's earned/unearned judgement, which is not in this data at all.
+`fetch.py` hardcoded its column list and dropped `era`/`xera` on ingest; now patched, columns added
+to the table. Backfilling the values needs network to baseballsavant, currently 403 through the
+proxy on both the device and the cloud container.

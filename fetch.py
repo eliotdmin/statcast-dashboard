@@ -159,6 +159,10 @@ def fetch_expected_stats(con, year, snapshot=None):
             "ba": df.get("ba"), "est_ba": df.get("est_ba"),
             "slg": df.get("slg"), "est_slg": df.get("est_slg"),
             "woba": df.get("woba"), "est_woba": df.get("est_woba"),
+            # xERA is a 1:1 rescaling of xwOBA onto the ERA scale (Savant glossary).
+            # It carries no information beyond est_woba, but capture it so the
+            # published number is available without a re-derivation. Pitchers only.
+            "era": df.get("era"), "xera": df.get("xera"),
         })
         con.execute(
             "DELETE FROM expected_stats WHERE snapshot_date=? AND player_type=?",
