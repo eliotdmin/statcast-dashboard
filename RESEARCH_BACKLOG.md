@@ -221,3 +221,22 @@ forecast vs full regression to league mean (all Marcel can offer them).
 A shrunk average of past xwOBA ties Marcel exactly. That suggests the deliverable is two numbers —
 a per-metric regression constant and a weighting scheme — not a model. Easier to trust, easier to
 ship, and it makes the interactive instrument simpler rather than more complex.
+
+### S27 — UPDATED 2026-09-12. Steamer/ZiPS benchmark is blocked on a manual export.
+FanGraphs gates CSV export behind membership. What is needed, exactly:
+  1. fangraphs.com/projections with **type=steamer** (NOT steameru — the update variant already
+     contains 2026 and would leak), stats=bat, pos=all, Page Size = Infinity -> Data Export
+  2. same with **type=zips**
+  3. drop both CSVs in the repo; only need Name / Team / PA / wOBA
+Then `marcel5.py` scores them on the same 245-hitter 2026 test set as Table 7.
+A reimplementation of their published methodology is NOT a substitute — it would be my strawman of
+their method, in the opposite direction from the strawman I avoided by tuning Marcel.
+
+### S31 — Replicate the 22-25 age result prospectively on 2027
+O5 emerged from a post-hoc split (8 segments tested). Its CI excludes zero but it is a hypothesis,
+not a finding, until it survives a season it did not generate.
+
+### S32 — Resolve the reliability tension in the residual
+wOBA-xwOBA has within-season split-half reliability 0.164 but correlates +0.29 with itself across
+seasons, three year-pairs running. The lower-bound argument for odd/even splits does not comfortably
+cover a gap that size. A variance-components model (player / season / residual) would settle it.

@@ -1096,3 +1096,49 @@ var(baseline talent) .001190 / var(one month's drift) .000726 / var(noise at 87 
 - realistic ceiling (knows talent, cannot foresee drift) **R2 = 0.264**
 - oracle ceiling (also foresees drift, unreachable) R2 = 0.425
 Marcel and the models all sit at **21-23% of the realistic ceiling**; xwOBA alone at 6%.
+
+---
+
+## 2026-09-12 (later still) — Age vs history, and a correction to how the niche gets described
+
+marcel4.py found the model beats Marcel in the bottom quartile of **prior playing time**. That is
+not the same claim as "it works for young players" — a 33-year-old back from two lost seasons also
+has thin history. Tested age directly (age_test.py). age vs prior PA correlate at **+0.549**.
+
+### By age (2026 holdout, model = now + history + Marcel combined)
+| age | n | Marcel | xwOBA alone | model | gap | 95% | P |
+|---|---|---|---|---|---|---|---|
+| **22-25** | 253 | 0.049 | 0.008 | 0.116 | **+0.065** | [+.003,+.125] | **0.98** |
+| 26-28 | 327 | -0.024 | 0.002 | -0.043 | -0.020 | [-.074,+.035] | 0.23 |
+| 29-31 | 268 | 0.102 | 0.030 | 0.089 | -0.014 | [-.070,+.041] | 0.32 |
+| 32+ | 237 | 0.110 | 0.013 | 0.088 | -0.023 | [-.081,+.034] | 0.21 |
+Ages 22-25 is the **only segment whose CI excludes zero** — sharper than the history split, whose
+top bucket touched zero (-0.011).
+
+### Crossed, to separate them
+| cell | n | Marcel | model | gap |
+|---|---|---|---|---|
+| young (<=27), thin history | 353 | -0.004 | 0.018 | +0.022 |
+| young (<=27), thick history | 131 | -0.011 | 0.026 | +0.037 |
+| older (>27), thin history | 190 | 0.067 | 0.108 | +0.041 |
+| **older (>27), thick history** | 411 | 0.112 | 0.065 | **-0.047** |
+**The model loses in exactly one cell: established veterans.** It ties or beats everywhere else.
+So it is neither purely age nor purely history — it is "does this hitter have a settled track
+record".
+
+### IMPORTANT CORRECTION to a natural summary
+"Expected metrics beat track record for young players" is **not supported**. **xwOBA alone loses to
+Marcel in every age bucket** (0.008 vs 0.049 at 22-25; 0.013 vs 0.110 at 32+). What beats Marcel is
+the full 48-feature measurement model, not the expected statistic. Correct summary:
+*a rich measurement model beats a track-record forecast wherever the track record is thin or the
+player is still developing, and loses to it for established veterans.*
+
+Caveat recorded: 4 age buckets x 4 history quartiles = 8 tests; one CI excluding zero at 5% is about
+what chance produces. Treat as a hypothesis for 2027, not a finding.
+
+### Steamer / ZiPS — attempted, blocked
+FanGraphs hosts both but **CSV export is members-only**; steamerprojections.com returns HTTP 409.
+Critical design point discovered while looking: FanGraphs shows *continuously updated* projections
+(`type=steameru`), which already incorporate the season being forecast — using those would reproduce
+C1 leakage exactly. **The benchmark requires PRE-season files** (`type=steamer`, published ~Feb).
+Blocked pending a manual export; see RESEARCH_BACKLOG S27.
