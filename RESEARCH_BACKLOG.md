@@ -162,3 +162,39 @@ the monthly noise share, it is mechanical and merely a warning label. Cheap, alr
 Bat speed should not vary with air density; exit velocity should. The ratio per park separates
 instrumentation from environment. Coors is the control. Feeds a park adjustment that everything
 else should then use.
+
+---
+
+## Added 2026-09-12, from the forecasting study
+
+### S20 — Why is xwOBA's predictive edge humped rather than declining?
+Edge over wOBA: +.019 (1mo), +.037 (2mo), +.037 (3mo), +.008 (season). I predicted monotone decline.
+The 3-month row has the smallest test sample (318). **Re-run at weekly resolution**, where a season
+yields ~26 windows instead of 6, to see whether the hump is real or an artifact of month granularity.
+
+### S21 — Is the model's edge better shrinkage, or better information?
+Compare the 48-feature model head-to-head against a two-parameter model: xwOBA shrunk optimally given
+its own sample size. If most of the gain is shrinkage, the deliverable is a formula, not a model.
+
+### S22 — Benchmark against Marcel
+Nothing here has been tested against a public forecaster. Marcel (3-year weighted average + regression
++ age) is ~30 years old, trivial to implement, and is the standard floor. **A model that beats xwOBA
+but loses to Marcel has achieved nothing, and I currently do not know which side of that line this is
+on.** Highest-priority validation item in the repo.
+
+### S23 — Rest-of-season is the right target, not next month
+Every model here predicts next month. Roster decisions need rest-of-season, which is a less noisy
+target and therefore has a higher ceiling. One line of code.
+
+### S24 — Backfill sprint_speed 2023-2026
+Currently 552 rows, one season. Every name on the persistent-gap over-performer list is fast
+(Altuve, Friedl, Turner, Rafaela, Perdomo). Sprint speed would convert the best circumstantial
+finding in the repo into a direct measurement, and also unblocks T5 of the batted-ball program.
+
+### S25 — Does the playing-time signal survive conditioning on health?
+Lineup frequency out-predicting exit velocity is either managerial private information or an artifact
+of injuries and platoons. Condition on consecutive healthy months and on a fixed lineup slot.
+
+### S26 — Run the whole thing for pitchers
+Every result so far is hitters only. Prior: lower ceiling, larger xwOBA edge, since pitchers control
+batted-ball outcomes far less than hitters do.

@@ -920,3 +920,104 @@ sweet-spot 0%**.
 Pitchers: arm angle 100%, extension 100%, velo 99%, spin 97%, xwOBA-against 72%, wOBA-against 69%,
 whiff/sw 49%, chase induced 39%, K% 39%, zone% 28%, 1st-pitch strike 24%, **BB% 1%, edge% 1%**.
 Rule of thumb: what a player *does* is measurable in one season; what *happens to the ball* is not.
+
+---
+
+## 2026-09-12 — Forecasting: does xwOBA beat wOBA, and can we beat xwOBA
+
+Panel: 10,287 hitter-months 2023-2026 (`extract_monthly.py` -> `output/hitter_months.csv`).
+**Fit on 2023-2025, evaluated once on 2026. No 2026 data touched any coefficient.**
+Weighted by target-window PA throughout.
+
+### The headline, in the only units that matter
+Sort 2026 hitter-months into fifths by a signal; look at what those hitters ACTUALLY hit next month.
+Spread between top and bottom fifth of realised next-month wOBA:
+| sorted by | spread |
+|---|---|
+| what he just hit (wOBA) | **.0098** |
+| xwOBA | .0228 |
+| the fitted model | **.0406** |
+wOBA is also badly miscalibrated: bottom fifth claimed .247, then hit .329.
+
+### Q1 — is xwOBA more predictive than wOBA? Yes, everywhere.
+| window | n | wOBA R2 | xwOBA R2 | both | edge |
+|---|---|---|---|---|---|
+| 1 month | 1085 | **-0.0038** | 0.0153 | 0.0178 | +0.019 |
+| 1 month 70+PA | 674 | 0.0032 | 0.0216 | 0.0234 | +0.018 |
+| 2 months | 856 | 0.0366 | 0.0732 | 0.0717 | +0.037 |
+| 3 months | 318 | -0.0074 | 0.0297 | 0.0359 | +0.037 |
+| season -> season | 213 | 0.1194 | 0.1274 | 0.1305 | +0.008 |
+**At one month, wOBA has NEGATIVE out-of-sample R2** — worse than assuming everyone is league average.
+**I predicted xwOBA's edge would decline monotonically with window length. Wrong — it is humped**,
+peaking at 2-3 months and nearly vanishing over a full season. No mechanism yet; see backlog S20.
+
+**Once you know xwOBA, wOBA is negative information.** Fitting next ~ b1*wOBA + b2*xwOBA within
+input-PA buckets, b1 is NEGATIVE in every bucket above 55 PA (-0.022, -0.104, -0.075, -0.041).
+A hitter who beat his xwOBA should be marked DOWN.
+
+### The ceiling — why R2 ~ 0.06 is most of what exists
+From 16,228 within-season month pairs, E[(w1-w2)^2] = sigma^2*(1/pa1+1/pa2) + var(drift):
+- per-PA outcome variance **sigma^2 = 0.2258** (sd .475 per PA)
+- real month-to-month skill drift sd = **.0381**
+- spread of true talent across 670 hitters sd = **.0345**
+| PA/month | 40 | 60 | 100 | 250 | 600 |
+|---|---|---|---|---|---|
+| best possible R2 | .144 | **.186** | .243 | .336 | .395 |
+At a typical 60-PA month an oracle scores .186. xwOBA's .015 is 8% of knowable; the full model's
+.057 is **31%**. Always divide by the ceiling, never by 1.0.
+
+### Q2 — can we beat xwOBA? Yes, ~4x. (1-month horizon, 2026 holdout)
+| feature set | k | ridge | GBM | forest |
+|---|---|---|---|---|
+| wOBA only | 1 | -0.003 | -0.012 | -0.069 |
+| xwOBA only | 1 | 0.015 | 0.007 | -0.037 |
+| + contact quality | 10 | 0.024 | 0.014 | 0.021 |
+| + discipline | 18 | 0.030 | 0.027 | 0.035 |
+| + context & playing time | 39 | 0.044 | 0.049 | 0.055 |
+| + swing geometry | 48 | 0.043 | **0.057** | 0.054 |
+
+**UNCOMFORTABLE CONTROL: playing time alone scores 0.0316 — double xwOBA's 0.0153.** How often a
+manager writes a hitter into the lineup predicts next month better than how hard he hits the ball.
+Removing it costs the full model ~a fifth (0.057 -> 0.044). Kept in headline numbers because a real
+forecaster would know it, but it is the manager's private information, not a hitting skill.
+
+Swing geometry earns its place: bat speed carries the **2nd-largest coefficient of 22** in the
+portable ridge, behind exit velocity and ahead of xwOBA.
+
+### Descriptive vs reliable vs predictive — they trade off almost perfectly
+| metric | describes now | repeats next month | predicts next month |
+|---|---|---|---|
+| wOBA | 1.000 | 0.135 | 0.065 |
+| xwOBA | 0.747 | 0.321 | 0.136 |
+| fitted | 0.485 | **0.665** | **0.205** |
+The better a metric describes the month that happened, the worse it forecasts the next.
+
+### Q3 — what explains wOBA minus xwOBA
+**Within season it is luck.** Split-half (odd vs even months, 1,264 hitter-seasons 100+PA each half,
+Spearman-Brown): bat speed .978, attack angle .971, whiff .924, EV .879, spray .791, xwOBA .703,
+wOBA .448, **gap .164**, gb_single .193.
+
+**Across seasons it is a small real trait.** Gap season-to-season r: **+0.293 / +0.303 / +0.274**
+across three independent year pairs. Over-performers (3+ seasons): Altuve +.048, Friedl +.048,
+Paredes +.040, Clement +.037, Bellinger +.033, Perdomo +.033, Rafaela +.032, Turner +.030.
+Under: S.Perez -.024, Soto -.021, Conforto -.021, Bailey -.018, Tatis -.016, Vlad Jr -.016.
+Fast contact hitters vs slow sluggers. **EV carries a NEGATIVE coefficient at every window**
+(-.006 1mo, -.008 3mo); pull-side spray positive. xwOBA maps EV/LA to a league-average outcome, so
+it over-credits the slow slugger whose hard-hit balls are caught and under-credits speed — and is
+blind to direction, which is why Paredes (cheap pulled flies) is the 3rd-largest over-performer.
+
+**CIRCULARITY I NEARLY PUBLISHED.** First run had gb_single as the top explainer, R2=.246. A ground
+ball that finds a hole *is* both a gb_single and a positive gap — the same event counted twice.
+gb_single's own split-half reliability is .193. Splitting predictors into ante-hoc (knowable before
+the ball lands) vs outcome-derived:
+| window | sd(gap) | ante-hoc R2 | outcome-derived R2 |
+|---|---|---|---|
+| 1 month | .042 | 0.034 | 0.189 |
+| 2 months | .031 | 0.065 | 0.182 |
+| 3 months | .026 | **0.137** | 0.168 |
+**Answers the short-vs-long question: the gap shrinks as the window grows AND the genuinely
+explainable share quadruples.** Luck averaging out, physical residue surviving.
+
+Gap predicting future wOBA, controlling for xwOBA level: 1 month null (-0.038 +/- 0.024);
+3 months **-0.107 +/- 0.054, real**. Over a real stretch, beating your expected output forecasts
+giving it back.

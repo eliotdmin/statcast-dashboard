@@ -198,3 +198,22 @@ Reports rank by |z|, not by |d| and not by |d/se|. Significance tests against ze
 controls the answer; the calibration tests against how far players actually move, which is the
 question. A report generated without `calibration.json` prints a warning rather than silently
 falling back to raw changes.
+
+## D17 — Grade every forecast against the noise ceiling, never against 1.0
+**2026-09-12.** At one month of playing time the target is mostly coin flips: an oracle knowing every
+hitter's true talent exactly scores R2 = 0.186 at 60 PA. Reporting "R2 = 0.06" without that
+denominator makes a model that captures a third of the available signal look broken. Every predictive
+result in this repo reports the ceiling alongside it, computed from the pair identity
+`E[(w1-w2)^2] = sigma^2*(1/pa1+1/pa2) + var(drift)`.
+
+## D18 — Never explain an outcome residual with another outcome rate
+**2026-09-12.** Regressing wOBA-minus-xwOBA on ground-ball-single rate produced R2 = 0.246 and meant
+nothing: a ground ball that finds a hole is both variables at once. Predictors for any residual are
+split into **ante-hoc** (properties of the batted ball and context, knowable before it lands) and
+**outcome-derived**, and the two R2 values are always reported apart. Sanity test: if the proposed
+explainer's own split-half reliability is near zero, it is luck, and luck cannot explain luck.
+
+## D19 — Playing time is a predictor, and must be ablated, never silently included
+**2026-09-12.** Plate appearances alone out-predict xwOBA (0.032 vs 0.015). It is real information —
+a manager's private read on health and matchups — but it is not a hitting skill. Any model reporting
+predictive performance runs with and without it and reports both.
