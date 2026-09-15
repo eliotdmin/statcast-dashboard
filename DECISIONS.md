@@ -285,3 +285,31 @@ both directions and either one alone misleads:
   either "significant" or "not significant."
 
 **Rule.** No single-number significance verdict ships without its effect size beside it.
+
+## D27 — The input-corroboration hypothesis is dead at every resolution
+**2026-09-15.** Tested at 15-, 30-, 45- and 60-day windows, fit 2023-2025 and scored on 2026. Adding
+a reliability-weighted composite of within-player input changes to a model that already has wOBA and
+xwOBA (current and prior) never produces a confidence interval that excludes zero:
+
+| window | M2 (xwOBA) | M4 (+ input delta) | M4 - M2 | 95% CI |
+|---|---|---|---|---|
+| 15d | .0222 | .0302 | +.0079 | [-.0023, +.0178] |
+| 30d | .0335 | .0301 | -.0034 | [-.0176, +.0097] |
+| 45d | .0385 | .0351 | -.0033 | [-.0238, +.0166] |
+
+The 15-day hint is in the direction the theory predicts (corroboration should matter most where the
+results sample is smallest) and is not significant. **Do not build on it without a fresh holdout.**
+
+The paradox to keep in mind: those same input changes have window-to-window correlations of +.37 to
++.58 and 47% of moves past |z| = 2 hold half their magnitude into the next window. They are real and
+persistent and they do not move next month's wOBA, because next month's wOBA is barely movable.
+
+## D28 — 2026 is no longer a holdout; it is a development set
+**2026-09-15.** The 2026 slice has now been scored dozens of times across this project: four model
+specifications at four window lengths, two player types, several PA floors, and the streak subgroup
+analysis. Each look is a degree of freedom. The honest name for what 2026 has become is a validation
+set, and any figure quoted from it should be read as optimistic by an unknown amount.
+
+**Rule going forward.** See `PREREGISTRATION.md`. No further model selection touches 2026. The next
+genuinely clean evaluation is 2027, and the predictions to be scored against it are written down now,
+before the data exists.
