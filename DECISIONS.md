@@ -259,3 +259,29 @@ compute from pitches only at units no leaderboard publishes (per count, per batt
 
 **Diagnostic.** A systematic offset with correlation ~0.99 against the published version is a
 definition mismatch, not noise. Chase the events, not the arithmetic.
+
+## D25 — "% real" is a property of the column, not of the player's number
+**2026-09-15.** The Stretch Finder chip that reads `72% real` means
+`rho = var(true)/var(observed)` *across players* at that sample size, projected from the measured
+half-season split-half by Spearman-Brown. It says that if you re-ran the same six weeks, about 72%
+of the variance in that percentile ranking would come back. It does **not** mean any individual
+number is 72% accurate, and it is not a confidence interval.
+
+**Consequence adopted.** Fading a bar is not enough — a faded bar still shows the raw percentile,
+and readers read the bar. The tool now draws the *shrunk* percentile `50 + rho x (raw - 50)` as the
+solid bar and the raw percentile as a dashed outline behind it. The gap between them is the part
+the data does not support. Anything this repo publishes with percentile bars does the same.
+
+## D26 — "Is it noise?" and "is it big?" are two questions; ship both
+**2026-09-15.** `profile.py` reports `delta_z` (delta over the standard error sampling noise alone
+would produce) *and* `delta_sd` (delta in units of the between-player spread). They come apart in
+both directions and either one alone misleads:
+
+- Arm angle is measured with reliability ~0.999. A 0.9-degree drift clears the noise bar at
+  z = 2.5 and is 0.07 sd of the league — statistically unambiguous, practically nothing.
+- Dylan Cease's strikeout rate fell 4.2 points over 242 batters faced: z = -1.06 (indistinguishable
+  from noise) but 0.6 sd (a change anyone would notice if it were real). The honest sentence is
+  "he may well have changed this much and this sample cannot tell you," which is more useful than
+  either "significant" or "not significant."
+
+**Rule.** No single-number significance verdict ships without its effect size beside it.
