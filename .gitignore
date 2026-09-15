@@ -36,3 +36,5 @@ output/*
 !output/woba_fix.json
 !output/pitchers_gap.json
 !output/marcel_plus.json
+!output/dontchase.json
+!output/changes.json
