@@ -186,3 +186,160 @@ prove it works. They share all their infrastructure. #8 is a one-afternoon side 
 an outsized chance of getting linked by a coach with an audience.
 
 The trap is #9 and #10 — both are fun to build, and neither makes anyone trust you.
+
+---
+---
+
+# Deep dive: #4, automated pre-game one-pagers
+
+## What the product actually is
+
+One page, per starting pitcher, per game, generated the night before and delivered at
+7am local. Four blocks:
+
+1. **What his delivery has done in the last three starts**, against his own season
+   baseline, with `verdict` and `size` from `profile.py`. Velocity, extension, arm angle,
+   spin, release point.
+2. **The two or three things that actually moved**, in plain sentences, with the ones
+   that did not move explicitly listed as "unchanged" -- because the negative is what a
+   broadcaster needs to avoid saying something false.
+3. **The matchup slice**: how this lineup has done against this pitch mix, shrunk.
+4. **One "do not say this" box**: the numbers that look like a story and are not. If his
+   BABIP is .180 over four starts, the box says so and says what the honest version is.
+
+Block 4 is the differentiator and the reason a beat writer would keep opening it.
+
+## Who buys, realistically
+
+Three tiers, and only one of them is a business:
+
+- **MLB club communications / broadcast partners.** Every RSN produces a version of this
+  by hand. A graphics producer spends 3-5 hours per game building notes off Savant. 30
+  clubs x 162 games. This tier has budget and a procurement process measured in quarters.
+- **National outlets** (The Athletic, ESPN, MLB.com). They have in-house data teams and
+  will build it rather than buy it. Skip.
+- **Beat writers and local radio** individually. No budget, enormous need. This is the
+  distribution tier, not the revenue tier.
+
+**The realistic path is to give it away to the third tier to get to the first.** Five
+beat writers using it and crediting it is the only credential that gets a club call
+returned.
+
+## The precedent, in detail
+
+The Associated Press automated earnings stories with Automated Insights' Wordsmith in
+mid-2014. Before: roughly 300 companies covered per quarter, written by staff. After:
+about 3,700 -- a 12x expansion of coverage with no additional writers, and the AP
+publicly said the freed-up time went to actual reporting rather than layoffs. Two details
+matter for you:
+
+1. **It worked because the input was structured and the output was formulaic.** Earnings
+   releases arrive as tables. Pre-game notes are the same shape. The moment the task
+   requires judgment about *why*, automation quality falls off a cliff -- which is exactly
+   why block 4 above is constrained to "here is what you cannot conclude" rather than
+   "here is what happened to him."
+2. **It did not sell as AI.** It sold as coverage expansion. Nobody bought a language
+   model; they bought 3,400 more stories. Your pitch is not "LLM scouting reports," it is
+   "your graphics producer gets four hours back and stops putting a .180 BABIP on air as
+   if it meant something."
+
+The counter-precedent is worth knowing too: the *LA Times* Quakebot (2014) generated
+earthquake stories automatically and in 2025 published a false 6.3-magnitude alert because
+USGS re-published a 1925 quake record with a current timestamp. Automated pipelines fail
+by trusting their input. Your equivalent failure mode is D24 -- a provider column that
+silently means something other than its name -- and your defense is the acceptance test.
+
+## Unit economics
+
+Per page: roughly 3k input tokens (mostly a cached system prompt, billing at 0.1x) and
+400 output. On Sonnet at $3/$15 per MTok that is well under a cent. 30 games x 2 starters
+= 60 pages/day x 180 days = 10,800 pages, call it **$100-150 per season in inference**.
+The cost is entirely the data pipeline and the sales motion, which is the usual shape:
+the model is free, the distribution is not.
+
+## What would kill it
+
+- **Latency of trust.** One wrong sentence on air and you are out. This argues for
+  shipping block 4 (the negative constraints) *first*, alone, as a "do not say this"
+  sheet, and adding generation only after the constraint layer has been right for a
+  season.
+- **Clubs' internal groups.** Every team already has an analyst who could build this. The
+  wedge is that they build for the front office, not for comms, and comms cannot get
+  their time.
+
+---
+
+# Deep dive: #8, the sample-size planner
+
+Built. `planner.py`. This is the one on the list that was an afternoon, and it may be the
+most useful thing in the repo.
+
+## The table that is the product
+
+Plate appearances needed for a between-player ranking to reach a given reliability
+(2023-2026, half-season split-half, Spearman-Brown projection):
+
+| metric | rho at 207 PA | rho=0.5 | rho=0.7 | rho=0.8 | rho=0.9 |
+|---|---|---|---|---|---|
+| swing length | .982 | 4 | 9 | 15 | 34 |
+| bat speed | .974 | 6 | 13 | 22 | 50 |
+| attack angle | .961 | 8 | 20 | 34 | 76 |
+| whiff% | .917 | 19 | 43 | 75 | 168 |
+| chase% | .909 | 21 | 48 | 83 | 186 |
+| K% | .861 | 33 | 78 | 133 | 300 |
+| exit velo | .865 | 32 | 75 | 129 | 290 |
+| hard-hit% | .822 | 45 | 105 | 180 | 404 |
+| xwOBA | .691 | 93 | 216 | 371 | 834 |
+| BB% | .728 | 77 | 181 | 310 | 697 |
+| wOBA | .479 | 225 | 524 | 899 | **2,023** |
+| sweet-spot% | .370 | 353 | 823 | 1,411 | **3,176** |
+
+Read the last column. **wOBA needs three and a half seasons to become a 90%-real
+ranking.** Sweet-spot% needs five and a half. Bat speed needs fifty plate appearances.
+That is the entire thesis of this project in one table, and it is the kind of artifact
+that gets screenshotted.
+
+## The second mode: detectable difference
+
+`--detect` answers the question a hitting coach actually has. Same decomposition,
+rearranged into a power calculation:
+
+```
+n = n0 * (1 - rho) * var_league(n0) * ( (z_{alpha/2} + z_beta) / delta )^2
+```
+
+Worked examples from the tool:
+
+- **A pitcher who has lost 1.0 mph**: detectable at 80% power in **26 batters faced** --
+  one start. Velocity is measured with reliability .997 and a league sd of 2.4 mph.
+- **A hitter who has gained 1.0 mph of bat speed**: **369 PA** against a baseline treated
+  as known, and *impossible* against a 300-PA baseline -- the tool says so explicitly,
+  because when the required `n` exceeds the baseline's own size there is no follow-up
+  window that resolves the difference. The answer is "lengthen the baseline first," which
+  is a real and non-obvious piece of experimental design.
+- **A 2-degree attack-angle change**: **215 PA**.
+- **A 30-point wOBA change**: **1,962 PA**. Nobody is ever measuring this within a season.
+
+## Why this is the right place in the market
+
+The analogy is exact, not loose. A clinical trial computes its sample size *before*
+enrollment; ICH E9 and every journal's CONSORT checklist require the calculation in the
+protocol, and post-hoc power analysis is considered a statistical error. Sports science
+has no equivalent norm. Every Driveline-style facility, every college program with a
+Trackman unit, runs the same loop: make a mechanical change, take 40 swings, look at the
+number, decide. Forty swings resolves bat speed fine (rho = .9 at 50 PA) and resolves
+essentially nothing about exit velocity, hard-hit rate or outcomes.
+
+**The product is not a calculator. It is a norm.** Being the tool a coach runs before the
+intervention is a different and much stickier position than being the tool that evaluates
+it afterward -- and the first mode above gives you the shareable artifact that gets you in
+the door.
+
+## What to build next on it
+
+1. A web version with two inputs and one number. Ten minutes of work on top of what exists.
+2. **A design mode**: "I can get 200 swings. What is the smallest change I could detect?"
+   That is the same formula solved for `delta` instead of `n`, and it is the question
+   coaches actually ask.
+3. Port the table to whatever tracked metrics a facility has that MLB does not -- force
+   plate, motion capture. The reliability table for those does not exist anywhere public.

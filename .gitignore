@@ -38,3 +38,4 @@ output/*
 !output/marcel_plus.json
 !output/dontchase.json
 !output/changes.json
+!output/planner.json
