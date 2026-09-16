@@ -1,10 +1,16 @@
 # The statistical program
 
-*Consolidated 2026-09-15. Statistics only — the estimators, the quantities they estimate, what has
+*Consolidated 2026-09-16. Statistics only — the estimators, the quantities they estimate, what has
 been measured, what has failed, and what remains open. No product, no engineering, no interface.
 `FINDINGS.md` remains the append-only log; this is its structured index.*
 
-*Math is written in LaTeX and renders in Obsidian, GitHub and most markdown previewers.*
+*Math is LaTeX and renders in Obsidian, GitHub and most markdown previewers.*
+
+**How to read this.** Parts 0–II are the machinery: what each quantity is, how it is computed, and
+a worked example with real numbers. Parts III–VI are what the machinery produced. Part VII is the
+catalogue of mistakes. Parts VIII–IX are what is still wrong and what is still open. If you read
+only two sections, read **§1.2** (the three things called reliability) and **§2.1** (what
+split-half reliability actually is).
 
 ---
 
@@ -16,12 +22,17 @@ and one natural experiment (the 2026 ABS zone).
 
 | symbol | meaning |
 |---|---|
-| $X$ | an observed rate for one player over one window |
-| $T$ | true talent over that window — the average over infinite replays of it |
-| $e$ | everything else: opponents, park, defence, sequence, which pitches arrived |
+| $X$ | an observed rate for one player over one window — his actual bat speed, his actual wOBA |
+| $T$ | true talent over that window — what he *would* average if you replayed the window forever |
+| $e$ | everything else: opponents, park, defence, sequence, which pitches happened to arrive |
 | $n$ | sample size (PA, batters faced, swings, batted balls — always stated) |
-| $\rho$ | reliability, $\operatorname{Var}(T)/\operatorname{Var}(X)$ |
+| $\rho$ | reliability, $\operatorname{Var}(T)/\operatorname{Var}(X)$ — defined properly in §1.2 |
 | $\sigma^2$ | per-PA outcome variance of wOBA $= 0.2258$ (sd $0.475$ per plate appearance) |
+
+A note on $T$. "True talent over this window" is not a philosophical claim, it is a definition: the
+number you would get by replaying these exact six weeks infinitely many times with the same hitter,
+the same schedule, and different luck. It is unobservable and every technique below is a way of
+estimating properties of it without ever seeing it.
 
 ---
 
@@ -29,40 +40,54 @@ and one natural experiment (the 2026 ABS zone).
 
 ## 1.1 The single decomposition
 
+Everything in this project rests on one sentence: **a stat line is ability plus what happened to
+you, and you can only see the sum.**
+
 $$
 X \;=\; T + e, \qquad \mathbb{E}[e] = 0, \qquad \operatorname{Cov}(T, e) = 0
 $$
 
-**In words:** what you observe is the player's real ability plus everything that happened to him.
-The luck averages out to zero over infinite replays, and it is unrelated to how good he is.
+**What each piece is saying.** $X$ is the number on the page. $T$ is the part that would show up
+again if you ran the window over. $e$ is the part that would not. $\mathbb{E}[e] = 0$ says the luck
+is not biased in either direction across infinite replays. $\operatorname{Cov}(T,e) = 0$ says good
+players are not systematically luckier than bad ones.
 
-Because the cross term vanishes, variances add:
+**Worked example.** A hitter posts a .350 wOBA over 100 plate appearances. That .350 is $X$. Suppose
+his true ability over that stretch was .320 — then $e = +.030$, thirty points of good fortune: a
+seeing-eye grounder, a fly ball that carried, a pitcher who left one up. You never observe the .320
+or the .030 separately. You observe .350 and have to reason about the split.
+
+Because the two components are uncorrelated, their variances add:
 
 $$
 \operatorname{Var}(X) \;=\; \operatorname{Var}(T) \;+\; \operatorname{Var}(e).
 $$
 
-**In words:** the spread you see between players is the spread in their real ability *plus* the
-spread contributed by luck. The two add cleanly, which is the only reason any of this is tractable.
+**What this is saying, concretely.** Line up 300 hitters by their wOBA over six weeks. The spread
+you see in that column — some at .250, some at .400 — comes from two sources. Some of it is that
+they really are different hitters. The rest is that some of them got lucky and some didn't. The
+equation says those two contributions add cleanly, without a cross term. **That is the only reason
+any of this works**: if you can estimate the total spread and one of the pieces, you get the other
+piece by subtraction.
 
-Every estimator below recovers one of those three terms. The assumption doing the work is
-$\operatorname{Cov}(T,e) = 0$ — that better players are not systematically luckier. It is
-approximately true for batted-ball outcomes and badly false for anything containing team context
-(wins, RBI, and, for a pitcher, wOBA-against, which contains his defence).
+**Where the assumption fails.** $\operatorname{Cov}(T,e) = 0$ is approximately true for batted-ball
+outcomes. It is badly false for anything containing team context: a pitcher's win total, RBI, or —
+importantly for §4.6 — a pitcher's wOBA-against, which contains his defence. There, "luck" is
+correlated with the team you play for, which is correlated with how good you are.
 
-## 1.2 Reliability, and the three quantities that share the name
+## 1.2 Reliability — and the three different things that share the name
 
 **This is the most important conceptual distinction in the project, and conflating two of them
-caused a retraction.**
+caused a retraction.** The word "reliability" gets used for three different quantities here:
 
-| | quantity | question it answers | bat speed | wOBA |
+| | quantity | the question it answers | bat speed | wOBA |
 |---|---|---|---|---|
-| **A** | reliability of a **level**, within-season split-half | is the *ranking of players* real? | .974 | .479 |
-| **B** | signal share of a **year-over-year change** | is a player's *season-to-season move* real? | 85% | 68% |
-| **C** | signal share of a **month-over-month change** | is a player's *in-season move* real? | **34%** | — |
+| **A** | reliability of a **level** | *is the ranking of players real?* | .974 | .479 |
+| **B** | signal share of a **year-over-year change** | *is this player's season-to-season move real?* | 85% | 68% |
+| **C** | signal share of a **month-over-month change** | *is this player's in-season move real?* | **34%** | — |
 
-A and C differ by nearly a factor of three for the same metric. For two independent windows of
-sizes $n_1$ and $n_2$:
+**Why A and C differ by a factor of three for the same metric.** A *level* is one noisy number. A
+*change* is the difference of two noisy numbers, so:
 
 $$
 \operatorname{Var}(\Delta_{\text{obs}}) \;=\; \operatorname{Var}(\Delta_{\text{true}})
@@ -71,156 +96,307 @@ $$
 \text{signal share} \;=\; \frac{\operatorname{Var}(\Delta_{\text{true}})}{\operatorname{Var}(\Delta_{\text{obs}})}.
 $$
 
-**In words:** the spread in observed *changes* contains one signal term and **two** noise terms —
-one from each window you differenced. Signal share is the fraction of that spread that is real
-movement rather than two independent draws of bad luck.
+Two things happen at once and both hurt. The **noise doubles** — you inherit the error from the
+first window *and* the error from the second. And the **signal shrinks** — talent barely moves
+between two windows a month apart, so $\operatorname{Var}(\Delta_{\text{true}})$ is far smaller than
+$\operatorname{Var}(T)$ ever was.
 
-A change is a difference of two noisy quantities: the noise terms **add**, while
-$\operatorname{Var}(\Delta_{\text{true}})$ is far smaller than $\operatorname{Var}(T)$ because talent
-moves slowly. Both effects push a change's reliability below its level's.
+**Worked example.** Bat speed is measured almost perfectly: pin down a hitter's *level* at 69.2 mph
+and you are confident to a few tenths. But ask whether he gained 0.8 mph from May to June and you
+are differencing two numbers each carrying a few tenths of error, against a true month-to-month
+movement that is itself only about 0.8 mph wide across the whole league. Hence 34%, not 85%.
 
-The project asserted "bat speed is reliable at ten swings, therefore monthly bat-speed tracking
-works." That inference is invalid and was retracted.
+**The mistake this caused.** The project reasoned: *bat speed is reliable at ten swings, therefore
+monthly bat-speed tracking works.* That is the A → C inference and it is invalid. The
+recommendation was retracted.
 
-## 1.3 What reliability buys, and what it does not
+## 1.3 What reliability buys you — and what it does not
 
-**Buys — a decision rule.** The reliability *is* the regression coefficient:
+**Buys — a decision rule, not just a description.** This is the part that makes $\rho$ worth
+computing rather than merely quoting:
 
 $$
 b \;=\; \frac{\operatorname{Cov}(T,X)}{\operatorname{Var}(X)} \;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(X)} \;=\; \rho .
 $$
 
-**In words:** the best predictor of truth from an observation multiplies the observation by exactly
-the fraction of it that is real. So one measured number does two jobs — it tells you how much of a
-ranking to believe, *and* precisely how far to pull each player back. $\hat{T} = \mu + \rho\,(X - \mu)$ is not a heuristic; it is the conditional expectation
-under joint normality and the best linear estimator regardless.
+**What that chain means.** If you regress the unobservable truth on the observable number, the slope
+you would get is exactly the reliability. (The middle step uses
+$\operatorname{Cov}(T, X) = \operatorname{Cov}(T, T + e) = \operatorname{Var}(T)$, since $T$ is
+uncorrelated with $e$.) So the best estimate of a player's true ability is
 
-**Buys — a design constraint.** Inverted, $\rho(n) = t$ solves for the $n$ a question requires.
+$$
+\hat{T} \;=\; \mu + \rho\,(X - \mu),
+$$
 
-**Buys — a common axis.** mph and wOBA points are not comparable; their reliabilities are.
+league average plus the fraction $\rho$ of his distance from it. **One measured number does two
+jobs**: it tells you how much of a ranking to believe, and it tells you precisely how far to pull
+each player back toward the middle. That is §2.3.
 
-**Does not buy — validity.** A scale that always reads ten pounds heavy has perfect reliability.
-Arm angle has $\rho = .999$ and is a poor measure of "did the delivery change," because it averages
-across pitch types: change the mix, move the number, delivery untouched. High reliability with low
-validity is the more dangerous failure, because the number looks authoritative.
+**Buys — a budget.** Run the formula backwards and it answers "how much data does this question
+need before it can be answered at all?" (§3.2).
 
-**Is population-dependent.** The same metric on 300 major leaguers and 300 random adults has
-identical $\operatorname{Var}(e)$ and different $\operatorname{Var}(T)$, hence different $\rho$. A
-reliability quoted without its population and its $n$ means nothing.
+**Buys — a common currency.** Bat speed is in mph, wOBA is in wOBA points; they cannot be compared.
+Their reliabilities are both numbers between 0 and 1 and can be.
+
+**Does not buy — validity.** A bathroom scale that always reads ten pounds heavy is perfectly
+reliable and wrong every time. Reliability measures *consistency*, never *correctness*. The live
+example in this data: **arm angle has $\rho = .999$ and is a poor measure of whether a pitcher's
+delivery changed**, because it is averaged over every pitch type he throws. Change the pitch mix,
+move the number, delivery untouched. High reliability with low validity is the more dangerous
+failure, because the number looks authoritative.
+
+**Depends on who is in the pool.** The same metric measured on 300 major leaguers and on 300 random
+adults has identical $\operatorname{Var}(e)$ and wildly different $\operatorname{Var}(T)$, so wildly
+different $\rho$. Narrow the population and reliability falls even though nothing about the
+measurement changed. A reliability quoted without its population and its sample size means nothing —
+which is why every figure in this project carries its $n_0$.
 
 ---
 
 # Part II — The estimators
 
-## 2.1 Split-half correlation is the reliability
+## 2.1 Split-half reliability — what it actually is
 
-Two independent measurements of the same $T$, with $\operatorname{Cov}(e_1, e_2) = 0$ and equal
-window sizes so that $\operatorname{Var}(X_1) = \operatorname{Var}(X_2)$:
+This is the workhorse of the project, so it gets the longest treatment.
+
+### The question
+
+*If I ranked 300 hitters by this metric over six weeks, and then re-ran those six weeks, how much of
+the ranking would come back?*
+
+### The procedure, step by step
+
+1. Take one season. Chop it into half-month blocks: Apr 1–15, Apr 16–30, May 1–15, and so on.
+2. For **one** hitter, compute the metric twice — once using only his **odd-numbered** blocks, once
+   using only his **even-numbered** blocks. You now have two independent measurements of the same
+   player in the same season.
+3. Do that for every hitter. You now have a two-column table:
+
+   | hitter | odd blocks | even blocks |
+   |---|---|---|
+   | Hitter A | 71.4 mph | 71.1 mph |
+   | Hitter B | 68.0 mph | 68.6 mph |
+   | Hitter C | 73.2 mph | 72.8 mph |
+   | … (1,572 rows) | | |
+
+4. **Correlate the two columns.** That correlation is the split-half reliability.
+
+### What the scatterplot looks like, which is the whole intuition
+
+Plot column 2 against column 1. **The shape of that cloud is the answer.**
+
+- **Bat speed**: the raw half-to-half correlation is $r = .95$. The cloud is a tight diagonal line.
+  The hitter who swung hardest in his odd blocks swung hardest in his even blocks. The ranking is
+  essentially reproducible.
+- **wOBA**: the raw half-to-half correlation is $r = .31$. The cloud is a blob. A hitter who ran a
+  .380 in his odd blocks is only slightly more likely than average to have run a .380 in his even
+  blocks. **Most of the April-to-May reshuffling in a wOBA leaderboard is not hitters changing.**
+
+Here is that scatterplot, drawn from the actual data:
+
+![Split-half scatterplots for bat speed and wOBA](docs/splithalf.png)
+
+**Left panel:** each dot is one player-season; his bat speed in his odd half-months against his bat
+speed in his even half-months. The cloud hugs the diagonal. **Right panel:** the same player-seasons,
+same games, same days, but plotting wOBA. It is a shotgun blast. A hitter who ran a .400 in his odd
+blocks is about as likely to have run .270 as .400 in his even ones.
+
+Those two pictures are the whole idea. The difference between them is not about baseball — it is
+about what the metric is made of. Bat speed is an instrument reading; wOBA is an accumulation of
+outcomes, most of which are decided by things other than the hitter.
+
+(The figure computes $r = .96$ and $.33$ because it qualifies players at 120 PA per half; the
+headline table's cut gives $.95$ and $.31$. That small gap is §1.3's point about reliability
+depending on the pool, showing up in miniature.)
+
+### Why the correlation *is* the variance ratio
+
+The two halves measure the same underlying $T$ with independent errors, so with equal window sizes
+(hence $\operatorname{Var}(X_1) = \operatorname{Var}(X_2)$):
 
 $$
 r \;=\; \frac{\operatorname{Cov}(X_1, X_2)}{\sqrt{\operatorname{Var}(X_1)\operatorname{Var}(X_2)}}
 \;=\; \frac{\operatorname{Var}(T) + \operatorname{Cov}(T,e_2) + \operatorname{Cov}(e_1,T) + \operatorname{Cov}(e_1,e_2)}{\operatorname{Var}(X_1)}
-\;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(X_1)} \;=\; \rho_{\text{half}} .
+\;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(X_1)} .
 $$
 
-**In words:** correlate a player's first half against his second half. The only thing the two halves
-have in common is the player, so whatever they share is talent and everything else cancels. The
-number you get back is literally the fraction of the spread that is real.
+**The mechanism in words.** The only thing the two halves have in common is the player himself. His
+April luck has nothing to do with his May luck ($\operatorname{Cov}(e_1,e_2) = 0$), and neither is
+related to his ability ($\operatorname{Cov}(T,e) = 0$). So every cross term in that numerator
+vanishes and what is left is the variance of talent, sitting over the variance of the whole
+observed column. **A correlation you can compute turns out to equal a variance ratio you cannot.**
+That is the trick the entire project runs on.
 
-Every cross term dies. **A correlation you can compute equals a variance ratio you cannot.**
+### One correction before the number is usable
 
-Two splits are used in this project and they are not identical:
+The $r$ you just computed describes **half a season**, because each column only used half the
+blocks. A full season is twice as much data and therefore more reliable. Spearman–Brown (§2.2) with
+$k = 2$ converts it:
+
+$$
+\rho_{\text{full}} \;=\; \frac{2r}{1+r}.
+$$
+
+**Worked, end to end.** wOBA's measured half-to-half correlation is $r = .315$. Then
+$\rho = 2(.315)/1.315 = .479$. **That is the $.479$ in every table in this document.** Bat speed's
+$r = .949$ gives $\rho = 2(.949)/1.949 = .974$.
+
+### What it does *not* mean
+
+- **It is a property of the column, not of any one player.** "wOBA is 48% reliable" does not mean a
+  particular hitter's wOBA is 48% accurate. It means that across the 300 hitters you measured, 48%
+  of the variance in the ranking is real. Ask it about one player in isolation and it has no answer.
+- **It is not accuracy.** See §1.3 — a consistently wrong instrument scores perfectly.
+- **It is tied to a sample size.** $.974$ for bat speed is at $n_0 = 207$ PA. At 30 PA it is a
+  different number, which is what §2.2 exists to compute.
+
+### Two splits are used here and they disagree slightly
 
 - **odd/even half-month blocks** within a season (`blocks_all.py`; 1,572 hitter-seasons, mean 207 PA
-  per half) — the basis of all current tooling;
+  per half) — the basis of all current tooling.
 - **odd/even event index** within a player-season (1,264 hitter-seasons) — the basis of the
   stabilization table.
 
-They disagree slightly (bat speed .974 vs .978; wOBA .479 vs .448) because the windows and
-qualifying samples differ. **The block split is the more conservative and the more honest**, because
-its halves are separated in time and therefore share less of whatever is not talent.
+Bat speed comes out .974 vs .978, wOBA .479 vs .448. **The block split is the more conservative and
+the more honest**, because its two halves are separated in *time* and therefore share less of
+whatever is not talent — a hot streak, a nagging injury, a stretch of bad opponents. The event-index
+split interleaves them, so the two halves can share the same bad week.
 
-## 2.2 Spearman–Brown
+## 2.2 Spearman–Brown — moving a reliability between sample sizes
 
-Averaging $k$ independent replications leaves $\operatorname{Var}(T)$ alone and divides
-$\operatorname{Var}(e)$ by $k$:
+### The question
+
+*I measured this at 207 plate appearances. The user just selected a two-week window. What is the
+reliability there?*
+
+### The logic
+
+Watch a player $k$ times as long. His talent does not change, so $\operatorname{Var}(T)$ is
+untouched. His luck averages out, so $\operatorname{Var}(e)$ falls to $\operatorname{Var}(e)/k$:
 
 $$
 \rho_k \;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(T) + \operatorname{Var}(e)/k}
 \;=\; \frac{1}{1 + \dfrac{1}{k}\cdot\dfrac{\operatorname{Var}(e)}{\operatorname{Var}(T)}} .
 $$
 
-**In words:** watch a player $k$ times as long and his talent does not change, but his luck averages
-down by a factor of $k$. So the signal-to-noise ratio improves by exactly $k$.
-
-Substituting $\operatorname{Var}(e)/\operatorname{Var}(T) = (1-\rho_0)/\rho_0$ gives the prophecy
-formula:
+Substituting $\operatorname{Var}(e)/\operatorname{Var}(T) = (1-\rho_0)/\rho_0$ gives the usable form:
 
 $$
 \boxed{\;\rho(k) \;=\; \frac{k\,\rho_0}{1 + (k-1)\,\rho_0}\;}
 $$
 
-**In words:** if you know how real a ranking is at one sample size, this tells you how real it is at
-any other. Double the data and the unreliable metrics improve a lot; the already-reliable ones have
-little room left to improve.
+### Worked example
 
-Two uses. With $k = 2$ it corrects a half-season split to a full season,
-$\rho = 2r/(1+r)$. With $k = n/n_0$ it projects the measured reliability to any other sample size.
+Bat speed, $\rho_0 = .974$ measured at $n_0 = 207$ PA. What is it at **50 PA**?
 
-**Validation.** Predicts month-to-month wOBA reliability $.15$ against $.135$ measured; bat speed
-$.94$ against $.919$ measured. Both optimistic in the same direction by a similar margin —
-consistent with the constant-$T$ assumption failing, which is the direction it *should* fail.
+$$
+k = \frac{50}{207} = 0.242,
+\qquad
+\rho = \frac{0.242 \times .974}{1 + (0.242 - 1)\times .974}
+= \frac{0.2352}{1 - 0.7387}
+= \frac{0.2352}{0.2613}
+= \mathbf{.90}.
+$$
 
-**Where it breaks.** Exchangeability of the replications (April opponents are not September
-opponents) and constant $T$ inside the window (a hitter who rebuilds his swing in June violates it
-outright). Both push true reliability *below* the projection.
+Fifty plate appearances of bat speed gives a 90%-real ranking. Run the same arithmetic for wOBA
+($\rho_0 = .479$) at 60 PA and you get **.21** — a two-month wOBA leaderboard is about one-fifth
+signal.
 
-## 2.3 Shrinkage
+### Where it is shaky
+
+Two assumptions. The $k$ replications must be **exchangeable** — but April opponents are not
+September opponents. And $T$ must be **constant inside the window** — but a hitter who rebuilds his
+swing in June violates that outright. Both failures mean real reliability is *lower* than the
+formula reports.
+
+**And that is exactly what the validation shows.** The projection predicts month-to-month wOBA
+reliability of $.15$ against $.135$ independently measured, and bat speed $.94$ against $.919$
+measured. Both optimistic, in the same direction, by a similar margin. Use it for the shape, not the
+third decimal.
+
+## 2.3 Shrinkage — turning a reliability into an estimate
+
+### The question
+
+*This hitter is in the 90th percentile of wOBA over six weeks. What percentile is he really?*
+
+### The answer
 
 $$
 \hat{T} \;=\; \mu + \rho\,(X - \mu),
-\qquad\text{in percentile space}\qquad
+\qquad\text{or in percentile terms}\qquad
 \text{pct}_{\text{shrunk}} \;=\; 50 + \rho\,(\text{pct}_{\text{raw}} - 50).
 $$
 
-**In words:** move the player back toward league average by exactly the fraction of his number that
-is *not* real. If a metric is 45% reliable, keep 45% of his distance from average and throw away the
-rest. This is not a fudge factor — it is the best guess available.
+Keep the fraction $\rho$ of his distance from average; discard the rest. **This is not a
+conservatism adjustment or a fudge factor** — §1.3 showed the regression coefficient of truth on
+observation *is* $\rho$, so this is the conditional expectation, the genuinely best guess.
 
-For a *change* with a per-observation standard error:
+### Worked examples, from the live tool
+
+At **183 plate appearances**, wOBA's reliability is $\rho = .45$ (Spearman–Brown from 207 PA).
+
+- A hitter at the **90th percentile** in wOBA is really estimated at $50 + .45(90-50) = $ **68th**.
+- At the same 183 PA, bat speed's reliability is $\rho = .97$. A hitter at the 90th percentile in
+  bat speed stays at the **89th**.
+- Sweet-spot% at 183 PA is $\rho = .37$. A hitter in the **12th percentile** shrinks all the way to
+  the **36th** — the apparent problem mostly evaporates.
+
+That divergence is why the Stretch Finder draws two bars. Same window, same player, same six weeks:
+one number barely moves and another moves 22 points.
+
+### The same idea for a change
 
 $$
 \hat{\Delta} \;=\; \Delta \cdot \frac{\operatorname{Var}(\Delta_{\text{true}})}{\operatorname{Var}(\Delta_{\text{true}}) + \mathrm{se}^2}.
 $$
 
-**In words:** the same move, applied to a *change* rather than a level. A change measured with a big
-error bar gets pulled hard toward zero; a change measured precisely survives almost intact. This is
-what took Baty's ground-ball rate from a headline $-10.4$ points to a believable $-1.7$.
+A change measured with a large error bar gets pulled hard toward zero; a precisely measured one
+survives nearly intact. **Worked:** Brett Baty's ground-ball rate appeared to fall 10.4 points
+year over year. GB% is 18% signal, so the believable move is **−1.7 points**. Mark Vientos's bat
+speed appeared to rise 2.71 mph; bat speed is 85% signal, so the believable move is **+2.3 mph** —
+which is genuinely league-extreme. Same report, same method, opposite verdicts.
 
-The canonical reference is Efron & Morris (1977), who shrank 18 hitters' first-45-at-bat averages
-toward the group mean and beat each player's own average by $\approx 3.5\times$ in total squared
-error — including for the player who finished best.
+### The outside reference worth knowing
 
-**Marcel is shrinkage in disguise.** Adding $R$ plate appearances of league average means the
-fraction of a player's own record that survives is $P/(P+R)$ — exactly the reliability of a sample
-of size $P$ when $R = \operatorname{Var}(e)/\operatorname{Var}(T)$ in PA units. Tuning $R$ *is*
-estimating a reliability.
+Efron & Morris, *Scientific American* (1977), "Stein's Paradox in Statistics". They took 18 hitters'
+batting averages after 45 at-bats and predicted the rest of the season. Shrinking every player
+toward the group mean beat using each player's own average by roughly **3.5× in total squared
+error — including for the player who finished the season best.** It is called a paradox because you
+improve your estimate of Player A using data from Players B through R, who never faced the same
+pitchers. The resolution is §1.1: noise is what makes the observed spread wider than the true
+spread, and shrinking corrects the width.
 
-## 2.4 Standard error of a within-player change
+### Marcel is this, in disguise
 
-Noise variance at sample size $n$, and its rescaling between sample sizes:
+Tom Tango's Marcel adds $R$ plate appearances of league-average performance to a player's record.
+The fraction of his own record that survives is $P/(P+R)$ — **which is exactly the reliability of a
+sample of size $P$** when $R = \operatorname{Var}(e)/\operatorname{Var}(T)$ in PA units. Tuning $R$
+is estimating a reliability. That is why moving $R$ from 1200 to 3000 (§4.4) more than doubled
+$R^2$: the classic constant was simply wrong about how reliable a hitter's record is.
+
+## 2.4 The standard error of a within-player change
+
+### The question
+
+*He hit 67.5 mph over the last six weeks and 68.4 mph before that. Is that a real change?*
+
+### The construction
+
+First, how much of the league's observed spread at sample size $n$ is noise? By definition of
+reliability, the unreliable fraction is:
 
 $$
-\operatorname{Var}_{\text{noise}}(n) \;=\; \operatorname{Var}_{\text{league}}(n)\,\bigl(1 - \rho(n)\bigr),
-\qquad
-\operatorname{Var}_{\text{noise}}(n_2) \;=\; \operatorname{Var}_{\text{noise}}(n_1)\cdot\frac{n_1}{n_2},
+\operatorname{Var}_{\text{noise}}(n) \;=\; \operatorname{Var}_{\text{league}}(n)\,\bigl(1 - \rho(n)\bigr).
 $$
 
-**In words:** the first equation says the unreliable part of the league's spread *is* the noise. The
-second says noise shrinks in proportion to sample size, which is what lets you carry a noise estimate
-from one window length to another.
+Second, noise falls as $1/n$, which lets you carry that estimate to a different window length:
 
-the second because noise scales as $1/n$. Then
+$$
+\operatorname{Var}_{\text{noise}}(n_2) \;=\; \operatorname{Var}_{\text{noise}}(n_1)\cdot\frac{n_1}{n_2}.
+$$
+
+Third, the two windows both contribute error, and errors add:
 
 $$
 \mathrm{se} \;=\; \sqrt{\operatorname{Var}_{\text{noise}}(n_1) + \operatorname{Var}_{\text{noise}}(n_2)},
@@ -228,37 +404,65 @@ $$
 z \;=\; \frac{\text{rate}_{\text{now}} - \text{rate}_{\text{before}}}{\mathrm{se}} .
 $$
 
-**In words:** you are comparing two noisy windows, so both contribute error and the errors add. $z$
-asks how many of those combined error bars the observed change spans — i.e. *could chance alone have
-produced this?*
+### Worked example
+
+Alex Bregman, 2026, April 16 – May 30 (183 PA) against the rest of his season (471 PA).
+
+- Bat speed: 67.5 now, 68.4 before. $\Delta = -0.89$ mph.
+- League bat-speed spread over a comparable window gives $\operatorname{Var}_{\text{noise}}$, and
+  the two windows combine to $\mathrm{se} = 0.62$ mph.
+- $z = -0.89 / 0.62 = \mathbf{-1.44}$ → verdict **noise**.
+
+**The instructive part:** bat speed is 97% reliable at this sample size, and a 0.9 mph move still
+does not clear the bar. **Reliability of the level and detectability of a change are different
+questions** — the first is about telling players apart, the second about telling one player apart
+from his own past. This is §1.2's A-versus-C distinction showing up operationally.
 
 Thresholds in use: $|z| \ge 2.5$ real, $1.5 \le |z| < 2.5$ weak, below $1.5$ noise.
 
-## 2.5 Effect size, which is a different question
+## 2.5 Effect size — the other half of the question
+
+### The question $z$ cannot answer
+
+$z$ asks *could chance have produced this?* It says nothing about *is it big?* So:
 
 $$
 \Delta_{\text{sd}} \;=\; \frac{\text{rate}_{\text{now}} - \text{rate}_{\text{before}}}{\mathrm{sd}_{\text{league}}}
 $$
 
-**In words:** the same change, measured against how much players differ from *each other* rather than
-against measurement error. It answers a completely different question: not "is it there?" but "is it
-big enough that anyone would care?\"
+— the same change measured against how much players differ **from each other** rather than against
+measurement error.
 
-$z$ asks *could noise have done this*. $\Delta_{\text{sd}}$ asks *would anyone notice*. They come
-apart in both directions and either alone misleads:
+### Why you need both, with the two failure directions
 
-- Arm angle, $\rho = .999$: a $0.9^\circ$ drift clears $z = 2.5$ and is $0.07$ sd. Unambiguous,
-  meaningless.
-- A strikeout rate falling 4.2 points over 242 batters faced: $z = -1.06$,
-  $\Delta_{\text{sd}} = 0.6$. The honest statement is "he may well have changed this much and this
-  sample cannot tell you."
+**Direction 1 — significant and meaningless.** Arm angle is measured with $\rho = .999$, so the
+noise band is nearly zero and almost any drift clears $z = 2.5$. A $0.9^\circ$ change is
+statistically unambiguous and **0.07 league standard deviations**. Nobody would notice it. If you
+ship only $z$, your tool reports a change every time a pitcher exists.
 
-The same distinction appears earlier in the log as *"Peterson's release extension moved 0.05 ft and
-Holmes's 0.01 ft, both statistically real."*
+**Direction 2 — insignificant and large.** Dylan Cease's strikeout rate fell 4.2 points over 242
+batters faced. $z = -1.06$ — chance produces that routinely. $\Delta_{\text{sd}} = 0.6$ — a move
+anyone would notice if it were real. **The honest sentence is "he may well have changed this much
+and this sample cannot tell you,"** which is more useful than either verdict alone and which neither
+number produces by itself.
 
-## 2.6 Ceilings
+The same distinction appears earlier in the log in its ugliest form: *"Peterson's release extension
+moved 0.05 ft and Holmes's 0.01 ft, both statistically real."*
 
-A forecast's target is itself $T + e$, so a perfect forecast of $T$ scores far below 1.0:
+## 2.6 $R^2$, and why it is unreadable without a ceiling
+
+### What $R^2$ is
+
+The fraction of the variance in the thing you are predicting that your prediction accounts for.
+$R^2 = 0$ means you did no better than guessing the league average for everyone; $R^2 = 1$ means
+perfect. Negative values are possible and appear repeatedly in this project — they mean the model
+did **worse** than guessing league average.
+
+### Why the raw number misleads here
+
+You are not predicting true talent. You are predicting **next month's wOBA**, which is itself
+$T + e$. So even a forecaster who knew $T$ exactly would score far below 1.0, because he still
+cannot predict the $e$ in the target.
 
 $$
 R^2_{\max} \;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(T + e)},
@@ -266,37 +470,67 @@ R^2_{\max} \;=\; \frac{\operatorname{Var}(T)}{\operatorname{Var}(T + e)},
 \operatorname{Var}(e) \;=\; \mathbb{E}\!\left[\frac{\sigma^2}{n_{\text{target}}}\right].
 $$
 
-**In words:** you are trying to predict a number that is itself mostly noise, so even a flawless
-forecast of true talent scores badly against it. This computes what flawless would have scored. It is
-the denominator every $R^2$ in this project should be read against.
+### Worked example, with the actual numbers
 
-Three ceilings exist in the project and they are **not the same quantity**:
+Target: a hitter's wOBA over the following 30 days, averaging 96 PA. Across the 2026 holdout:
 
-| ceiling | definition | value |
+| quantity | variance | as a standard deviation |
 |---|---|---|
-| **realistic** | forecaster knows talent, cannot foresee drift | **0.264** (87 PA target) |
-| **oracle** | also foresees drift; unreachable by construction | 0.425 |
-| **block-panel** | Var(T)/Var(observed) on the 30-day panel | **0.2854** (96 PA target) |
+| observed next-month wOBA | .00341 | .058 |
+| of which noise, $\sigma^2/n$ | .00243 | .049 |
+| of which true talent | .00097 | .031 |
 
-Variance components behind the first two: $\operatorname{Var}(\text{baseline talent}) = .001190$,
-$\operatorname{Var}(\text{one month's drift}) = .000726$,
-$\operatorname{Var}(\text{noise at 87 PA}) = .002588$. A superseded earlier version reported $.186$
-at 60 PA because it omitted the drift term; both circulated for a day before reconciliation.
+$$
+R^2_{\max} \;=\; \frac{.00097}{.00341} \;=\; \mathbf{0.285}.
+$$
 
-**Rule: never report $R^2$ without its ceiling.** $0.0335$ against a ceiling of $0.2854$ is 12% of
-what exists, not 3% of a perfect score.
+**In plain terms:** of the .058 of spread you see in next month's wOBA across hitters, only .031 of
+it is hitters actually differing. The other .049 is next month's luck, which nothing observable
+today can predict. **A perfect forecaster scores 0.285.**
 
-## 2.7 Inference machinery
+So when the expected-stats model scores $R^2 = 0.0335$, the right reading is
+$0.0335 / 0.285 = $ **12% of everything that exists**, not 3% of perfection. And when recent wOBA
+alone scores $0.0038$, that is **1%** — essentially nothing.
 
-- **Temporal holdout, not random split.** League conditions change annually (§7.4), so a random
-  split lets the model see the future.
-- **GroupKFold by player** inside the training years, or the model learns player identity in one
-  fold and is scored on the same player in another.
-- **Paired percentile bootstrap**, 3,000–4,000 resamples, the same rows for both models. Unpaired
-  intervals are far wider because the two models' errors are highly correlated.
-- **Bonferroni** where a family of tests is defined in advance (ten counts $\Rightarrow \alpha = 0.005$).
-- **Pre-registration** where an effect, not a measurement, is at stake. Reliability estimation is
-  explicitly exempt: *"this measures reliability, not an effect, so there is nothing to fish for."*
+**Rule: never report $R^2$ without its ceiling.**
+
+### Three ceilings live in this project and they are different quantities
+
+| ceiling | what the forecaster is assumed to know | value |
+|---|---|---|
+| **realistic** | true talent, but cannot foresee month-to-month drift | **0.264** (87 PA target) |
+| **oracle** | also foresees the drift; unreachable by construction | 0.425 |
+| **block-panel** | Var(T)/Var(observed) on the current 30-day panel | **0.285** (96 PA target) |
+
+Components behind the first two: Var(baseline talent) $= .001190$, Var(one month's drift)
+$= .000726$, Var(noise at 87 PA) $= .002588$. A superseded earlier version reported $.186$ at 60 PA
+because it left the drift term out of the denominator; both circulated for a day before being
+reconciled.
+
+## 2.7 The inference machinery, and what each piece is defending against
+
+**Temporal holdout, not a random split.** Fit on 2023–2025, score once on 2026. A random split lets
+the model see the future — and in a domain where the league changes annually (the 2026 strike zone
+was literally redefined, §7.4), the future is genuinely different. *Defends against:* leakage
+through time.
+
+**GroupKFold by player.** When cross-validating inside the training years, every window belonging to
+one hitter goes in the same fold. Otherwise the model meets Aaron Judge in fold 1 and is scored on
+Aaron Judge in fold 2, and what looks like a skill model is partly an identity lookup. *Defends
+against:* leakage through identity.
+
+**Paired percentile bootstrap.** To ask whether model B beats model A: resample the test rows with
+replacement 3,000–4,000 times, recompute $R^2(B) - R^2(A)$ on **the same resampled rows each time**,
+and read the 2.5th and 97.5th percentiles of that distribution. Pairing is essential — the two
+models' errors are highly correlated, so an unpaired comparison produces intervals so wide that
+nothing is ever significant. *Defends against:* calling a coin-flip difference a win.
+
+**Bonferroni** where a family of tests is defined in advance — ten counts tested means
+$\alpha = 0.005$, not $0.05$. *Defends against:* the best of ten noise results looking real.
+
+**Pre-registration** where an *effect* is at stake. Reliability estimation is explicitly exempt:
+"this measures reliability, not an effect, so there is nothing to fish for." *Defends against:*
+choosing the hypothesis after seeing the answer.
 
 ---
 
@@ -321,9 +555,12 @@ what exists, not 3% of a perfect score.
 outcome-accumulated quantities at the bottom. wOBA, on which the public discourse runs, is below
 half.
 
-## 3.2 The same fact as a sample-size requirement
+## 3.2 The same fact, read as a sample-size budget
 
-Solving $\rho(n) = t$ for $n$:
+### Reliability mode — "how much data until this ranking is trustworthy?"
+
+Spearman–Brown run backwards. Instead of *how real is this at $n$?*, ask *what $n$ makes it this
+real?* Set $\rho(n) = t$ and solve:
 
 $$
 t\bigl(1 + (k-1)\rho_0\bigr) = k\rho_0
@@ -333,11 +570,20 @@ t - t\rho_0 = k\rho_0(1-t)
 \boxed{\;k = \frac{t\,(1-\rho_0)}{\rho_0\,(1-t)},\qquad n = k\,n_0\;}
 $$
 
-**In words:** Spearman–Brown run backwards — instead of "how real is this at $n$?", it answers "what
-$n$ do I need to make it this real?". The $(1-t)$ sitting in the denominator is why the last few
-points of reliability are unaffordable: as $t \to 1$, $n \to \infty$.
+**Worked example.** wOBA, $\rho_0 = .479$ at $n_0 = 207$ PA. How many PA until the wOBA *ranking* is
+70% real?
 
-Plate appearances required:
+$$
+k = \frac{0.7 \times (1 - .479)}{.479 \times (1 - 0.7)} = \frac{0.3647}{0.1437} = 2.54,
+\qquad n = 2.54 \times 207 = \mathbf{525\ \text{PA}} .
+$$
+
+Nearly a full season to get a wOBA leaderboard that is 70% signal. Run the same arithmetic for bat
+speed ($\rho_0 = .974$) and it is **13 PA**.
+
+**Watch the $(1-t)$ in the denominator.** As your reliability target approaches 1, the required $n$
+goes to infinity. Concretely, for wOBA: $t = .7$ costs 525 PA and $t = .9$ costs 2,026 PA —
+**3.9× the data for 0.2 more reliability.** The last increment is always the expensive one.
 
 | metric | ρ = .5 | ρ = .7 | ρ = .8 | ρ = .9 |
 |---|---|---|---|---|
@@ -352,39 +598,62 @@ Plate appearances required:
 | wOBA | 225 | 524 | 899 | **2,023** |
 | sweet-spot% | 353 | 823 | 1,411 | **3,176** |
 
-The $(1-t)$ in the denominator makes the last column diverge: $.70 \to .90$ costs $3.9\times$ the
-sample, not $1.3\times$. A season is $\approx 600$ PA, so wOBA needs three and a half seasons to be
-a 90%-real ranking.
+A full season is about 600 PA. **wOBA needs three and a half seasons to be a 90%-real ranking.**
+Bat speed needs fifty plate appearances. That contrast is the entire thesis of the project in one
+table.
 
-**Detection mode** is the same decomposition rearranged as a power calculation. Against a baseline
-large enough to treat as known,
+### Detection mode — "how much data until I can confirm *this specific change*?"
+
+A different question, asked by a coach rather than an analyst. Not *is the ranking real* but *he
+changed something in the cage — how long until I know it took?* Same decomposition, rearranged into
+a standard power calculation, with the noise variance supplied by the reliability estimate instead
+of assumed:
 
 $$
 n \;=\; n_0\,(1-\rho_0)\,\operatorname{Var}_{\text{league}}(n_0)\left(\frac{z_{\alpha/2} + z_{\beta}}{\delta}\right)^{\!2} \;\equiv\; C .
 $$
 
-**In words:** a standard power calculation, with the noise variance supplied by the reliability
-decomposition instead of being assumed. The smaller the change you want to catch, the more data you
-need — and because $\delta$ is squared, halving the target change quadruples the sample.
+**Reading the pieces.** $n_0(1-\rho_0)\operatorname{Var}_{\text{league}}(n_0)$ is the noise budget —
+how much error one observation of this metric carries. $z_{\alpha/2} + z_\beta$ is the usual
+significance-plus-power constant ($1.96 + 0.84 = 2.80$ at $\alpha = .05$ two-sided, 80% power).
+$\delta$ is the change you want to be able to catch. **$\delta$ is squared**, so halving the change
+you want to detect quadruples the data you need.
 
-Against a finite baseline of size $m$, the variance terms add, giving $n = C\,(1 + n/m)$ and hence
+**Worked example — the same $\delta$, two very different answers.**
+
+*A pitcher who has lost 1.0 mph off his fastball.* Velocity reliability is $.997$ and the league sd
+is 2.4 mph, so the noise budget is tiny. Required: **26 batters faced** — one start.
+
+*A hitter who has gained 1.0 mph of bat speed.* Reliability $.974$, league sd 3.0 mph. Required:
+**369 PA** — roughly two-thirds of a season.
+
+Same one mile per hour, a 14× difference in the evidence required. Two things drive it: the pitcher
+metric is measured a shade more precisely, and — the bigger factor — hitters are spread more widely
+in bat speed than pitchers are in velocity, so one mph is a smaller slice of the hitter
+distribution.
+
+### The case where the answer is "never"
+
+The formula above treats the baseline as known exactly. If the baseline is itself only $m$
+observations, its error adds to the follow-up window's, so $n = C\,(1 + n/m)$, giving
 
 $$
 n \;=\; \frac{C}{1 - C/m},
 \qquad\text{with no solution when } C \ge m.
 $$
 
-**In words:** if the thing you are comparing *against* is itself short and noisy, its error adds to
-yours, so you need more follow-up data than you otherwise would. Past a point the baseline is so
-noisy that no amount of watching resolves the difference — the equation returns nothing, which is the
-correct answer rather than a failure.
+**Worked example.** That same hitter's 1.0 mph of bat speed needs $C = 369$ PA against a known
+baseline. Measure him against a **300-PA** baseline and $C > m$: the denominator goes negative and
+there is **no follow-up window of any length** that resolves the difference. The baseline itself is
+too noisy.
 
-That last case is a real answer, not an error: the baseline is itself too noisy, and the remedy is
-to lengthen the baseline rather than to watch longer.
+**This is a real answer, not an error condition,** and it is a genuinely non-obvious piece of
+experimental design: the remedy is to **lengthen the baseline**, not to watch longer. A hitting lab
+comparing a post-change stretch against three weeks of "before" is in this regime and cannot get out
+of it by collecting more "after."
 
-Worked values: a pitcher's $1.0$ mph velocity loss is detectable in **26 batters faced**; a hitter's
-$1.0$ mph bat-speed gain needs **369 PA** and is undetectable against a 300-PA baseline; a
-$2^\circ$ attack-angle change needs 215 PA; a 30-point wOBA change needs 1,962 PA.
+Two more worked values: a $2^\circ$ attack-angle change needs **215 PA**; a 30-point wOBA change
+needs **1,962 PA** — i.e. nobody is ever confirming a wOBA change inside a season.
 
 ## 3.3 Signal share of year-over-year changes (222 hitters, 250+ PA both seasons)
 
@@ -818,9 +1087,17 @@ $$
 \Delta\text{chase}_t \rightarrow \Delta\text{wOBA}_{t}: \;-0.370 \pm 0.041 \;\; (\text{real}).
 $$
 
-**In words:** a hitter chasing more this month is strongly associated with him hitting worse *this
-month*, and tells you nothing about *next* month. That makes chase a thermometer, not a leading
-indicator — which is the opposite of what the original entry claimed.
+**How to read those two lines.** They are the same regression run twice with different timing. The
+second line says: in the months when a hitter chased more than usual, he also hit worse than usual —
+a strong, unambiguous relationship. The first line says: chasing more *this* month tells you nothing
+about how he hits *next* month.
+
+**Why that distinction kills the claim.** A number that moves with production in the same period is
+a **thermometer** — it describes the fever you can already see. A number that moves *before*
+production is a **leading indicator** — it tells you something you did not already know. The
+hypothesis on the scorecard said chase rate was the second. The data says it is the first. The
+original entry scored it "yes" because chase *changes were detectable at monthly resolution*, which
+is a fact about measurement precision and has nothing to do with the claim being made.
 
 Coincident, not leading. Rescored no.
 
