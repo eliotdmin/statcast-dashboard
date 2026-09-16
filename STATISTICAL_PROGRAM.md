@@ -46,8 +46,13 @@ referenced by name.
 ### Fact 1 — Independent variances add
 
 $$
-\operatorname{Var}(A + B) \;=\; \operatorname{Var}(A) + \operatorname{Var}(B) + 2\operatorname{Cov}(A,B),
-\qquad\text{so if } \operatorname{Cov}(A,B) = 0: \quad \operatorname{Var}(A+B) = \operatorname{Var}(A) + \operatorname{Var}(B).
+\operatorname{Var}(A + B) \;=\; \operatorname{Var}(A) + \operatorname{Var}(B) + 2\operatorname{Cov}(A,B)
+$$
+
+and when the two are uncorrelated the last term is zero, leaving
+
+$$
+\operatorname{Var}(A + B) \;=\; \operatorname{Var}(A) + \operatorname{Var}(B).
 $$
 
 **Why it matters here.** This is what lets "observed spread" be split into "talent spread" plus
