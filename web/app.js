@@ -327,7 +327,11 @@ function changeSet(){
         if(x.nxt && x.nxt[F[m.d]]>=W*10 && Math.abs(v-b0)>1e-9)
           held=(x.nxt[F[m.n]]/x.nxt[F[m.d]]-b0)/(v-b0);
         out.push({p:x.r.n, id:x.r.id, m:lab, f:m, a:now[0], b:now[now.length-1],
-                  v:v, base:b0, z:z, sdu:(v-b0)/SD, rel:rho, held:held, n:nn});
+                  v:v, base:b0, z:z, sdu:(v-b0)/SD, rel:rho, held:held, n:nn,
+                  // "improved" is direction-aware: a FALLING chase rate is an
+                  // improvement, a falling bat speed is not. Without m.hi the
+                  // direction filter would be meaningless for half the metrics.
+                  imp: ((v-b0) > 0) === !!m.hi});
       });
     });
   }
@@ -354,20 +358,55 @@ function moveTable(rows,limit,showPlayer){
   });
   return h+'</tbody></table>';
 }
+function applyFilters(rows){
+  var met=$("#c-metric").value, dir=$("#c-dir").value,
+      minN=+$("#c-n").value, conf=$("#c-conf").checked, sort=$("#c-sort").value;
+  var out=rows.filter(function(o){
+    if(met!=="all" && o.m!==met) return false;
+    if(dir==="up" && !o.imp) return false;
+    if(dir==="down" && o.imp) return false;
+    if(o.n < minN) return false;
+    if(conf && !(o.held!==null && o.held>=0.5)) return false;
+    return true;
+  });
+  var cmp={
+    z:      function(a,c){ return Math.abs(c.z)-Math.abs(a.z); },
+    sd:     function(a,c){ return Math.abs(c.sdu)-Math.abs(a.sdu); },
+    // rows with no following window sort last rather than pretending to be zero
+    held:   function(a,c){ return (c.held===null?-9:c.held)-(a.held===null?-9:a.held); },
+    player: function(a,c){ return a.p.localeCompare(c.p) || Math.abs(c.z)-Math.abs(a.z); },
+    date:   function(a,c){ return c.a-a.a || Math.abs(c.z)-Math.abs(a.z); }
+  }[sort];
+  out.sort(cmp);
+  return out;
+}
+
 function renderChanges(){
-  var all=changeSet(), pid=$("#c-who").value;
+  var raw=changeSet(), pid=$("#c-who").value;
+  var ms=$("#c-metric");
+  if(ms.dataset.kind!==K){
+    ms.innerHTML='<option value="all">all metrics</option>'+
+      INPUTS[K].map(function(l){return '<option value="'+l+'">'+l+'</option>';}).join("");
+    ms.dataset.kind=K;
+  }
+  var all=applyFilters(raw);
   var mine=all.filter(function(o){return String(o.id)===String(pid);});
+  $("#c-hits").textContent = all.length.toLocaleString()+" of "+raw.length.toLocaleString()+" moves";
   var me=ROWS.find(function(r){return String(r.id)===String(pid);});
   $("#c-title").textContent=(me?me.n:"—")+" — moves against his own prior blocks";
+  var filtered = raw.length !== all.length;
   $("#c-lede").innerHTML= mine.length ?
     "Each row compares a window against <b>everything earlier in the season</b>, never against the "+
     "rest of it — a baseline that contains the future is a description, not a forecast." :
-    "No move past this threshold. That is the common case and it is the useful answer: most "+
-    "fortnights are the same player.";
+    ("No move matches these filters." + (filtered
+      ? " Widen them, or drop the threshold — "+raw.length.toLocaleString()+
+        " moves clear |z| alone."
+      : " That is the common case and it is the useful answer: most fortnights are the same "+
+        "player."));
   $("#c-player").innerHTML=moveTable(mine,20,false);
   var testable=all.filter(function(o){return o.held!==null;});
   var confirmed=testable.filter(function(o){return o.held>=0.5;});
-  $("#c-boardnote").innerHTML="<b>"+all.length.toLocaleString()+"</b> moves past this threshold in "+
+  $("#c-boardnote").innerHTML="<b>"+all.length.toLocaleString()+"</b> moves match these filters in "+
     yrS.value+" across "+ROWS.length+" "+(K==="bat"?"hitters":"pitchers")+". Of the "+
     testable.length.toLocaleString()+" with a following window, <b>"+
     (testable.length?Math.round(100*confirmed.length/testable.length):0)+
@@ -556,7 +595,7 @@ kindS.addEventListener("change",function(){setKind();});
 yrS.addEventListener("change",function(){setYear();});
 ["#who","#from","#to","#mode"].forEach(function(s){
   $(s).addEventListener("change",function(){ if(active===0) renderStretch(); }); });
-["#c-who","#c-win","#c-z"].forEach(function(s){
+["#c-who","#c-win","#c-z","#c-metric","#c-dir","#c-n","#c-sort","#c-conf"].forEach(function(s){
   $(s).addEventListener("change",function(){ if(active===1) renderChanges(); }); });
 ["#pl-m","#pl-t","#pl-d","#pl-b"].forEach(function(s){
   $(s).addEventListener("input",function(){ if(active===3) renderPlanner(); }); });
