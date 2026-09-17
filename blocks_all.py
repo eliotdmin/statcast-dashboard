@@ -129,3 +129,43 @@ for kind,Q,FI,idkey,pakey,minpa in (("bat",BAT_Q,BAT_F,"batter","pa",150),
 Path("output").mkdir(exist_ok=True)
 p=Path("output/blocks_all.json"); p.write_text(json.dumps(OUT,separators=(",",":")))
 print("\nbytes:",p.stat().st_size)
+
+# ---------------------------------------------------------------- split shards
+# The combined file is what a local script wants. A web client wants the opposite:
+# one visit looks at one player type in one season, so shipping all four seasons
+# of both types makes the first paint wait on ~1.8 MB of gzip that nobody reads.
+# Splitting by (kind, season) cuts the default payload about 10x; the rest load
+# on demand when the user changes the selector.
+#
+# Every shard repeats `fields`, `blocks` and `rel`, which is a few KB of duplication
+# and worth it -- a shard that cannot be interpreted without fetching a second file
+# is not really a shard.
+SPLIT = Path("output/blocks")
+SPLIT.mkdir(parents=True, exist_ok=True)
+index = {"generated_at": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+         "shards": {}}
+for kind in OUT:
+    years = sorted({r["y"] for r in OUT[kind]["rows"]})
+    for y in years:
+        shard = {"fields": OUT[kind]["fields"],
+                 "blocks": [b for b in OUT[kind]["blocks"] if b.startswith(str(y))],
+                 "rel":    OUT[kind]["rel"],
+                 "rows":   [r for r in OUT[kind]["rows"] if r["y"] == y]}
+        # Re-key each row's blocks to the shard's own index space, so a shard is
+        # self-contained rather than carrying offsets into the full block list.
+        bi = {b: i for i, b in enumerate(shard["blocks"])}
+        full = OUT[kind]["blocks"]
+        for r in shard["rows"]:
+            r = dict(r)
+            shard["rows"][shard["rows"].index(r)] = r
+        shard["rows"] = [{**r, "b": {b: v for b, v in r["b"].items() if b in bi}}
+                         for r in shard["rows"]]
+        f = SPLIT / f"{kind}-{y}.json"
+        f.write_text(json.dumps(shard, separators=(",", ":")))
+        index["shards"][f"{kind}-{y}"] = {"path": f"blocks/{f.name}",
+                                          "bytes": f.stat().st_size,
+                                          "players": len(shard["rows"]),
+                                          "blocks": len(shard["blocks"])}
+        print(f"  shard {kind}-{y}: {f.stat().st_size/1024:>6.0f} KB  {len(shard['rows'])} players")
+(SPLIT.parent / "blocks_index.json").write_text(json.dumps(index, indent=1))
+print("wrote output/blocks_index.json")

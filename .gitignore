@@ -39,3 +39,4 @@ output/*
 !output/dontchase.json
 !output/changes.json
 !output/planner.json
+!output/blocks_index.json
