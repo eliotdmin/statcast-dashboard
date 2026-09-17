@@ -177,21 +177,25 @@ label.ck input{margin:0;accent-color:var(--ac)}
   text-transform:uppercase;background:var(--ac);color:#fff;padding:2px 7px;border-radius:3px;
   margin-top:1px}
 
-/* ---- the generated profile ---- */
-.ai{border:1px solid var(--line);border-radius:7px;background:var(--card);overflow:hidden}
-.ai-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+/* ---- the summary component (all four views) ---- */
+.sum{border:1px solid var(--line);border-radius:7px;background:var(--card);overflow:hidden}
+.sum-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
   padding:13px 16px;border-bottom:1px solid var(--hair);background:var(--sunk)}
-.ai-t{display:flex;flex-direction:column;gap:2px}
-.ai-t b{font-size:14px;font-weight:600}
-.ai-t span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink3)}
+.sum-t{display:flex;flex-direction:column;gap:2px}
+.sum-t b{font-size:14px;font-weight:600}
+.sum-t span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink3)}
 .btn{appearance:none;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
   background:var(--ac);color:#fff;border:0;border-radius:5px;padding:8px 15px;white-space:nowrap}
 .btn:hover{filter:brightness(1.08)}
 .btn:disabled{opacity:.5;cursor:default;filter:none}
 .btn.alt{background:none;color:var(--ac);border:1px solid var(--line);font-weight:500}
 .btn:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.ai-body{padding:16px}
-.ai-idle{font-size:13px;color:var(--ink2);max-width:74ch;margin:0}
+.sum-body{padding:16px}
+.sum-idle{font-size:13px;line-height:1.6;color:var(--ink2);max-width:72ch;margin:0}
+.sum-idle code{font-family:var(--mono);font-size:11px;background:var(--sunk);padding:1px 5px;
+  border-radius:3px;border:1px solid var(--hair)}
+.sum-btns{display:flex;gap:8px;flex-wrap:wrap}
+details.ev summary #sum-evn{font-weight:400;color:var(--ink3);font-family:var(--mono);font-size:11px}
 .prose{font-size:14.5px;line-height:1.66;max-width:70ch}
 .prose p{margin:0 0 12px}
 .prose p:last-child{margin:0}

@@ -1,0 +1,50 @@
+{
+ "608324": {
+  "player": "Alex Bregman",
+  "kind": "bat",
+  "span": "Jul 16 \u2013 Sep 15 2026",
+  "n": 226,
+  "tokens_in": 2914,
+  "tokens_out": 352,
+  "cached_in": 2180,
+  "cost": 0.0043,
+  "ms": 3120,
+  "text": "Alex Bregman has hit .407 over his last 226 plate appearances, which is the 98th percentile among hitters in this span, and almost nothing underneath it has moved.\n\nHis swing is the same swing. Bat speed 68.1 against 68.2 earlier in the season, swing length identical to two decimal places, swing direction unchanged. Contact quality is unchanged too: exit velocity up six tenths of a mile an hour, hard-hit rate up two points, launch angle up seven tenths \u2014 every one of them inside what two windows of this size produce on their own. The one thing in his profile that clears the noise bar is his chase rate, which has gone from 21.3% to 27.4%. That is a real change of roughly a full standard deviation, and it is the wrong direction.\n\nAgainst that, his expected wOBA moved from .310 to .334, which does not clear the bar either. So the results are up 97 points and the inputs are up 24, and wOBA at 226 plate appearances is 50% signal \u2014 his shrunk percentile is the 74th, not the 98th. Chase rate is the number to watch, and at this sample it is already telling you something."
+ },
+ "663728": {
+  "player": "Cal Raleigh",
+  "kind": "bat",
+  "span": "Jul 16 \u2013 Sep 15 2026",
+  "n": 182,
+  "tokens_in": 2908,
+  "tokens_out": 361,
+  "cached_in": 2180,
+  "cost": 0.0044,
+  "ms": 3340,
+  "text": "Over his last 182 plate appearances Cal Raleigh has barrelled 21% of the balls he has put in play \u2014 the top of the league in this span \u2014 against 11% earlier in the season, and he has done it without changing his swing.\n\nThat combination is the unusual part. Bat speed is up a mile an hour, swing length up eight hundredths of a foot, attack angle up eight tenths of a degree: all three are inside the noise band for two windows of this size. What moved is what happens after the ball leaves the bat. Barrel rate is up ten points at more than two standard deviations of the league spread, hard-hit rate up 15.5 points, average exit velocity up 3.9 mph. The first two are past the noise threshold outright and the third is close to it.\n\nHis results have followed rather than led: wOBA .353 against .263, expected wOBA .354 against .288. Those two agreeing matters \u2014 the production is sitting on top of the contact rather than out ahead of it. At 182 plate appearances the barrel rate is about 80% signal and the wOBA about 45%, so the contact quality is the stronger evidence of the two."
+ },
+ "656302": {
+  "player": "Dylan Cease",
+  "kind": "pit",
+  "span": "Jul 16 \u2013 Sep 15 2026",
+  "n": 242,
+  "tokens_in": 2871,
+  "tokens_out": 339,
+  "cached_in": 2180,
+  "cost": 0.0041,
+  "ms": 3050,
+  "text": "Dylan Cease has thrown 242 batters' worth of noticeably slower fastballs, and the swing-and-miss has gone with it, but nothing has shown up in the results yet.\n\nHis four-seam averaged 95.7 mph over the stretch against 97.4 earlier in the year. Velocity is measured almost exactly, so that 1.7 mph is unambiguous, and it is a moderate move by league standards rather than a trivial one. Spin, extension and arm angle are all where they were. Whiff rate came down from 35.9% to 29.8%, the largest change in his profile relative to the league spread, though at this sample it sits just short of the noise threshold.\n\nHis strikeout rate fell four points, which sounds like confirmation and is not: at 242 batters faced a four-point move is well inside what chance produces. Against all of that, opponents have done slightly less damage than before \u2014 .233 wOBA allowed, .250 expected \u2014 and both figures are under two-thirds signal here. Velocity is the thing to watch, and it will be readable again within two or three starts; the strikeout rate will not be for another half-season."
+ },
+ "691023": {
+  "player": "Jordan Walker",
+  "kind": "bat",
+  "span": "Jul 16 \u2013 Sep 15 2026",
+  "n": 216,
+  "tokens_in": 2903,
+  "tokens_out": 348,
+  "cached_in": 2180,
+  "cost": 0.0042,
+  "ms": 2980,
+  "text": "Over his last 216 plate appearances Jordan Walker still swung the bat as hard as almost anyone in baseball \u2014 77.3 mph, 99th percentile, and identical to his rate earlier in the season \u2014 but he swung through the ball in a flatter plane than he had all year.\n\nHis attack angle fell from 7.6 to 3.7 degrees, a full standard deviation of the league spread and comfortably past what noise produces over samples this size. Nothing else in his swing moved with it: bat speed unchanged, swing length unchanged, swing direction unchanged. The damage followed the plane change rather than the effort. Average exit velocity dropped five miles an hour, also past the noise bar; hard-hit rate fell eight points, though at 216 plate appearances that one is only borderline.\n\nHis results over the stretch were worse \u2014 .314 wOBA against .379 before \u2014 but wOBA is under 50% signal at this length, and his expected wOBA actually fell further than his wOBA did. He was not unlucky; if anything the outcomes have been kind to the contact. Another 150 plate appearances of attack angle would settle whether the flatter swing is the new one."
+ }
+}

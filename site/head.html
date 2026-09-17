@@ -1,0 +1,171 @@
+<title>Stretch Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f5f7; --card:#fff; --sunk:#eceef1; --line:#d3d7dd; --hair:#e4e7eb;
+  --ink:#15171c; --ink2:#4a4f59; --ink3:#848a95;
+  --hot:#c2402f; --hot-s:#f6e4e0; --cold:#2d5f8a; --cold-s:#e0eaf3; --mid:#a8aeb8;
+  --ac:#2d5f8a; --ac-s:#e8eef5;
+  /* type scale -- one ratio, used everywhere, so nothing is sized by feel */
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --fs-display:clamp(31px,5.2vw,46px);
+  --fs-h1:clamp(26px,4.4vw,36px);
+  --fs-h2:20px; --fs-lede:17px; --fs-body:14.5px; --fs-micro:10.5px;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
+  --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
+  --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
+  --ac:#6fa6d8; --ac-s:#1a2733;
+}}
+:root[data-theme="dark"]{
+  --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
+  --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
+  --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
+  --ac:#6fa6d8; --ac-s:#1a2733;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-block:30px 60px;padding-left:16px;padding-right:16px;
+  display:flex;flex-direction:column;gap:30px}
+.wrap > header{display:flex;flex-direction:column;gap:9px}
+.eb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);margin:0}
+h1{font-family:var(--serif);font-size:var(--fs-h1);font-weight:600;letter-spacing:-.021em;
+  margin:0;line-height:1.05;text-wrap:balance}
+.note{font-size:var(--fs-body);line-height:1.62;color:var(--ink2);margin:0;max-width:var(--measure)}
+
+/* tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font:inherit;font-size:13px;font-weight:500;color:var(--ink3);padding:9px 14px;cursor:pointer;
+  margin-bottom:-1px}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ac);border-bottom-color:var(--ac);font-weight:600}
+.tabs button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
+.panel{display:flex;flex-direction:column;gap:22px}
+[hidden]{display:none!important}
+
+/* controls */
+.ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--card);
+  border:1px solid var(--hair);border-radius:6px;padding:13px 15px}
+.f{display:flex;flex-direction:column;gap:4px}
+.f>span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3)}
+select,input[type=number],input[type=text]{font:inherit;font-size:13px;background:var(--card);
+  color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 9px;max-width:100%}
+select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+
+.hdr{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.big{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.017em}
+.sub{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3)}
+.warnbar{border-left:3px solid var(--hot);background:var(--hot-s);padding:11px 14px;
+  font-size:13px;color:var(--ink2);border-radius:0 4px 4px 0}
+.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--ink3);align-items:center}
+.lg i{display:inline-block;width:20px;height:10px;vertical-align:-1px;margin-right:5px;border-radius:2px}
+
+/* percentile rows */
+.grp{display:flex;flex-direction:column;gap:3px}
+.gh{display:flex;justify-content:space-between;align-items:baseline;padding:10px 2px 5px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3)}
+.row{display:grid;grid-template-columns:152px 66px 1fr 62px;gap:12px;align-items:center;
+  padding:7px 10px;background:var(--card);border:1px solid var(--hair)}
+.nm{font-size:12.5px;display:flex;align-items:center;gap:6px}
+.val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:17px;background:var(--sunk)}
+.fill{position:absolute;top:0;bottom:0;}
+.ghost{position:absolute;top:50%;transform:translateY(-50%);height:12px;border:1px dashed currentColor;
+  opacity:.45;border-radius:2px;pointer-events:none}
+.mk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.25;left:50%}
+.pct{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right;
+  font-variant-numeric:tabular-nums}
+.rawpct{font-size:10px;color:var(--ink3);margin-left:4px;font-weight:400}
+.relchip{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.04em;padding:1px 5px;
+  background:var(--sunk);color:var(--ink3);white-space:nowrap}
+
+/* comp cards */
+.cmp{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px}
+.cc{background:var(--card);border:1px solid var(--hair);border-radius:5px;padding:11px 13px;
+  display:flex;flex-direction:column;gap:3px}
+.cc .t{font-weight:600;font-size:14px}
+.cc .w{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3)}
+.cc .s{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink2)}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:5px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 11px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--hair)}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3);font-weight:500;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--card)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--sunk)}
+td.up{color:var(--hot);font-weight:600}
+td.dn{color:var(--cold);font-weight:600}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:9.5px;padding:1px 6px;border-radius:9px;
+  background:var(--sunk);color:var(--ink3)}
+.chip.ok{background:var(--cold-s);color:var(--cold)}
+.chip.no{background:var(--hot-s);color:var(--hot)}
+
+/* explain boxes */
+.defbox{background:var(--sunk);border:1px solid var(--hair);border-radius:6px;padding:14px 16px;
+  display:flex;flex-direction:column;gap:8px}
+.defbox h3{margin:0;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+.defbox p{margin:0;font-size:var(--fs-body);line-height:1.62;color:var(--ink2);max-width:var(--measure)}
+.defbox code,code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--card);
+  padding:1px 5px;border-radius:3px;border:1px solid var(--hair)}
+
+/* planner */
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--hair);border-radius:6px;padding:14px;
+  display:flex;flex-direction:column;gap:5px}
+.tile .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink3)}
+.tile .v{font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  line-height:1.1}
+.tile .d{font-size:11.5px;color:var(--ink3)}
+.tile.warn .v{color:var(--hot);font-size:19px}
+.spark{display:block;width:100%;height:auto}
+
+.wrap > footer{border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;
+  color:var(--ink3);max-width:86ch}
+h2.sec{font-family:var(--serif);font-size:var(--fs-h2);font-weight:600;letter-spacing:-.012em;margin:0}
+
+/* ---- "what this is for" blocks ---- */
+/* <details>, so the lede is always visible and the rest is one click away
+   without any script owning the state. */
+.use{border:1px solid var(--hair);border-left:3px solid var(--ac);background:var(--card);
+  border-radius:0 6px 6px 0;padding:15px 18px;display:flex;flex-direction:column;gap:11px}
+.use > summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;
+  position:relative;padding-right:92px}
+.use > summary::-webkit-details-marker{display:none}
+.use > summary:focus-visible{outline:2px solid var(--ac);outline-offset:4px;border-radius:3px}
+.use .k{font-family:var(--mono);font-size:var(--fs-micro);font-weight:500;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink3)}
+.use .lede{display:block;font-size:var(--fs-lede);line-height:1.5;color:var(--ink);max-width:62ch}
+/* the affordance has to say which way it goes, so the label flips with state */
+.use .more{position:absolute;top:0;right:0;font-family:var(--mono);font-size:11px;color:var(--ac)}
+.use .more::after{content:"read more +"}
+.use[open] .more::after{content:"less \2212"}
+.use p{margin:0;font-size:var(--fs-body);line-height:1.68;color:var(--ink2);max-width:var(--measure)}
+.use p b{color:var(--ink)}
+.use > summary + p{margin-top:4px}
+.use code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);
+  padding:1px 5px;border-radius:3px;border:1px solid var(--hair)}
+@media(max-width:560px){.use > summary{padding-right:0}.use .more{position:static;align-self:flex-start}}
+.hits{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3);
+  align-self:flex-end;padding-bottom:7px}
+label.ck{flex-direction:row;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);
+  cursor:pointer;padding-bottom:7px}
+label.ck input{margin:0;accent-color:var(--ac)}
+</style>

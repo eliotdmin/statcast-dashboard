@@ -118,36 +118,6 @@
   </div>
   <div id="bars"></div>
 
-  <section class="ai" id="ai">
-    <div class="ai-head">
-      <div class="ai-t"><b>Scouting profile</b><span id="ai-sub">&mdash;</span></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn alt" id="ai-again" hidden>Regenerate</button>
-        <button class="btn" id="ai-go">Write the profile</button>
-      </div>
-    </div>
-    <div class="ai-body" id="ai-body"></div>
-    <details class="ev" id="ai-evwrap">
-      <summary>Show the evidence the model was given</summary>
-      <div class="inner">
-        <p class="ev-note">This is the entire input. Every metric arrives pre-shrunk, with the
-        reliability of its percentile at this sample size and, where a baseline exists, the
-        change against the player&rsquo;s own earlier-season rate divided by the standard error
-        that sampling noise alone would produce. The model never sees a raw number without its
-        error bar, which is why it cannot write the sentence you were afraid it would write.</p>
-        <div class="tw" id="ai-ev"></div>
-      </div>
-    </details>
-    <div class="guard">
-      <b>What the system prompt forbids.</b> Calling a <code>noise</code> verdict a change &middot;
-      &ldquo;due for regression&rdquo; from a wOBA&minus;xwOBA gap &middot; treating sweet-spot%
-      as evidence &middot; any injury, mechanical or psychological explanation &middot;
-      &ldquo;small sample size&rdquo; as a hedge instead of the actual reliability &middot;
-      percentile language about anything under 0.3 reliability &middot; any number not in the packet.
-    </div>
-  </section>
-
-
   <section style="display:flex;flex-direction:column;gap:11px">
     <div class="gh" style="border-bottom:1px solid var(--line)"><span id="cmp-h">Most similar stretches</span>
       <span id="cmp-sub"></span></div>

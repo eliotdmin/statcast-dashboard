@@ -35,7 +35,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
-    "api/profile.js": {
+    "api/summary.js": {
       "maxDuration": 30
     }
   }
