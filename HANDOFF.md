@@ -167,3 +167,57 @@ one state machine and one set of ids rather than four of each.
 - Negative results get recorded, not buried. D27 (input corroboration adds
   nothing at 15/30/45-day resolution) and D28 (2026 is no longer a clean holdout)
   are both load-bearing.
+
+---
+
+## Circling back to Cowork
+
+The repo carries **state** and **reasoning** perfectly well; it does not carry
+**narrative** unless someone writes it down on purpose. Three different things,
+and only the first two survive on their own:
+
+| | where it lives | survives a surface switch? |
+|---|---|---|
+| State — what exists, what is next | `CLAUDE.md`, this file | yes, automatically |
+| Reasoning — why, and what was rejected | `DECISIONS.md` (D1–D29) | yes, if written when decided |
+| Narrative — what was tried, in order | `docs/log/YYYY-MM-DD.md` | **only if deliberately logged** |
+
+`docs/log/2026-09-10.md` sets the convention and states its own purpose well:
+*"grep it when you wonder whether something was already tried. Dead ends are
+recorded on purpose."* It is also the only entry, and a week of work has landed
+since. That gap, not the choice of surface, is what actually loses information.
+
+Cowork picks all of this up automatically — the device bridge reads the repo and
+the standing instruction points at it — so the Claude Code → Cowork direction
+costs nothing. The direction that loses things is any work, on either surface,
+that never got written down.
+
+### Published artifacts
+
+These live in the artifact gallery, **not** in the repo, and are the one thing a
+markdown file cannot reconstruct. Republish by passing the URL, or a new artifact
+is created instead of updating these:
+
+| Artifact | URL | Built by |
+|---|---|---|
+| Stretch Finder (all 4 seasons, no LLM) | `https://claude.ai/artifact/XCNUG7vYNNjXTcFHFGiFJj` | `site/mkdash.py` |
+| Stretch Finder Deployed (2026, stored LLM) | `https://claude.ai/artifact/BboGZRVZgsys4CNVUwtjyN` | `site/mkmock.py` |
+| Signal, Noise and the Luck Gap | `https://claude.ai/artifact/FVTe6toG51kSLM6Bgs5Etb` | `STATISTICAL_PROGRAM.md` |
+
+### Keeping the log fed
+
+Make it a trigger rather than a resolution. At the end of a working session, in
+either surface:
+
+> Append today's session to `docs/log/<today>.md` following the convention in
+> `docs/log/2026-09-10.md` — what got built, what was found, and especially the
+> dead ends. Then add any new entries to `DECISIONS.md`.
+
+The `project-log` skill does this and is available on both surfaces. In Claude
+Code it can also be a slash command in `.claude/commands/`, which is the version
+most likely to actually get run.
+
+Claude Code keeps its own full transcripts as JSONL under `~/.claude/projects/`,
+and `claude --resume` reopens one with context intact — so raw history is not
+lost there, it is just greppable rather than browsable. The session log is what
+turns it into something a person, or a future session, will actually read.
