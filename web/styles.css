@@ -7,31 +7,40 @@
   --bg:#f4f5f7; --card:#fff; --sunk:#eceef1; --line:#d3d7dd; --hair:#e4e7eb;
   --ink:#15171c; --ink2:#4a4f59; --ink3:#848a95;
   --hot:#c2402f; --hot-s:#f6e4e0; --cold:#2d5f8a; --cold-s:#e0eaf3; --mid:#a8aeb8;
-  --ac:#2d5f8a;
+  --ac:#2d5f8a; --ac-s:#e8eef5;
+  /* type scale -- one ratio, used everywhere, so nothing is sized by feel */
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --fs-display:clamp(31px,5.2vw,46px);
+  --fs-h1:clamp(26px,4.4vw,36px);
+  --fs-h2:20px; --fs-lede:17px; --fs-body:14.5px; --fs-micro:10.5px;
+  --measure:68ch;
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
   --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
   --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
-  --ac:#6fa6d8;
+  --ac:#6fa6d8; --ac-s:#1a2733;
 }}
 :root[data-theme="dark"]{
   --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
   --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
   --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
-  --ac:#6fa6d8;
+  --ac:#6fa6d8; --ac-s:#1a2733;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;
   -webkit-font-smoothing:antialiased}
 .wrap{max-width:1180px;margin:0 auto;padding-block:30px 60px;padding-left:16px;padding-right:16px;
-  display:flex;flex-direction:column;gap:22px}
+  display:flex;flex-direction:column;gap:30px}
 .wrap > header{display:flex;flex-direction:column;gap:9px}
 .eb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink3);margin:0}
-h1{font-size:clamp(26px,4.4vw,36px);font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.06}
-.note{font-size:13.5px;color:var(--ink2);margin:0;max-width:74ch}
+h1{font-family:var(--serif);font-size:var(--fs-h1);font-weight:600;letter-spacing:-.021em;
+  margin:0;line-height:1.05;text-wrap:balance}
+.note{font-size:var(--fs-body);line-height:1.62;color:var(--ink2);margin:0;max-width:var(--measure)}
 
 /* tabs */
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -41,7 +50,7 @@ h1{font-size:clamp(26px,4.4vw,36px);font-weight:700;letter-spacing:-.02em;margin
 .tabs button:hover{color:var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--ac);border-bottom-color:var(--ac);font-weight:600}
 .tabs button:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
-.panel{display:flex;flex-direction:column;gap:18px}
+.panel{display:flex;flex-direction:column;gap:22px}
 [hidden]{display:none!important}
 
 /* controls */
@@ -55,7 +64,7 @@ select,input[type=number],input[type=text]{font:inherit;font-size:13px;backgroun
 select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
 
 .hdr{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.big{font-size:24px;font-weight:700;letter-spacing:-.015em}
+.big{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.017em}
 .sub{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3)}
 .warnbar{border-left:3px solid var(--hot);background:var(--hot-s);padding:11px 14px;
   font-size:13px;color:var(--ink2);border-radius:0 4px 4px 0}
@@ -70,13 +79,14 @@ select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-off
 .row{display:grid;grid-template-columns:152px 66px 1fr 62px;gap:12px;align-items:center;
   padding:7px 10px;background:var(--card);border:1px solid var(--hair)}
 .nm{font-size:12.5px;display:flex;align-items:center;gap:6px}
-.val{font-family:"IBM Plex Mono",monospace;font-size:13px;text-align:right}
+.val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
 .bar{position:relative;height:17px;background:var(--sunk)}
 .fill{position:absolute;top:0;bottom:0;}
 .ghost{position:absolute;top:50%;transform:translateY(-50%);height:12px;border:1px dashed currentColor;
   opacity:.45;border-radius:2px;pointer-events:none}
 .mk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.25;left:50%}
-.pct{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;text-align:right}
+.pct{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right;
+  font-variant-numeric:tabular-nums}
 .rawpct{font-size:10px;color:var(--ink3);margin-left:4px;font-weight:400}
 .relchip{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.04em;padding:1px 5px;
   background:var(--sunk);color:var(--ink3);white-space:nowrap}
@@ -110,7 +120,7 @@ td.dn{color:var(--cold);font-weight:600}
 .defbox{background:var(--sunk);border:1px solid var(--hair);border-radius:6px;padding:14px 16px;
   display:flex;flex-direction:column;gap:8px}
 .defbox h3{margin:0;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
-.defbox p{margin:0;font-size:13px;line-height:1.55;color:var(--ink2);max-width:80ch}
+.defbox p{margin:0;font-size:var(--fs-body);line-height:1.62;color:var(--ink2);max-width:var(--measure)}
 .defbox code,code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--card);
   padding:1px 5px;border-radius:3px;border:1px solid var(--hair)}
 
@@ -128,18 +138,30 @@ td.dn{color:var(--cold);font-weight:600}
 
 .wrap > footer{border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;
   color:var(--ink3);max-width:86ch}
-h2.sec{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0}
+h2.sec{font-family:var(--serif);font-size:var(--fs-h2);font-weight:600;letter-spacing:-.012em;margin:0}
 
 /* ---- "what this is for" blocks ---- */
-.use{border-left:3px solid var(--ac);background:var(--card);border:1px solid var(--hair);
-  border-left:3px solid var(--ac);border-radius:0 6px 6px 0;padding:13px 16px;
-  display:flex;flex-direction:column;gap:8px}
-.use h4{margin:0;font-size:12.5px;font-weight:600;color:var(--ink)}
-.use p{margin:0;font-size:13px;line-height:1.55;color:var(--ink2);max-width:82ch}
+/* <details>, so the lede is always visible and the rest is one click away
+   without any script owning the state. */
+.use{border:1px solid var(--hair);border-left:3px solid var(--ac);background:var(--card);
+  border-radius:0 6px 6px 0;padding:15px 18px;display:flex;flex-direction:column;gap:11px}
+.use > summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:7px;
+  position:relative;padding-right:92px}
+.use > summary::-webkit-details-marker{display:none}
+.use > summary:focus-visible{outline:2px solid var(--ac);outline-offset:4px;border-radius:3px}
+.use .k{font-family:var(--mono);font-size:var(--fs-micro);font-weight:500;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink3)}
+.use .lede{display:block;font-size:var(--fs-lede);line-height:1.5;color:var(--ink);max-width:62ch}
+/* the affordance has to say which way it goes, so the label flips with state */
+.use .more{position:absolute;top:0;right:0;font-family:var(--mono);font-size:11px;color:var(--ac)}
+.use .more::after{content:"read more +"}
+.use[open] .more::after{content:"less \2212"}
+.use p{margin:0;font-size:var(--fs-body);line-height:1.68;color:var(--ink2);max-width:var(--measure)}
 .use p b{color:var(--ink)}
-.use .lede{font-size:13.5px;color:var(--ink)}
-.use code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--sunk);
+.use > summary + p{margin-top:4px}
+.use code{font-family:var(--mono);font-size:11.5px;background:var(--sunk);
   padding:1px 5px;border-radius:3px;border:1px solid var(--hair)}
+@media(max-width:560px){.use > summary{padding-right:0}.use .more{position:static;align-self:flex-start}}
 .hits{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3);
   align-self:flex-end;padding-bottom:7px}
 label.ck{flex-direction:row;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);
@@ -235,6 +257,82 @@ td.vd.noise{color:var(--ink3);font-weight:400}
 .boot{display:flex;flex-direction:column;gap:9px;padding:40px 0}
 .boot .skel{max-width:520px}
 .boot p{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3);margin:0 0 6px}
+
+
+/* ============================================================================
+   Landing page. Three measures, widening as the page goes from argument to
+   evidence to navigation: 34rem of prose, a demo panel that breaks out, then
+   the full grid. The rhythm is the structure -- there is no decoration here.
+   ========================================================================= */
+.lp{max-width:1180px;margin:0 auto;padding-left:16px;padding-right:16px;
+  padding-block:56px 0;display:flex;flex-direction:column;gap:64px}
+.col{max-width:34rem;display:flex;flex-direction:column;gap:18px}
+
+.hero h1{font-size:var(--fs-display);line-height:1.03;letter-spacing:-.025em;max-width:19ch}
+.hero .lede{font-size:var(--fs-lede);line-height:1.55;color:var(--ink2);margin:0;max-width:56ch}
+.hero .lede b{color:var(--ink);font-weight:600}
+.cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.go{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:var(--card);
+  text-decoration:none;font-size:14px;font-weight:600;padding:11px 18px;border-radius:5px}
+.go:hover{filter:brightness(1.08)}
+.go .ar{font-family:var(--mono);font-weight:400;opacity:.8}
+.go2{font-size:13.5px;color:var(--ink2);text-decoration:none;padding:11px 4px;
+  border-bottom:1px solid var(--line)}
+.go2:hover{color:var(--ink);border-bottom-color:var(--ac)}
+.go:focus-visible,.go2:focus-visible,.card:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+
+/* the worked example -- the tool's own percentile component, real output */
+.demo{max-width:860px;display:flex;flex-direction:column;gap:14px}
+.demo .cap{display:flex;flex-direction:column;gap:5px}
+.demo .who{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.demo .rows{display:flex;flex-direction:column;gap:3px}
+.demo .row{grid-template-columns:132px 62px 1fr 58px}
+.demo .foot{font-size:13.5px;line-height:1.6;color:var(--ink2);margin:0;max-width:64ch}
+.demo .foot b{color:var(--ink)}
+
+/* signposts -- four questions, not a sequence, so they carry no numbers */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:1px;
+  background:var(--hair);border:1px solid var(--hair);border-radius:7px;overflow:hidden}
+.card{background:var(--card);padding:22px 22px 20px;display:flex;flex-direction:column;gap:9px;
+  text-decoration:none;color:inherit}
+.card:hover{background:var(--ac-s)}
+.card .k{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink3)}
+.card .q{font-family:var(--serif);font-size:18px;font-weight:600;line-height:1.28;
+  letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
+.card .d{font-size:13.5px;line-height:1.55;color:var(--ink2);margin:0}
+.card .eg{font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink3);
+  border-top:1px dashed var(--hair);padding-top:9px;margin-top:auto}
+
+/* how it works -- this one IS ordered, so the numerals mean something */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(248px,100%),1fr));gap:26px}
+.step{display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.step .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ac);
+  border-top:2px solid var(--ac);padding-top:9px;width:100%}
+.step h3{margin:0;font-size:14.5px;font-weight:600;letter-spacing:-.005em}
+.step p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink2)}
+.step .eq{font-family:var(--mono);font-size:12px;color:var(--ink3);background:var(--sunk);
+  border:1px solid var(--hair);border-radius:4px;padding:6px 9px;align-self:flex-start;
+  margin-top:auto}
+
+.sechead{display:flex;flex-direction:column;gap:7px;max-width:52ch}
+.sechead .k{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink3)}
+.sechead h2{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.018em;
+  margin:0;line-height:1.15;text-wrap:balance}
+.block{display:flex;flex-direction:column;gap:22px}
+
+/* the limits note -- deliberately the plainest thing on the page */
+.limits{border-top:1px solid var(--line);padding-top:22px;display:flex;flex-direction:column;
+  gap:10px;max-width:64ch}
+.limits p{margin:0;font-size:13.5px;line-height:1.62;color:var(--ink2)}
+.limits b{color:var(--ink)}
+
+@media(max-width:560px){
+  .lp{padding-block:36px 0;gap:46px}
+  .demo .row{grid-template-columns:1fr 54px;gap:6px 10px}
+  .demo .row .bar{grid-column:1/-1}
+}
 
 .site-foot{border-top:1px solid var(--line);margin-top:34px;background:var(--card)}
 .site-foot-in{max-width:1180px;margin:0 auto;padding:24px 16px 60px;

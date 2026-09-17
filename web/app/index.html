@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stretch Finder &mdash; Statcast, shrunk to what is real</title>
+<meta name="description" content="Savant-style percentile bars for any stretch of any season, with every percentile shrunk by how much of it is real at that sample size. Plus a within-player change log, streak carry rates, and a sample-size planner.">
+<link rel="canonical" href="https://example.com/app/">
+
+<!-- Link previews. Not possible inside the artifact sandbox; one of the more
+     visible things you get back by owning the document head. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stretch Finder">
+<meta property="og:description" content="Percentile bars that shrink themselves by how much of each number is real.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="fetch" href="/data/bat-2026.json" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <a class="mark" href="/"><b>Stretch Finder</b><i>Statcast</i></a>
+    <nav>
+      <a href="#p-stretch">Percentiles</a>
+      <a href="#p-changes">Change log</a>
+      <a href="#p-carry">What carries</a>
+      <a href="#p-planner">Planner</a>
+    </nav>
+    <span class="fresh" id="fresh"><span class="dot"></span>loading&hellip;</span>
+  </div>
+</header>
+
+<div class="wrap">
+<header>
+  <p class="eb"><span id="eb">loading&hellip;</span></p>
+  <h1>Stretch Finder</h1>
+  <p class="note">Four views of the same idea, and a writer that reads the evidence packet
+  behind them. Each tab opens with what it is for; the controls are live from the first paint.</p>
+</header>
+
+<div class="ctrl">
+  <label class="f"><span>Type</span><select id="kind">
+    <option value="bat">Hitters</option><option value="pit">Pitchers</option></select></label>
+  <label class="f"><span>Season</span><select id="yr"><option>2026</option></select></label>
+  <span class="sub" id="globalnote"></span>
+</div>
+
+<div class="boot" id="panels-boot" hidden>
+  <p>fetching data/bat-2026.json &hellip; 187 KB</p>
+  <div class="skel" style="width:92%"></div><div class="skel" style="width:78%"></div>
+  <div class="skel" style="width:85%"></div><div class="skel" style="width:46%"></div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t-stretch" aria-selected="true">Percentiles</button>
+  <button role="tab" id="t-changes" aria-selected="false">Change log</button>
+  <button role="tab" id="t-carry" aria-selected="false">What carries</button>
+  <button role="tab" id="t-planner" aria-selected="false">Sample-size planner</button>
+</div>
+
+<!-- ================= TAB 1 ================= -->
+<div class="panel" id="p-stretch">
+  <details class="use">
+    <summary>
+      <span class="k">What this view is for</span>
+      <span class="lede">Judging a stretch you already care about. You have a player and a date range;
+    this says where he ranked among his peers over exactly those dates, and how much of that
+    ranking to believe.</span>
+      <span class="more" aria-hidden="true"></span>
+    </summary>
+
+    <p><b>Read the solid bar, not the dashed one.</b> The dashed outline is what a Savant-style page
+    prints. The solid bar is what survives once you account for how much of that column is noise at
+    this sample size, and the gap between them is the part nobody can vouch for. A hitter in the 98th
+    percentile of wOBA over six weeks routinely shrinks into the 70s; a hitter in the 98th percentile
+    of bat speed stays there.</p>
+    <p><b>Using it to pick players.</b> When the body numbers and the results disagree, back the body
+    at any sample shorter than a full season &mdash; that is not a preference, it is what the
+    <code>% real</code> chips are measuring. The groups are ordered deliberately: what he does with
+    the bat is nearly fully real inside a fortnight, plate discipline needs a month or two, and
+    Results needs a season and a half before the ranking means much. For a waiver claim or a trade,
+    the useful question is not &ldquo;who is hot&rdquo; but &ldquo;whose solid bars are high while
+    his name is cheap.&rdquo;</p>
+    <p><b>The comps below</b> answer a different question: who else looks like this right now.
+    Distance is weighted by reliability at your sample size, so over a short window it leans almost
+    entirely on the swing and ignores the results &mdash; which is the correct behaviour and why the
+    matches often have very different batting lines.</p>
+    </details>
+  <div class="ctrl">
+    <label class="f"><span>Player</span><select id="who"><option>loading&hellip;</option></select></label>
+    <label class="f"><span>From</span><select id="from"><option>Apr 1</option></select></label>
+    <label class="f"><span>Through</span><select id="to"><option>Sep 16</option></select></label>
+    <label class="f"><span>Similar to</span><select id="mode">
+      <option value="same">same dates, same season</option>
+      <option value="any">any equivalent stretch, any season</option>
+    </select></label>
+  </div>
+
+  <div class="hdr">
+    <span class="big" id="h-name">&mdash;</span>
+    <span class="sub" id="h-span">&mdash;</span>
+    <span class="sub" id="h-pa">&mdash;</span>
+  </div>
+  <div class="warnbar" id="warn"></div>
+  <div class="lg">
+    <span><i style="background:var(--hot)"></i>solid bar &amp; big number = <b>shrunk</b> percentile</span>
+    <span><i style="border:1px dashed var(--ink3)"></i>dashed outline &amp; small grey number = raw percentile</span>
+    <span>the gap between them is the part we can&rsquo;t vouch for</span>
+  </div>
+  <div id="bars"></div>
+
+  <section class="ai" id="ai">
+    <div class="ai-head">
+      <div class="ai-t"><b>Scouting profile</b><span id="ai-sub">&mdash;</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn alt" id="ai-again" hidden>Regenerate</button>
+        <button class="btn" id="ai-go">Write the profile</button>
+      </div>
+    </div>
+    <div class="ai-body" id="ai-body"></div>
+    <details class="ev" id="ai-evwrap">
+      <summary>Show the evidence the model was given</summary>
+      <div class="inner">
+        <p class="ev-note">This is the entire input. Every metric arrives pre-shrunk, with the
+        reliability of its percentile at this sample size and, where a baseline exists, the
+        change against the player&rsquo;s own earlier-season rate divided by the standard error
+        that sampling noise alone would produce. The model never sees a raw number without its
+        error bar, which is why it cannot write the sentence you were afraid it would write.</p>
+        <div class="tw" id="ai-ev"></div>
+      </div>
+    </details>
+    <div class="guard">
+      <b>What the system prompt forbids.</b> Calling a <code>noise</code> verdict a change &middot;
+      &ldquo;due for regression&rdquo; from a wOBA&minus;xwOBA gap &middot; treating sweet-spot%
+      as evidence &middot; any injury, mechanical or psychological explanation &middot;
+      &ldquo;small sample size&rdquo; as a hedge instead of the actual reliability &middot;
+      percentile language about anything under 0.3 reliability &middot; any number not in the packet.
+    </div>
+  </section>
+
+
+  <section style="display:flex;flex-direction:column;gap:11px">
+    <div class="gh" style="border-bottom:1px solid var(--line)"><span id="cmp-h">Most similar stretches</span>
+      <span id="cmp-sub"></span></div>
+    <p class="note" id="cmp-note"></p>
+    <div class="cmp" id="comps"></div>
+  </section>
+
+  <section class="defbox">
+    <h3>What &ldquo;% real&rdquo; means &mdash; and what it does not</h3>
+    <p><b>The definition.</b> For a metric over <i>n</i> plate appearances, <code>% real</code> is
+    <code>&rho; = var(true) / var(observed)</code>: of all the spread between players in this
+    percentile column, the share that comes from players genuinely differing rather than from the
+    luck of which <i>n</i> pitches landed in the window. It is a property of <i>the column</i>, not
+    of any one player. &ldquo;45% real&rdquo; does not mean this hitter&rsquo;s wOBA is 45%
+    accurate; it means that re-running the same six weeks would scramble about half the ranking.</p>
+    <p><b>Where it comes from.</b> Odd half-month blocks are correlated against even ones, corrected
+    for the split by Spearman&ndash;Brown (<code>&rho;&#8320; = 2r/(1+r)</code>), then projected to
+    any other sample size by the same formula run forward:
+    <code>&rho;(n) = k&rho;&#8320;/(1+(k&minus;1)&rho;&#8320;)</code> with <code>k = n/n&#8320;</code>.
+    The projection predicts a month-to-month wOBA reliability of .15 against .135 measured
+    independently, and bat speed .94 against .919 &mdash; close enough to trust the shape, not the
+    third decimal.</p>
+    <p><b>Why the bar is drawn twice.</b> The honest estimate of a player&rsquo;s true percentile is
+    the raw one pulled toward the league at exactly the rate the metric is unreliable:
+    <code>50 + &rho;&times;(raw&minus;50)</code>. That is the solid bar; the dashed outline is what an
+    uncorrected page would print. That the shrinkage coefficient equals the reliability is not a
+    convention &mdash; <code>E[T|X] = &mu; + b(X&minus;&mu;)</code> with
+    <code>b = cov(T,X)/var(X) = var(T)/var(X) = &rho;</code>.</p>
+  </section>
+</div>
+
+<!-- ================= TAB 2 ================= -->
+<div class="panel" id="p-changes" hidden>
+  <details class="use">
+    <summary>
+      <span class="k">What this view is for</span>
+      <span class="lede">Finding the moment a player actually changed something, as distinct from the
+    moment his numbers changed. Every row compares one window against that player&rsquo;s own
+    earlier season and divides by the error two windows of that size produce on their own.</span>
+      <span class="more" aria-hidden="true"></span>
+    </summary>
+
+    <p><b>This is the earliest honest signal on the site.</b> Bat speed, swing length and attack
+    angle are better than 90% reliable inside a fortnight, so a genuine mechanical change surfaces
+    here weeks before it reaches a box score. That lead time is the entire edge: by the time a
+    swing change shows up in wOBA, the player is no longer cheap.</p>
+    <p><b><code>held</code> is the column that matters.</b> It is the share of the move still present
+    in the <i>following</i> window, computed after the fact &mdash; an out-of-sample check rather
+    than a promise. Across 2026, 47% of moves past <code>|z| = 2</code> held at least half of
+    themselves. A <b>confirmed</b> move on attack angle or bat speed is the most actionable row on
+    this page; an unconfirmed one is a watch-list entry, not a claim.</p>
+    <p><b>Using it for a fantasy roster.</b> Filter to <i>improved</i>, <i>confirmed only</i>, and a
+    swing metric, and you have a short list of hitters whose mechanics measurably moved and stayed
+    moved. Cross-check each against the Percentiles tab: a real attack-angle gain on a hitter whose
+    bat speed is already in the 90th percentile is a different proposition from the same gain on
+    someone who cannot drive the ball. Run the same filter with <i>declined</i> to find the players
+    to move off before the results catch up.</p>
+    </details>
+  <div class="ctrl">
+    <label class="f"><span>Player</span><select id="c-who"><option>loading&hellip;</option></select></label>
+    <label class="f"><span>Window</span><select id="c-win">
+      <option value="1">15 days</option><option value="2" selected>30 days</option>
+      <option value="3">45 days</option></select></label>
+    <label class="f"><span>Show moves past</span><select id="c-z">
+      <option value="1.5">|z| 1.5</option><option value="2" selected>|z| 2.0</option>
+      <option value="2.5">|z| 2.5</option><option value="3">|z| 3.0</option></select></label>
+    <label class="f"><span>Metric</span><select id="c-metric"><option value="all">all metrics</option></select></label>
+    <label class="f"><span>Direction</span><select id="c-dir">
+      <option value="any">any</option>
+      <option value="up">improved</option>
+      <option value="down">declined</option></select></label>
+    <label class="f"><span>Min sample</span><select id="c-n">
+      <option value="0">any</option><option value="75">75+</option>
+      <option value="100">100+</option><option value="150">150+</option></select></label>
+    <label class="f"><span>Sort by</span><select id="c-sort">
+      <option value="z">how sure (|z|)</option>
+      <option value="sd">how big (sd)</option>
+      <option value="held">held next window</option>
+      <option value="player">player</option>
+      <option value="date">most recent</option></select></label>
+    <label class="ck"><input type="checkbox" id="c-conf"> confirmed only</label>
+    <span class="hits" id="c-hits"></span>
+  </div>
+
+  <h2 class="sec" id="c-title">&mdash;</h2>
+  <p class="note" id="c-lede"></p>
+  <div class="tw" id="c-player"></div>
+
+  <h2 class="sec" style="margin-top:6px">Biggest moves in the league</h2>
+  <p class="note" id="c-boardnote"></p>
+  <div class="tw" id="c-board"></div>
+
+  <section class="defbox">
+    <h3>Two different questions, and you need both answers</h3>
+    <p><b><code>z</code> asks: could noise have done this?</b> The change is divided by the standard
+    error that sampling noise <i>alone</i> would produce across these two sample sizes.
+    <code>var_noise(n) = var_league(n)&times;(1&minus;&rho;(n))</code>, and noise scales as
+    <code>1/n</code>, so <code>se = sqrt(var_noise(n_now) + var_noise(n_prior))</code>.</p>
+    <p><b><code>sd</code> asks: would anyone notice?</b> The same change divided by how much players
+    differ from each other. These come apart in both directions. Arm angle is measured with
+    reliability .999, so a 0.9&deg; drift clears <code>z = 2.5</code> and is 0.07 sd &mdash;
+    unambiguous and meaningless. Going the other way, a strikeout rate that falls four points over
+    240 batters faced can be 0.6 sd and still sit inside what chance produces; the honest sentence
+    is &ldquo;he may well have changed this much and this sample cannot tell you.&rdquo;</p>
+    <p><b><code>held</code> is the out-of-sample check.</b> It is the share of the move still present
+    in the <i>following</i> window. Across 2026, 47% of moves past <code>|z| = 2</code> held at
+    least half. The window-over-window correlation of these deltas runs from +.37 (K%) to +.58
+    (attack angle), so a move that repeats is worth considerably more than a move that does not.</p>
+  </section>
+</div>
+
+<!-- ================= TAB 3 ================= -->
+<div class="panel" id="p-carry" hidden>
+  <details class="use">
+    <summary>
+      <span class="k">What this view is for</span>
+      <span class="lede">Deciding whether to buy or sell a streak. Every qualified player is sorted by how
+    far his recent results sit from his own earlier-season rate, next to how much of that gap the
+    model expects to survive the next month.</span>
+      <span class="more" aria-hidden="true"></span>
+    </summary>
+
+    <p><b><code>carry</code> is a discount rate, not a prediction.</b> A hitter 240 points above his
+    own baseline with 32% carry is still expected to be better than that baseline going forward
+    &mdash; by roughly 77 points, not 240. Nobody is being told to regress to league average.</p>
+    <p><b>Where the trades are.</b> Sell candidates are a large positive gap with low carry: the
+    market is pricing a stretch the model does not believe. Buy candidates are the mirror &mdash; a
+    large negative gap with low carry is a cold streak that is mostly not real, and those players are
+    cheap for a reason that will not persist. Two rows with the same gap can have very different
+    carry, and the difference is almost entirely whether the expected-stats line moved with the
+    results or stayed put.</p>
+    <p><b>Read the R&sup2; tiles honestly.</b> The model captures about 12% of the forecastable
+    variance that exists at this horizon, which sounds bad until you see the ceiling tile next to it:
+    next month&rsquo;s wOBA is mostly noise, so a perfect forecaster scores 0.285, not 1.0. The tile
+    on the right shows what last month&rsquo;s results alone are worth &mdash; close to nothing,
+    which is the reason this page exists.</p>
+    </details>
+  <h2 class="sec" id="k-title">&mdash;</h2>
+  <p class="note" id="k-lede"></p>
+  <div class="out" id="k-tiles"></div>
+  <div class="tw" id="k-board"></div>
+
+  <section class="defbox">
+    <h3>How the expectation is built, and what failed on the way</h3>
+    <p><b>The model.</b> Next window&rsquo;s wOBA is regressed on four things: the player&rsquo;s
+    wOBA and xwOBA in the current window, and his wOBA and xwOBA over every <i>strictly prior</i>
+    block of the same season. Fit on 2023&ndash;2025, evaluated once on 2026. The baseline never
+    contains the future, which is the difference between a forecast and a description.</p>
+    <p><b>Read R&sup2; against the ceiling, never on its own.</b> The target is itself a noisy
+    measurement, so even a perfect forecast of true talent scores badly.
+    <code>R&sup2;_max = var(T)/var(T+e)</code> with <code>var(e) = E[&sigma;&sup2;/n]</code> and
+    <code>&sigma;&sup2; = 0.2258</code> per plate appearance. The numbers appear in the tiles above.</p>
+    <p><b>What failed.</b> The intended product was &ldquo;streaks the body corroborates will carry;
+    streaks it does not will not.&rdquo; A reliability-weighted composite of input changes adds a
+    coefficient worth <b>0.004 of wOBA per standard deviation</b> and no measurable R&sup2; at
+    15-, 30- or 45-day resolution. Splitting hot streaks by corroboration moves the carry rate
+    27% &rarr; 32%, CI [&minus;12%, +22%], P(gap&gt;0) = 0.73. Retracted before it was built.
+    The paradox worth sitting with: those input changes <i>do</i> persist (r &asymp; .5) and still
+    do not predict next month&rsquo;s wOBA, because next month&rsquo;s wOBA is barely predictable
+    by anything.</p>
+  </section>
+</div>
+
+<!-- ================= TAB 4 ================= -->
+<div class="panel" id="p-planner" hidden>
+  <details class="use">
+    <summary>
+      <span class="k">What this view is for</span>
+      <span class="lede">Deciding how much data a question needs <i>before</i> you go and collect it.
+    Everywhere else on this site answers &ldquo;what does this number mean.&rdquo; This one answers
+    &ldquo;how long until this number means anything.&rdquo;</span>
+      <span class="more" aria-hidden="true"></span>
+    </summary>
+
+    <p><b>Reliability mode</b> &mdash; the first two tiles and the table. Pick a metric and a target,
+    and it solves Spearman&ndash;Brown backwards for the sample size at which the <i>ranking</i>
+    becomes that real. Bat speed reaches 70% at 13 plate appearances; wOBA needs 525, and 2,023 to
+    reach 90%. A season is about 600, so a wOBA leaderboard never becomes a 90%-real ranking inside
+    one. The curve plots the whole relationship, with your target marked.</p>
+    <p><b>Detection mode</b> &mdash; the &ldquo;change to detect&rdquo; box. A different question,
+    asked by a coach rather than an analyst: not <i>is the ranking real</i> but <i>he changed
+    something in the cage, how long until I know it took</i>. It is a standard power calculation with
+    the noise variance supplied by the measured reliability. A pitcher who has lost 1.0 mph is
+    confirmable in 26 batters faced, one start. A hitter who has gained 1.0 mph of bat speed needs
+    369 plate appearances.</p>
+    <p><b>The case worth knowing about.</b> Set a baseline size and the answer can come back
+    <i>impossible</i> &mdash; when the baseline itself is too noisy, no follow-up window of any
+    length resolves the difference, and the fix is to lengthen the baseline rather than watch longer.
+    Any hitting lab comparing a post-change stretch against three weeks of &ldquo;before&rdquo; is in
+    that regime and cannot get out of it by collecting more &ldquo;after.&rdquo;</p>
+    </details>
+  <div class="ctrl">
+    <label class="f"><span>Metric</span><select id="pl-m"><option>bat speed</option></select></label>
+    <label class="f"><span>Reliability target</span><select id="pl-t">
+      <option value="0.5">50% real</option><option value="0.7" selected>70% real</option>
+      <option value="0.8">80% real</option><option value="0.9">90% real</option></select></label>
+    <label class="f"><span>Change to detect</span>
+      <input id="pl-d" type="number" step="0.1" value="1"></label>
+    <span class="sub" id="pl-unit"></span>
+    <label class="f"><span>Baseline size (0 = treat as known)</span>
+      <input id="pl-b" type="number" step="10" value="0"></label>
+  </div>
+
+  <div class="out" id="pl-tiles"></div>
+  <div id="pl-curve"></div>
+  <div class="tw" id="pl-table"></div>
+
+  <section class="defbox">
+    <h3>Spearman&ndash;Brown, run backwards</h3>
+    <p><b>Reliability mode</b> solves <code>&rho;(n) = t</code> for <code>n</code>:
+    <code>k = t(1&minus;p) / (p(1&minus;t))</code>, <code>n = k&times;n&#8320;</code>. Note the
+    <code>(1&minus;t)</code> in the denominator &mdash; the price of the last few points of
+    reliability is unbounded. Going from .70 to .90 is not 1.3&times; the sample, it is 3.9&times;.</p>
+    <p><b>Detection mode</b> is a power calculation on the same decomposition. Noise variance at
+    sample <code>n</code> is <code>(1&minus;p)&times;var(n&#8320;)&times;(n&#8320;/n)</code>, so
+    against a baseline large enough to treat as known,
+    <code>n = n&#8320;(1&minus;p)&times;var(n&#8320;)&times;((z<sub>&alpha;/2</sub>+z<sub>&beta;</sub>)/&delta;)&sup2;</code>.
+    A finite baseline of <code>m</code> gives <code>n = C/(1&minus;C/m)</code>, and when
+    <code>C &ge; m</code> there is <i>no</i> follow-up window that resolves the difference &mdash;
+    the answer is to lengthen the baseline first, not to watch longer.</p>
+    <p><b>Why this belongs before the intervention, not after.</b> Every clinical trial computes its
+    sample size in the protocol; post-hoc power analysis is treated as an error. A hitting lab that
+    changes a swing and evaluates it on forty swings has run an underpowered trial &mdash; forty
+    swings resolves bat speed fine and resolves essentially nothing about exit velocity, hard-hit
+    rate or outcomes.</p>
+  </section>
+</div>
+
+<footer>
+  Half-month cutoffs on the 1st and 16th; the browser holds per-block counts and sums whichever
+  range you pick, so no range is precomputed. Percentiles are against players with a comparable
+  workload in the same span and season. Reliability at a given sample size is projected from the
+  measured half-season split-half via Spearman&ndash;Brown, which assumes true talent held still
+  inside the window and is therefore mildly optimistic over long stretches. Pitcher denominators are
+  batters faced. Carry-model coefficients were fit on 2023&ndash;2025 and evaluated once on 2026;
+  nothing on this page calls a model or a server.
+</footer>
+</div>
+
+<footer class="site-foot">
+  <div class="site-foot-in">
+    <div><b>Data.</b> Statcast pitch-level, 2023&ndash;2026, refreshed daily at 11:00 by a launchd
+    job that fetches only days it has never seen and runs an integrity check every time.</div>
+    <div><b>Method.</b> Reliability is a split-half correlation corrected by Spearman&ndash;Brown;
+    percentiles are shrunk toward the league at exactly that rate.</div>
+    <div><b>Profiles</b> are generated server-side from a pre-shrunk evidence packet. The key never
+    reaches the browser.</div>
+  </div>
+</footer>
+
+<script src="/lib/packet.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
