@@ -1,15 +1,29 @@
 #!/usr/bin/env python3
 """Statcast dashboard pipeline.
 
-  python3 run_pipeline.py --year 2026                # normal daily refresh
-  python3 run_pipeline.py --year 2026 --skip-pitches # leaderboards only (fast)
-  python3 run_pipeline.py --year 2026 --limit-days 5 # first-run smoke test
+  python3 run_pipeline.py --year 2026                 # normal daily refresh
+  python3 run_pipeline.py --year 2026 --skip-pitches  # leaderboards only (fast)
+  python3 run_pipeline.py --year 2026 --limit-days 5  # first-run smoke test
+  python3 run_pipeline.py --year 2026 --skip-views    # data only, no view rebuild
 
-Writes output/dashboard_data.json, which is what the dashboard renders.
+Writes two families of output:
+
+  output/dashboard_data.json   the original dashboard
+  output/blocks_all.json       per-half-month block counts, 2023-2026, hitters and
+  output/dontchase.json        pitchers -- the inputs to the Stretch Finder's four
+  output/changes.json          tabs and the streak board
+
+The second family used to be built by hand, which meant it silently went stale
+the moment the daily job started running without it. It is now part of the
+refresh. These steps are NON-FATAL: a failure to rebuild a view is loud in the
+log but does not fail the run, because the database and its integrity check are
+what the exit code is for.
 """
 import argparse
 import json
+import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,8 +33,62 @@ import analyze
 import db
 import fetch
 
-OUT = Path(__file__).parent / "output" / "dashboard_data.json"
+HERE = Path(__file__).parent
+OUT = HERE / "output" / "dashboard_data.json"
 TOP_N = 25
+
+# Scripts that rebuild the Stretch Finder's inputs, in dependency order:
+# streaks.py reads output/blocks_all.json, so blocks_all.py has to go first.
+# (label, argv-after-interpreter, file it is expected to write)
+VIEW_STEPS = [
+    ("blocks",     ["blocks_all.py"],                   "output/blocks_all.json"),
+    ("carry board", ["streaks.py", "--part", "wire"],   "output/dontchase.json"),
+    ("change log", ["streaks.py", "--part", "changes"], "output/changes.json"),
+]
+
+
+def build_views():
+    """Regenerate the interactive view's data files. Returns a list of failures.
+
+    Run as subprocesses rather than imported, because each script is written as a
+    stand-alone with its own __main__ block and its own argparse; importing them
+    would execute module-level work at import time and fight over sys.argv.
+    sys.executable keeps them on the same interpreter launchd already resolved --
+    the one thing refresh.sh works hardest to get right.
+    """
+    failures = []
+    for label, argv, expect in VIEW_STEPS:
+        t0 = time.time()
+        try:
+            r = subprocess.run([sys.executable] + argv, cwd=HERE,
+                               capture_output=True, text=True, timeout=900)
+        except subprocess.TimeoutExpired:
+            print(f"  ! {label}: timed out after 900s")
+            failures.append(label)
+            continue
+        if r.returncode != 0:
+            tail = (r.stderr or r.stdout or "").strip().splitlines()[-3:]
+            print(f"  ! {label}: exit {r.returncode}")
+            for line in tail:
+                print(f"      {line}")
+            failures.append(label)
+            continue
+        f = HERE / expect
+        if not f.exists():
+            print(f"  ! {label}: exited 0 but did not write {expect}")
+            failures.append(label)
+            continue
+        age = time.time() - f.stat().st_mtime
+        # A step that succeeds without touching its output file is the failure
+        # mode that looks like success in a log, so check the mtime, not just
+        # the exit code. This is the same reasoning as the integrity check.
+        if age > 3600:
+            print(f"  ! {label}: {expect} was not rewritten (mtime {age/3600:.1f}h old)")
+            failures.append(label)
+            continue
+        print(f"  {label}: {expect} {f.stat().st_size/1024:.0f} KB "
+              f"in {time.time()-t0:.0f}s")
+    return failures
 
 
 def jsonable(v):
@@ -45,6 +113,8 @@ def main():
     ap.add_argument("--days-back", type=int, default=None,
                     help="only backfill the most recent N days (resumable; "
                          "extend later by raising or dropping this)")
+    ap.add_argument("--skip-views", action="store_true",
+                    help="do not rebuild the Stretch Finder's data files")
     ap.add_argument("--newest-first", action="store_true",
                     help="fetch recent days first, so a partial run is useful")
     args = ap.parse_args()
@@ -122,6 +192,18 @@ def main():
     OUT.write_text(json.dumps(payload, indent=2))
     n = sum(g["n_qualified"] for g in payload["groups"].values())
     print(f"\nWrote {OUT}  ({n} qualified players, {OUT.stat().st_size/1024:.0f} KB)")
+
+    view_failures = []
+    if args.skip_views:
+        print("== views == skipped (--skip-views)")
+    else:
+        print("== views ==")
+        view_failures = build_views()
+
+    # One scannable line per run, so `grep SUMMARY logs/refresh.log` answers
+    # "when did the views last actually rebuild" without reading the whole log.
+    status = "ok" if not view_failures else "FAILED: " + ", ".join(view_failures)
+    print(f"SUMMARY year={args.year} pitches=ok views={status}")
 
 
 if __name__ == "__main__":
