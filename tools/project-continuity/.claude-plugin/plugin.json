@@ -1,0 +1,8 @@
+{
+  "name": "project-continuity",
+  "version": "0.1.0",
+  "description": "Carry a project's state, reasoning and narrative across sessions and across Claude Code and Cowork, using the git repo as the only shared substrate.",
+  "author": { "name": "Eliot Min" },
+  "keywords": ["session-log", "handoff", "decisions", "continuity", "git"],
+  "license": "MIT"
+}
