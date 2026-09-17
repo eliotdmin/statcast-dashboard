@@ -587,6 +587,16 @@ function show(i){
     $(t[0]).setAttribute("aria-selected", j===i?"true":"false");
     $(t[1]).hidden = j!==i;
   });
+  // A tab is a place. Rewriting the hash makes any view a link you can send
+  // someone, and gives the browser Back button something to do. replaceState
+  // throws inside a sandboxed iframe, which is where the artifact build runs,
+  // so it is allowed to fail without taking the tab switch with it.
+  try{ if(location.hash.slice(1)!==TABS[i][1].slice(1))
+         history.replaceState(null,"",TABS[i][1]); }catch(e){}
+  // The deployed site has a second copy of this control in its masthead. It
+  // subscribes here instead of reaching into TABS, so the two can never disagree
+  // about which tab is open regardless of which one you clicked.
+  if(window.onTabShow) window.onTabShow(TABS[i][1].slice(1), i);
   TABS[i][2]();
 }
 function renderAll(){ TABS[active][2](); }
@@ -599,6 +609,18 @@ yrS.addEventListener("change",function(){setYear();});
   $(s).addEventListener("change",function(){ if(active===1) renderChanges(); }); });
 ["#pl-m","#pl-t","#pl-d","#pl-b"].forEach(function(s){
   $(s).addEventListener("input",function(){ if(active===3) renderPlanner(); }); });
+function tabFromHash(){
+  for(var i=0;i<TABS.length;i++)
+    if(TABS[i][1].slice(1)===location.hash.slice(1)) return i;
+  return -1;
+}
+var h0=tabFromHash();
+if(h0>0){ active=h0;                     // set the tab, don't render: no data yet
+  TABS.forEach(function(t,j){
+    $(t[0]).setAttribute("aria-selected", j===h0?"true":"false");
+    $(t[1]).hidden = j!==h0; }); }
+window.addEventListener("hashchange",function(){
+  var i=tabFromHash(); if(i>=0 && i!==active) show(i); });
 
 /* ===================== the generated profile ===================== */
 var PANAME_LONG = {bat:"plate appearances", pit:"batters faced"};
@@ -701,4 +723,46 @@ $("#ai-again").addEventListener("click",function(){ aiReset(); aiRun(); });
 
 window.aiReset=aiReset;
 boot();
+})();
+
+
+/* ---------------------------------------------------------------------------
+   Masthead nav <-> tab strip.
+
+   These links used to be plain fragment hrefs pointing at the panels. They did
+   nothing at all, and could not have: a panel that is not open carries [hidden],
+   and a hidden element is not a scroll target, so the browser had nowhere to go.
+
+   Now each link drives the tab it names. The href stays real -- the tab strip
+   writes the same hash on every switch -- so the URL is shareable, Back works,
+   and middle-click opens the right view in a new tab. aria-current is repainted
+   from onTabShow rather than from the click, which means the two controls agree
+   even when the tab was changed from the strip or from the hash.
+   ------------------------------------------------------------------------- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll(".mast nav a"));
+  if(!links.length) return;
+  function mark(id){
+    links.forEach(function(a){
+      if(a.getAttribute("href").slice(1)===id) a.setAttribute("aria-current","page");
+      else a.removeAttribute("aria-current");
+    });
+  }
+  window.onTabShow=mark;
+  links.forEach(function(a){
+    a.addEventListener("click",function(ev){
+      if(ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.button) return;   // let new-tab through
+      var id=a.getAttribute("href").slice(1);
+      var btn=document.getElementById("t"+id.slice(1));            // p-changes -> t-changes
+      if(!btn) return;
+      ev.preventDefault();
+      btn.click();
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+  // app.js boots before this block runs, so the first paint's tab was never
+  // announced. Read it off the strip instead of assuming it is the first one --
+  // a deep link may have opened a different tab already.
+  var cur=document.querySelector('.tabs button[aria-selected="true"]');
+  if(cur) mark("p"+cur.id.slice(1));
 })();
