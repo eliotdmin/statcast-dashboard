@@ -407,7 +407,20 @@ p#vs-sub{margin:7px 0 0;line-height:1.5}
 .psec-woba{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;
   text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);border-radius:3px;
   padding:1px 6px;margin-left:8px;vertical-align:4px}
-.pbar{margin-bottom:2px}
+/* Player header: picker and Season line share one card, sized to the table rather than the page */
+.phead{align-self:flex-start;width:fit-content;max-width:100%;box-sizing:border-box;
+  display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--hair);
+  border-radius:8px;padding:16px 18px 14px}
+.phead-top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.phead-top select{min-width:260px}
+.phead > .psec{border-top:1px solid var(--hair);padding-top:14px;gap:10px}
+/* the career table is dense by design: tighter cells keep the card compact */
+.phead table.line th,.phead table.line td{padding:5px 8px}
+.phead table.line th:first-child,.phead table.line td:first-child{padding-left:12px}
+/* a labelled break between the player and the analyses about him */
+.subtabs-k{margin:22px 0 -10px;padding-top:26px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.subtabs-k + .subtabs{border-top:0;padding-top:4px}
 
 /* One analysis at a time (D62). The section's own label becomes its button, so the label is
    hidden in the section itself rather than said twice. */

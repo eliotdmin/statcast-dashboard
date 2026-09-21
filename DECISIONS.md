@@ -1355,3 +1355,12 @@ footnote instead. The following were updated to the new definition:
 - the landing figures (46%, and the three example rows)
 
 FINDINGS 2026-09-21 has the before/after figures.
+
+## D71 — The player picker and the Season line share one compact card (2026-09-21)
+
+The user found the player picker and the career table too wide as two full-width strips. They are
+now one card (`.phead`) holding the picker, the player's name and meta, and the table. The card is
+sized to its content, not the page: about 895 of 1,148px for a hitter, and narrower for a pitcher,
+whose table has fewer columns. Its table cells are tightened (5px 8px). A labelled "Analyses" break
+(a rule, extra space, and a small caption) now separates the player header from the analysis
+buttons.

@@ -73,20 +73,24 @@
 </div>
 
 <div class="panel" id="p-player">
-<div class="ctrl pbar">
-  <label class="f"><span>Player</span><select id="g-who"><option>loading&hellip;</option></select></label>
-  <span class="sub" id="g-note"></span>
+<!-- The player header: picker and season-by-season line in one card, only as wide as the table,
+     so the choice and its result read as one thing rather than two page-wide strips. -->
+<div class="phead">
+  <div class="phead-top">
+    <label class="f"><span>Player</span><select id="g-who"><option>loading&hellip;</option></select></label>
+    <span class="sub" id="g-note"></span>
+  </div>
+  <section class="psec" id="p-line">
+    <p class="psec-k" id="line-name">&mdash;</p>
+    <p class="line-meta" id="line-meta"></p>
+    <div class="tw" id="line-table"></div>
+    <p class="tfoot" id="line-foot"></p>
+  </section>
 </div>
-
-<section class="psec" id="p-line">
-  <p class="psec-k" id="line-name">&mdash;</p>
-  <p class="line-meta" id="line-meta"></p>
-  <div class="tw" id="line-table"></div>
-  <p class="tfoot" id="line-foot"></p>
-</section>
 
 <!-- One analysis at a time. The buttons are built from each section's own label (initSubs), so
      a section and its button cannot name different things. -->
+<p class="subtabs-k">Analyses</p>
 <div class="subtabs" role="tablist" aria-label="Analysis" data-tab="0"></div>
 
 <section class="psec" id="p-card">
