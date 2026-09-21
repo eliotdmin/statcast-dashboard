@@ -475,12 +475,13 @@ body[data-tab="player"] .hero-pick{display:flex}
 body[data-tab="player"] #view-title{display:none}
 .hero-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ac)}
 .hero-pick select{appearance:none;-webkit-appearance:none;font-family:var(--serif);
-  font-size:var(--fs-display);font-weight:600;letter-spacing:-.02em;line-height:1.1;color:var(--ink);
-  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5l5 5 5-5' fill='none' stroke='%230c64d6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 2px center/0.55em;
-  border:0;border-bottom:3px solid var(--ac);border-radius:0;padding:0 1.1em 4px 0;cursor:pointer;max-width:100%}
-.hero-pick select:hover{border-bottom-color:var(--ink)}
-.hero-pick select:focus-visible{outline:2px solid var(--ac);outline-offset:6px}
-.hero-pick .line-meta{margin:6px 0 0}
+  font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.2;color:var(--ink);
+  background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5l5 5 5-5' fill='none' stroke='%230c64d6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center/14px;
+  border:1px solid var(--line);border-radius:8px;padding:8px 40px 8px 14px;cursor:pointer;
+  min-width:280px;max-width:100%;box-shadow:0 1px 2px rgba(13,27,42,.05)}
+.hero-pick select:hover{border-color:var(--ac)}
+.hero-pick select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.hero-pick .line-meta{margin:4px 0 0}
 /* key-numbers summary, at the top of the Season line */
 .line-sum{display:flex;flex-direction:column;gap:8px}
 .line-sum-out{border-left:3px solid var(--ac);background:var(--ac-s);padding:10px 14px;border-radius:0 6px 6px 0}

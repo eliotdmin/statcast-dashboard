@@ -1402,3 +1402,10 @@ per player and season in memory.
 **Not verified end to end.** No `ANTHROPIC_API_KEY` is set on this Mac, so locally `serve.py`
 answers with its no-key message. The request shape, the view whitelist (`api/summary.js` and
 `serve.py`) and the error display were checked; a generated summary was not.
+
+## D74 — The header picker, toned down (2026-09-21)
+
+D73's display-size picker (46px, full-width underline) was "absurdly big". It is now a bordered
+select at 22px serif, with a card background, a small chevron, a 280px minimum width and an accent
+border on hover. It still sits in the heading position on the Player tab, but reads as a clear
+control rather than a banner.
