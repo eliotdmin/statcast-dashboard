@@ -1,4 +1,4 @@
-/* Evidence-packet builder.
+/* Evidence builder.
  *
  * Deliberately dependency-free and written for both runtimes: the browser
  * imports it with a <script> tag, the serverless function require()s it. One
@@ -8,7 +8,7 @@
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.Packet = factory();
+  else root.Evidence = factory();
 })(typeof self !== "undefined" ? self : this, function () {
 
   function relAt(rel, label, n) {

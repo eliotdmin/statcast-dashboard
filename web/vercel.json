@@ -1,4 +1,5 @@
 {
+  "framework": null,
   "headers": [
     {
       "source": "/data/(.*)",
@@ -10,7 +11,7 @@
       ]
     },
     {
-      "source": "/(styles.css|app.js|lib/packet.js)",
+      "source": "/(styles.css|app.js|lib/evidence.js)",
       "headers": [
         {
           "key": "Cache-Control",

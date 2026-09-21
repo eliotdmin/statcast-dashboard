@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Method &mdash; Statcast Reality Check</title>
+<meta name="description" content="What every number on Statcast Reality Check actually means, what it does not mean, and the caveats that come with it.">
+<link rel="canonical" href="https://example.com/addendum.html">
+
+<!-- Link previews. Not possible inside the artifact sandbox; one of the more
+     visible things you get back by owning the document head. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Method &mdash; Statcast Reality Check">
+<meta property="og:description" content="What every number on Statcast Reality Check actually means, what it does not mean, and the caveats that come with it.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <a class="mark" href="/"><img src="/img/ball.svg" alt="" width="20" height="20"><b>Statcast Reality Check</b></a>
+    <nav>
+      <a href="/app/#p-player">Player</a>
+      <a href="/app/#p-metric">League</a>
+      <a href="/addendum.html" aria-current="page">Method</a>
+    </nav>
+    <span class="fresh" id="fresh"><span class="dot"></span>2023&ndash;2026</span>
+  </div>
+</header>
+
+
+<main class="lp doc">
+
+  <section class="hero col">
+    <p class="eb">Method</p>
+    <h1>How to read every number on this site, in plain terms.</h1>
+    <p class="lede">Baseball statistics mix two things: what a player is genuinely good at, and
+    luck. Over a few weeks the luck is usually bigger. This site separates the two, and this page
+    explains how &mdash; first the ideas that apply everywhere, then the caveats that belong to each
+    analysis.</p>
+    <p class="note glossary"><b>Three terms used throughout.</b> A <b>plate appearance</b> is one
+    turn at bat. <b>wOBA</b> is a single number for how much a hitter contributes per plate
+    appearance, counting a home run for more than a single and a walk for less. <b>Bat speed</b> is
+    how fast the bat is moving when it meets the ball &mdash; a measure of the swing itself, not of
+    what happened to the ball.</p>
+    <div class="cta">
+      <a class="go" href="/report.html">Read the full technical report <span class="ar">&rarr;</span></a>
+      <span class="sub">The complete methods, results and caveats</span>
+    </div>
+  </section>
+
+  <section class="block" id="real">
+    <div class="sechead">
+      <span class="k">What &ldquo;% real&rdquo; means</span>
+      <h2>&ldquo;% real&rdquo; says how much of a stat is skill across all players &mdash; not how accurate one player&rsquo;s number is.</h2>
+    </div>
+    <p class="note">Rank every hitter by some stat over six weeks, then imagine replaying those
+    same six weeks. Some of the ranking would come back the same, because some players really are
+    better. The rest would scramble, because it was luck. <b>&ldquo;% real&rdquo; is the share that
+    would come back.</b> It is a property of the stat at that sample size, and every player gets the
+    same figure.</p>
+    <p class="note">The site uses it to correct every percentile: a stat that is only half real has
+    its percentile pulled halfway back toward average. The solid bar is the corrected figure; where
+    correcting moved it five points or more, a hatched extension shows what the uncorrected number
+    said.</p>
+    <p class="note ex"><b>Example.</b> Over six weeks in 2026, Alex Bregman&rsquo;s wOBA was 98th percentile. wOBA is about half real at that sample, so it corrects to the 74th. His bat speed is 98% real at the same sample and barely moves.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">For a stat over <i>n</i> plate appearances, <code>&rho; = var(true skill) / var(observed)</code>. It is measured by splitting each season into odd and even half-months and correlating the halves, corrected for the split with Spearman&ndash;Brown, <code>&rho;&#8320; = 2r/(1+r)</code>, and projected to other sample sizes by the same formula. The corrected percentile is <code>50 + &rho;(raw &minus; 50)</code>; that the correction coefficient equals &rho; follows from the regression of true skill on the observed value.</p>
+    </details>
+  </section>
+
+  <section class="block" id="reliability">
+    <div class="sechead">
+      <span class="k">How precisely it is known</span>
+      <h2>We know almost exactly how trustworthy swing speed is; we know how trustworthy batting results are only roughly.</h2>
+    </div>
+    <p class="note">&ldquo;% real&rdquo; is itself measured from a few thousand player-seasons, so it
+    has its own margin of error. For the swing measurements it is tiny. For the results measurements
+    &mdash; the ones this site tells you to discount &mdash; it is wide. So the correction applied to a
+    wOBA percentile is itself approximate, and it is approximate exactly where the correction matters
+    most.</p>
+    <p class="note ex"><b>Example.</b> Bat speed is .974 real, with a 95% range of .971 to .978. wOBA is .479, with a range of .418 to .545 &mdash; so &ldquo;about half real&rdquo; really means somewhere between about 42% and 55%.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">Each &rho; is bootstrapped by resampling player-seasons (1,000 draws). The interval appears on every <code>% real</code> chip and in the reliability table. It captures uncertainty in which players were measured, not in how their seasons were split, and projecting &rho; to another sample size carries it along without widening it.</p>
+    </details>
+  </section>
+
+  <section class="block" id="significance">
+    <div class="sechead">
+      <span class="k">Real vs. big</span>
+      <h2>A change can be real and still too small to matter, so every change is judged on both.</h2>
+    </div>
+    <p class="note">Two separate questions sit behind &ldquo;did he change?&rdquo;. Is the change more
+    than luck would produce &mdash; and is it large enough to care about? A hitter can add half a mile
+    an hour of bat speed that is certainly real and makes no difference. Another can look transformed
+    over a fortnight on a change that is probably noise. The site answers both, separately, rather
+    than folding them into one score.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">Whether a change is real is its <i>z</i>: the change divided by the error two windows of that size would produce on their own. How big it is is expressed in standard deviations of how much players <i>genuinely</i> change over a season, so a &ldquo;large&rdquo; change means large relative to real movement, not relative to noise.</p>
+    </details>
+  </section>
+
+  <section class="block" id="ceiling">
+    <div class="sechead">
+      <span class="k">How much can be predicted at all</span>
+      <h2>Next month&rsquo;s results are mostly luck, so even a perfect forecaster would be wrong most of the time.</h2>
+    </div>
+    <p class="note">A forecast is usually graded out of 100%, as if a perfect one were possible. It is
+    not. Over a month, a hitter bats about 90 times, and the outcome of each turn is close to a coin
+    flip weighted by his skill. Even someone who knew every player&rsquo;s true ability exactly would
+    explain only about a quarter of how next month turns out. So every forecast here is graded
+    against that ceiling, not against perfection &mdash; and the best models reach about a fifth of
+    it.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">Decomposing month-to-month differences for the same hitter (16,228 pairs) gives a per-plate-appearance variance of 0.2258, month-to-month drift in true skill of .038, and a spread of true skill across hitters of .035. At a typical month the realistic ceiling on R&sup2; is 0.264.</p>
+    </details>
+  </section>
+
+  <section class="block" id="holdout">
+    <div class="sechead">
+      <span class="k">One season to treat with care</span>
+      <h2>We have looked at 2026 too often to treat it as a fair test, so its results are shown but not trusted.</h2>
+    </div>
+    <p class="note">The honest way to test a forecast is to build it on some seasons and score it once on
+    a season it has never seen. 2026 started as that test season. But it has since been checked, and
+    re-checked, many times &mdash; and every look is a small chance to shape the answer to fit. So
+    wherever 2026 appears it is shown separately and greyed out, and nothing on the site depends on
+    it. The clean test is 2027, and the predictions for it are written down in advance.</p>
+  </section>
+
+  <section class="block divider">
+    <div class="sechead">
+      <span class="k">By analysis</span>
+      <h2>What each part of the site can and can&rsquo;t tell you.</h2>
+    </div>
+  </section>
+
+  <section class="block" id="rank">
+    <div class="sechead">
+      <span class="k">Luck-adjusted percentiles</span>
+      <h2>A player&rsquo;s rank over any stretch is corrected for how much of it is luck.</h2>
+    </div>
+    <p class="note">Pick a player and a date range and the site ranks him against everyone who played a
+    similar amount over the same dates. Every rank is corrected as described above. It describes
+    games already played: it does not say whether he will keep it up.</p>
+  </section>
+
+  <section class="block" id="changes">
+    <div class="sechead">
+      <span class="k">Swing &amp; approach changes</span>
+      <h2>A change in how a player swings shows up weeks before it shows up in his results.</h2>
+    </div>
+    <p class="note">Swing and approach measurements become reliable within a couple of weeks, far faster
+    than results do. So a genuine mechanical change is visible here early. Each flagged change is also
+    checked afterwards, against the following weeks, to see whether it stuck &mdash; about half do.</p>
+    <p class="note caveat"><b>What it can&rsquo;t tell you:</b> that a real change will improve his
+    results. This was tested directly and it did not hold: a change that sticks is real, but on this
+    evidence it does not forecast the next month.</p>
+  </section>
+
+  <section class="block" id="streaks">
+    <div class="sechead">
+      <span class="k">Hot and cold streaks</span>
+      <h2>Most of a hot streak is gone within two months, and how long it has lasted says more than how good the contact looked.</h2>
+    </div>
+    <p class="note">A two-week hot streak keeps about a fifth of its gain over the following two months.
+    A six-week streak keeps nearly half. Whether the hitter was &ldquo;really squaring the ball
+    up&rdquo; during the streak makes no measurable difference. Slumps last longer than hot streaks,
+    perhaps because some of them are injuries.</p>
+    <p class="note caveat"><b>What it can&rsquo;t tell you:</b> why a streak happened. Streaks that come
+    too late in the season to have two full months after them are left out, and those tend to fade
+    faster, so the figures run slightly high for a streak happening in September.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">Every streak is judged over one fixed horizon &mdash; the next 60 days &mdash; whatever its own length. Judging a two-week streak against the following two weeks compared one noisy sample with another; averaged over many streaks that barely changes the headline figure, but it made individual verdicts mostly noise.</p>
+    </details>
+  </section>
+
+  <section class="block" id="matchup">
+    <div class="sechead">
+      <span class="k">Head-to-head odds</span>
+      <h2>Predicting a player&rsquo;s exact numbers barely beats guessing, so we only predict which of two players does better.</h2>
+    </div>
+    <p class="note">Forecasting a hitter&rsquo;s exact line a month out is barely better than guessing
+    league average. Picking which of two players does better is an easier question, so that is the
+    one asked. The answer is a probability, and it is usually closer to a coin flip than people
+    expect: over a month, two good regulars are often 55&ndash;45.</p>
+    <p class="note">Each probability comes with a scoring record: every past matchup the same method was
+    asked, and how often its favourite actually won. That record is also compared with the simplest
+    rule available &mdash; back whoever was better last season &mdash; because beating a coin flip is too
+    low a bar.</p>
+    <p class="note caveat"><b>What it can&rsquo;t tell you:</b> for hitters over two weeks, anything more
+    than a coin flip would &mdash; at that horizon it has no demonstrable skill. From a month out it beats
+    the simple rule, but that rule alone already gets most of the way. It also cannot know about an
+    injury or a demotion, which is why playing time is left for you to set.</p>
+    <p class="note ex"><b>Example.</b> Aaron Judge against Alex Bregman &mdash; nearly the widest skill gap in baseball &mdash; comes out about 80% over two weeks, and still about 80% over the rest of a season.</p>
+    <details class="maths"><summary>The maths</summary>
+      <p class="note">Each player&rsquo;s skill is his prior-season level, pulled toward the league average by about 330 plate appearances&rsquo; worth, then updated by this season. The difference between two players then carries three uncertainties &mdash; not knowing their skill, skill changing over the window, and luck over the plate appearances ahead &mdash; and the probability is <code>&Phi;(&Delta;/&radic;total)</code>. Accuracy is the Brier score, where always saying 50% scores .2500.</p>
+    </details>
+  </section>
+
+  <section class="block" id="planner">
+    <div class="sechead">
+      <span class="k">Sample size needed</span>
+      <h2>Some numbers mean something within days; others need more than a season.</h2>
+    </div>
+    <p class="note">This is a reliability and power analysis. Ask it before reacting to a stat: it says how
+    many plate appearances it takes before a ranking on that stat is mostly skill, and how many it takes
+    to confirm a change you already suspect.</p>
+    <p class="note caveat"><b>What it can&rsquo;t tell you:</b> anything specific to one player. It assumes
+    an ordinary one; for a genuine outlier the true answer is smaller.</p>
+    <p class="note ex"><b>Example.</b> Bat speed is 70% skill after 13 plate appearances. wOBA takes 525 &mdash; most of a season &mdash; and needs more than three seasons before a ranking on it is 90% skill. A pitcher who has lost a mile an hour off his fastball can be confirmed within 26 batters.</p>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="site-foot-in">
+    <div><b>Data.</b> Statcast pitch-by-pitch data, 2023&ndash;2026, updated daily and checked
+    for gaps every time.</div>
+    <div><b>Method.</b> Every percentile is pulled toward league average by exactly how much of it
+    is noise at your sample size. <a href="/addendum.html">Full methodology</a>.</div>
+    <div><b>Summaries</b> are written by an AI model from the numbers on screen, and only those
+    numbers.</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Stretch Finder</title>
-<meta name="description" content="Savant-style percentile bars, every one shrunk by how much of it is real at the sample size you asked for.">
+<title>Statcast Reality Check</title>
+<meta name="description" content="Statcast tools for telling a real change from a lucky streak: sample-size-aware percentiles, a change log, streak carry rates, and a sample-size planner.">
 <link rel="canonical" href="https://example.com/">
 
 <!-- Link previews. Not possible inside the artifact sandbox; one of the more
      visible things you get back by owning the document head. -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Stretch Finder">
-<meta property="og:description" content="Percentile bars that shrink themselves by how much of each number is real.">
+<meta property="og:title" content="Statcast Reality Check">
+<meta property="og:description" content="Tell a real change from a lucky streak. Statcast tools for mid-season roster decisions.">
 <meta property="og:image" content="/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff">
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,12 +27,11 @@
 
 <header class="mast">
   <div class="mast-in">
-    <a class="mark" href="/"><b>Stretch Finder</b><i>Statcast</i></a>
+    <a class="mark" href="/"><img src="/img/ball.svg" alt="" width="20" height="20"><b>Statcast Reality Check</b></a>
     <nav>
-      <a href="/app/#p-stretch">Percentiles</a>
-      <a href="/app/#p-changes">Change log</a>
-      <a href="/app/#p-carry">What carries</a>
-      <a href="/app/#p-planner">Planner</a>
+      <a href="/app/#p-player">Player</a>
+      <a href="/app/#p-metric">League</a>
+      <a href="/addendum.html">Method</a>
     </nav>
     <span class="fresh" id="fresh"><span class="dot"></span>2023&ndash;2026</span>
   </div>
@@ -41,124 +39,221 @@
 
 <main class="lp">
 
+  <div class="hero-row">
   <section class="hero col">
-    <p class="eb">Statcast &middot; 2023&ndash;2026 &middot; 1,590 hitter-seasons &middot; 1,917 pitcher-seasons</p>
-    <h1>A number is only worth what its sample size makes it worth.</h1>
-    <p class="lede">Every percentile on this site is drawn twice &mdash; once as the raw figure a
-    Savant-style page would print, and once <b>shrunk by how much of it is actually real</b> at the
-    sample size you asked for. The gap between the two is the part nobody can vouch for.</p>
+    <p class="eb">Statcast &middot; every hitter and pitcher &middot; 2023&ndash;2026</p>
+    <h1>Really understand MLB player performance.</h1>
+    <p class="lede">Decompose a player&rsquo;s statistics into sustainable changes, hot streaks,
+    and luck.</p>
     <div class="cta">
-      <a class="go" href="/app/">Open the tool <span class="ar">&rarr;</span></a>
-      <a class="go2" href="#how">How the shrinking works</a>
+      <a class="go" href="/app/">Enter <span class="ar">&rarr;</span></a>
+      <a class="go2" href="#tools">See the tools</a>
     </div>
   </section>
 
-  <section class="demo">
-    <div class="cap">
-      <p class="eb">What that looks like</p>
-      <p class="who">Alex Bregman &middot; Jul 16 &ndash; Sep 15 2026 &middot; 226 plate appearances</p>
+  <figure class="hero-photo" aria-hidden="true">
+    <img src="/img/hero-batter.jpg" alt="" width="682" height="1024">
+  </figure>
+  </div>
+
+  <section class="strip" aria-label="At a glance">
+    <div><b>3,507</b><span>hitter and pitcher seasons</span></div>
+    <div><b>4</b><span>seasons of pitch-level data</span></div>
+    <div><b>Daily</b><span>refresh, checked for gaps every time</span></div>
+    <div><b>46%</b><span>of flagged 2026 changes kept at least half their size over the next 60 days</span></div>
+  </section>
+
+  <section class="block" id="tools">
+    <div class="sechead">
+      <span class="k">Five tools</span>
+      <h2>Each tool probes deeper into an MLB player&rsquo;s output.</h2>
     </div>
-    <div class="rows">
-      <div class="row"><span class="nm">wOBA <span class="relchip">50% real</span></span><span class="val">.407</span><span class="bar"><span class="ghost" style="left:50%;width:48%;color:var(--hot)"></span><span class="fill" style="left:50%;width:24%;background:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">74<span class="rawpct">98</span></span></div>
-      <div class="row"><span class="nm">xwOBA <span class="relchip">71% real</span></span><span class="val">.334</span><span class="bar"><span class="ghost" style="left:50%;width:24%;color:var(--hot)"></span><span class="fill" style="left:50%;width:17%;background:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">67<span class="rawpct">74</span></span></div>
-      <div class="row"><span class="nm">whiff% <span class="relchip">92% real</span></span><span class="val">15.1%</span><span class="bar"><span class="ghost" style="left:50%;width:40%;color:var(--hot)"></span><span class="fill" style="left:50%;width:37%;background:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">87<span class="rawpct">90</span></span></div>
-      <div class="row"><span class="nm">bat speed <span class="relchip">98% real</span></span><span class="val">68.1</span><span class="bar"><span class="ghost" style="right:50%;width:21%;color:var(--cold)"></span><span class="fill" style="right:50%;width:20%;background:var(--cold)"></span><span class="mk"></span></span><span class="pct" style="color:var(--cold)">30<span class="rawpct">29</span></span></div>
+
+    <div class="feat">
+      <div class="feat-t">
+        <span class="k">Luck-adjusted percentiles</span>
+        <h3>How did a player&rsquo;s output compare with his peers&rsquo;, and is it real?</h3>
+        <p>Pick any player and any date range, and see where he ranked against everyone with similar
+        playing time. Every number is adjusted for how much of it is luck at that sample size, so a
+        hot six weeks doesn&rsquo;t pass for a breakout. Matching players with the most similar
+        stretch come along with it.</p>
+        <a class="go2" href="/app/#p-stretch">On the Player tab &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <div class="rows">
+          <div class="row"><span class="nm">wOBA <span class="relchip">50% real</span></span><span class="val">.407</span><span class="bar"><span class="fill" style="left:50%;width:24%;background:var(--hot)"></span><span class="noise" style="left:calc(50% + 24%);width:24%;color:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">74<span class="rawpct">was 98</span></span></div>
+          <div class="row"><span class="nm">xwOBA <span class="relchip">71% real</span></span><span class="val">.334</span><span class="bar"><span class="fill" style="left:50%;width:17%;background:var(--hot)"></span><span class="noise" style="left:calc(50% + 17%);width:7%;color:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">67<span class="rawpct">was 74</span></span></div>
+          <div class="row"><span class="nm">whiff% <span class="relchip">92% real</span></span><span class="val">15.1%</span><span class="bar"><span class="fill" style="left:50%;width:37%;background:var(--hot)"></span><span class="mk"></span></span><span class="pct" style="color:var(--hot)">87</span></div>
+          <div class="row"><span class="nm">bat speed <span class="relchip">98% real</span></span><span class="val">68.1</span><span class="bar"><span class="fill" style="right:50%;width:20%;background:var(--cold)"></span><span class="mk"></span></span><span class="pct" style="color:var(--cold)">30</span></div>
+        </div>
+        <figcaption>Alex Bregman, Jul 16 &ndash; Sep 15 2026. A .407 wOBA reads as 98th percentile raw;
+        with the luck taken out it&rsquo;s 74th &mdash; and his bat speed sits at the 30th.</figcaption>
+      </figure>
     </div>
-    <p class="foot">Solid bar and large number: the shrunk percentile. Dashed outline and small grey
-    number: the raw one. <b>Bregman hit .407 over those six weeks &mdash; 98th percentile, and half
-    of it is noise at 226 plate appearances</b>, so it lands at the 74th. His bat speed is 98% real
-    at the same sample and barely moves. Read down the list: the rows are ordered by reliability,
-    and the distance each bar travels falls in the same order. Note also what the swing is actually
-    saying &mdash; 29th percentile bat speed under a .407 batting line.</p>
+
+    <div class="feat flip">
+      <div class="feat-t">
+        <span class="k">Swing &amp; approach changes</span>
+        <h3>How did a player&rsquo;s underlying skills change, and are the changes real or fluky?</h3>
+        <p>Flags every time a player&rsquo;s bat speed, attack angle, chase rate or other inputs moved
+        further than chance allows against his own earlier season &mdash; often weeks before it shows
+        up in results. Then it checks, after the fact, whether the change held.</p>
+        <a class="go2" href="/app/#p-changes-mine">On the Player tab &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <div class="tw"><table>
+          <thead><tr><th class="l">player</th><th class="l">metric</th><th>before</th><th>now</th><th>held</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Cody Bellinger</td><td class="l">chase%</td><td>23.4%</td><td class="up">42.3%</td><td><span class="chip right">56%</span></td></tr>
+            <tr><td class="l">David Hamilton</td><td class="l">bat speed</td><td>61.2</td><td class="up">66.8</td><td><span class="chip part">12%</span></td></tr>
+            <tr><td class="l">Alex Bregman</td><td class="l">hard-hit%</td><td>46.9%</td><td class="dn">25.8%</td><td><span class="chip part">43%</span></td></tr>
+          </tbody>
+        </table></div>
+        <figcaption>Three of 2026&rsquo;s flagged moves. <b>Held</b> is how much of the change was still
+        there over the following 60 days &mdash; the check that separates a real change from a blip.</figcaption>
+      </figure>
+    </div>
+
+    <div class="feat">
+      <div class="feat-t">
+        <span class="k">Is he hot or cold</span>
+        <h3>Is a player on a hot or cold streak &mdash; and how much of it is signal, not noise?</h3>
+        <p>For every qualified player: how far above or below his usual level he&rsquo;s been over the
+        last month, and how much of that the model expects to last into next month. Two streaks of
+        the same size can have very different outlooks.</p>
+        <a class="go2" href="/app/#p-card">On the Player tab &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <div class="tw"><table>
+          <thead><tr><th class="l">player</th><th>last month vs. his usual</th><th>expected next month</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Cal Raleigh</td><td class="up">+.246 wOBA</td><td><b class="up">+.079</b> <span class="sub">keeps 32% of it</span></td></tr>
+            <tr><td class="l">Rafael Devers</td><td class="up">+.162 wOBA</td><td><b class="up">+.008</b> <span class="sub">keeps 5% of it</span></td></tr>
+          </tbody>
+        </table></div>
+        <figcaption>Both hot through mid-September 2026. The model expects Raleigh to stay about 80
+        points above his usual level next month, and Devers to fall back almost all the way.</figcaption>
+      </figure>
+    </div>
+
+    <div class="feat flip">
+      <div class="feat-t">
+        <span class="k">Sample size needed</span>
+        <h3>How long until past performance predicts future performance?</h3>
+        <p>Before you react to a stat, see how much data it takes to be trustworthy &mdash; and how long
+        it takes to confirm a change you already suspect, like a pitcher losing velocity.</p>
+        <a class="go2" href="/app/#p-planner">On the League tab &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <div class="out mini">
+          <div class="tile"><span class="k">Bat speed</span><span class="v">13 PA</span><span class="d">to be 70% trustworthy</span></div>
+          <div class="tile"><span class="k">wOBA</span><span class="v">525 PA</span><span class="d">for the same trust &mdash; most of a season</span></div>
+          <div class="tile"><span class="k">Fastball down 1 mph</span><span class="v">26 batters</span><span class="d">to confirm it&rsquo;s real</span></div>
+        </div>
+        <figcaption>What a player does with the bat is readable within days; results take most of a
+        season.</figcaption>
+      </figure>
+    </div>
+
+    <div class="feat">
+      <div class="feat-t">
+        <span class="k">Head-to-head odds</span>
+        <h3>Head-to-head matchups between two players.</h3>
+        <p>Pick two players and a window, and get the odds that one finishes ahead of the other
+        &mdash; not a projected stat line, because predicting anyone&rsquo;s exact numbers a month out
+        barely beats guessing. It shows how much of the answer is genuine difference and how much is
+        luck over the plate appearances ahead, and it publishes its own scoring record so you can
+        see what &ldquo;62%&rdquo; has actually meant.</p>
+        <a class="go2" href="/app/#p-vs">On the Player tab &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <div class="out mini">
+          <div class="tile"><span class="k">Over 2 weeks</span><span class="v">80%</span><span class="d">the better hitter finishes ahead &mdash; a gap near the widest in baseball</span></div>
+          <div class="tile"><span class="k">Typical matchup</span><span class="v">58 / 42</span><span class="d">two regulars over a month are close to a coin flip</span></div>
+          <div class="tile"><span class="k">Of the uncertainty</span><span class="v">63%</span><span class="d">is plain luck; under 5% is not knowing who they are</span></div>
+        </div>
+        <figcaption>Scored on 3,259 past matchups: when it said 62%, the favourite won 63% of the
+        time. Honest, and rarely far from a coin flip &mdash; which is the point.</figcaption>
+      </figure>
+    </div>
+
+    <div class="feat">
+      <div class="feat-t">
+        <span class="k">On every tab</span>
+        <h3>A plain-English read of what you&rsquo;re looking at.</h3>
+        <p>Each view can write a short scouting summary of exactly the numbers on screen. It sees only
+        those numbers and is instructed never to say more than they support &mdash; so it won&rsquo;t call
+        noise a trend.</p>
+        <a class="go2" href="/app/">Try it in the dashboard &rarr;</a>
+      </div>
+      <figure class="feat-v">
+        <blockquote class="quote">Alex Bregman has hit .407 over his last 226 plate appearances, which
+        is the 98th percentile among hitters in this span, and almost nothing underneath it has moved.
+        His swing is the same swing&hellip;</blockquote>
+        <figcaption>Opening of a generated scouting profile.</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="block">
     <div class="sechead">
-      <span class="k">Four questions</span>
-      <h2>Each tab answers exactly one of them.</h2>
+      <span class="k">The two-week breakout</span>
+      <h2>&ldquo;He&rsquo;s earned it&rdquo; mostly doesn&rsquo;t last.</h2>
     </div>
-    <div class="cards">
-    <a class="card" href="/app/#p-stretch">
-      <span class="k">Percentiles</span>
-      <span class="q">Where did he actually rank over these exact dates?</span>
-      <p class="d">Any player, any window you draw yourself, against players with a comparable workload in the same span. Every bar is drawn twice: what the raw number says, and what survives.</p>
-      <span class="eg">wOBA over six weeks &rarr; 98th raw, 74th real</span>
-    </a>
-    <a class="card" href="/app/#p-changes">
-      <span class="k">Change log</span>
-      <span class="q">Did he change something, or did the numbers just move?</span>
-      <p class="d">Every window measured against that player&rsquo;s own earlier season, divided by the error two windows of that size produce on their own. Then checked against what happened next.</p>
-      <span class="eg">1,644 moves in 2026 &middot; 64 confirmed swing gains</span>
-    </a>
-    <a class="card" href="/app/#p-carry">
-      <span class="k">What carries</span>
-      <span class="q">How much of this hot streak should I expect to survive?</span>
-      <p class="d">A carry rate fit on 2023&ndash;2025 and evaluated once on 2026. It is a discount rate, not a forecast: it says how much of the gap to keep, not what happens tomorrow.</p>
-      <span class="eg">+240 pts of wOBA &middot; 32% carry &rarr; keep +77</span>
-    </a>
-    <a class="card" href="/app/#p-planner">
-      <span class="k">Sample-size planner</span>
-      <span class="q">How long until this number means anything?</span>
-      <p class="d">Ask it before you collect the data. It solves for the sample at which a ranking becomes real, and for how long it takes to confirm a change you already suspect.</p>
-      <span class="eg">1.0 mph lost off a fastball &rarr; 26 batters</span>
-    </a>
+    <p class="note">Every week someone is smacking the ball &mdash; buy him, he&rsquo;s earned his
+    results. We checked every two-week hot streak from 2023&ndash;2025: 928 of them, averaging 129
+    points of wOBA above the hitter&rsquo;s own earlier-season rate.</p>
+    <div class="strip three">
+      <div><b>14%</b><span>of the gain survived the next two weeks</span></div>
+      <div><b>43%</b><span>were back at or below the hitter&rsquo;s own baseline right away</span></div>
+      <div><b>13% vs 13%</b><span>kept by streaks backed by better contact vs. by pure luck &mdash; no difference</span></div>
     </div>
+    <p class="note">Over two weeks, even contact quality is mostly noise. What makes a streak
+    believable is how long it lasts: a 30-day hot streak kept 27% of its gain the following month,
+    and a six-week one kept 43% &mdash; with or without the hard contact. That is the problem this
+    dashboard is built for: <a href="/app/#p-carry">Streak carry forecast</a> says how much of a streak to
+    keep, and <a href="/app/#p-stretch">Luck-adjusted percentiles</a> shows which numbers are real at the sample
+    you&rsquo;re looking at.</p>
+    <p class="cta"><a class="go2" href="/app/#p-break">See the full study and nine case studies &rarr;</a></p>
   </section>
 
-  <section class="block" id="how">
+  <section class="block">
     <div class="sechead">
-      <span class="k">How the shrinking works</span>
-      <h2>Three steps, no judgement calls anywhere in them.</h2>
+      <span class="k">Why trust it</span>
+      <h2>Built to be honest about uncertainty.</h2>
     </div>
-    <div class="steps">
-      <div class="step">
-        <span class="n">01</span>
-        <h3>Split the season and correlate the halves</h3>
-        <p>Odd half-month blocks against even ones, same player. Whatever is real about him shows up
-        in both halves; whatever was luck does not. The correlation between them <em>is</em> the
-        share of the spread that is real.</p>
-        <span class="eq">r = Var(T) / Var(X)</span>
-      </div>
-      <div class="step">
-        <span class="n">02</span>
-        <h3>Project it to your sample size</h3>
-        <p>That correlation was measured at one particular length. Spearman&ndash;Brown converts it
-        to any other: reliability rises with sample, but with diminishing returns, which is why
-        watching longer eventually stops helping.</p>
-        <span class="eq">&rho;(k) = k&rho;&#8320; / (1 + (k&minus;1)&rho;&#8320;)</span>
-      </div>
-      <div class="step">
-        <span class="n">03</span>
-        <h3>Shrink the percentile by exactly that much</h3>
-        <p>Pull the observed figure toward the league mean, keeping the fraction that is real and
-        discarding the rest. Nothing is tuned here &mdash; the shrinkage coefficient and the
-        reliability are the same number.</p>
-        <span class="eq">T&#770; = &mu; + &rho;(X &minus; &mu;)</span>
-      </div>
+    <div class="principles">
+      <div><h3>Adjusted for sample size</h3><p>Every percentile is pulled toward league average by
+      exactly how much of it is noise at your sample size. Nothing is tuned by hand.</p></div>
+      <div><h3>Checked after the fact</h3><p>Flagged changes are scored against what happened next,
+      and the hit rate is shown right next to them.</p></div>
+      <div><h3>Clear about limits</h3><p>Next month&rsquo;s results are mostly luck. The site says how
+      much of it any model could predict, and doesn&rsquo;t pretend to more.</p></div>
     </div>
+    <p class="cta"><a class="go2" href="/addendum.html">Read the method &rarr;</a>
+    <a class="go2" href="/report.html">Full technical report &rarr;</a></p>
   </section>
 
   <section class="limits">
     <p class="eb">What this is not</p>
-    <p><b>It is not a projection system.</b> Nothing here forecasts next season, and where it was
-    tested against one it did not beat the public systems. It answers a narrower question: of what
-    already happened, how much was real.</p>
-    <p><b>Reliability is measured, not assumed</b> &mdash; but it is measured on the assumption that
-    true talent held still inside the window, which makes it mildly optimistic over long stretches.
-    Carry rates were fit on 2023&ndash;2025 and evaluated once on 2026; 2026 is no longer a clean
-    holdout and is labelled as such wherever it appears.</p>
+    <p><b>It is not a season projection system.</b> Where its methods were tested against one, they did
+    not beat the public systems. It answers narrower questions: of what already happened, how much was
+    real, and how much of it is likely to last.</p>
+    <p>Carry rates were fit on 2023&ndash;2025 and scored on 2026, which has since been looked at too
+    many times to count as a clean test &mdash; read those figures as optimistic. Details and the
+    predictions frozen against 2027 are on the <a href="/addendum.html">Method page</a>.</p>
   </section>
 
 </main>
 
 <footer class="site-foot">
   <div class="site-foot-in">
-    <div><b>Data.</b> Statcast pitch-level, 2023&ndash;2026, refreshed daily at 11:00 by a launchd
-    job that fetches only days it has never seen and runs an integrity check every time.</div>
-    <div><b>Method.</b> Reliability is a split-half correlation corrected by Spearman&ndash;Brown;
-    percentiles are shrunk toward the league at exactly that rate.</div>
-    <div><b>Profiles</b> are generated server-side from a pre-shrunk evidence packet. The key never
-    reaches the browser.</div>
+    <div><b>Data.</b> Statcast pitch-by-pitch data, 2023&ndash;2026, updated daily and checked
+    for gaps every time.</div>
+    <div><b>Method.</b> Every percentile is pulled toward league average by exactly how much of it
+    is noise at your sample size. <a href="/addendum.html">Full methodology</a>.</div>
+    <div><b>Summaries</b> are written by an AI model from the numbers on screen, and only those
+    numbers.</div>
   </div>
 </footer>
 

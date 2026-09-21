@@ -1,13 +1,14 @@
-/* Statcast Stretch Finder -- all visual decisions live here.
+/* Statcast Reality Check -- all visual decisions live here.
    Tokens first; every component reads from them, so retheming the whole site
    is a matter of editing the :root block and nothing else. */
 
 :root{
   color-scheme:light;
-  --bg:#f4f5f7; --card:#fff; --sunk:#eceef1; --line:#d3d7dd; --hair:#e4e7eb;
-  --ink:#15171c; --ink2:#4a4f59; --ink3:#848a95;
-  --hot:#c2402f; --hot-s:#f6e4e0; --cold:#2d5f8a; --cold-s:#e0eaf3; --mid:#a8aeb8;
-  --ac:#2d5f8a; --ac-s:#e8eef5;
+  --bg:#f6f9fc; --card:#fff; --sunk:#eaf1f8; --line:#d3dee8; --hair:#e3ebf2;
+  --ink:#0d1b2a; --ink2:#3c4f61; --ink3:#6d8092;
+  --hot:#e0332a; --hot-s:#fce4e2; --cold:#0c64d6; --cold-s:#e2edfc; --mid:#9db0c2;
+  --luck:#8b5cc4; --right:#1d8a4a; --right-s:#e3f4e9; --wrong:#c7302a; --wrong-s:#fbe4e2;
+  --ac:#0c64d6; --ac-s:#e2edfc;
   /* type scale -- one ratio, used everywhere, so nothing is sized by feel */
   --serif:"IBM Plex Serif",Georgia,serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
@@ -21,12 +22,14 @@
   --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
   --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
   --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
+  --luck:#b394e0; --right:#5cc28a; --right-s:#15281d; --wrong:#e8736b; --wrong-s:#33191a;
   --ac:#6fa6d8; --ac-s:#1a2733;
 }}
 :root[data-theme="dark"]{
   --bg:#101216; --card:#191c22; --sunk:#20242b; --line:#2f353f; --hair:#262b33;
   --ink:#e8ebef; --ink2:#a6adb8; --ink3:#767d89;
   --hot:#e07a63; --hot-s:#33211c; --cold:#6fa6d8; --cold-s:#17242f; --mid:#5a626e;
+  --luck:#b394e0; --right:#5cc28a; --right-s:#15281d; --wrong:#e8736b; --wrong-s:#33191a;
   --ac:#6fa6d8; --ac-s:#1a2733;
 }
 *{box-sizing:border-box}
@@ -41,6 +44,65 @@ body{margin:0;background:var(--bg);color:var(--ink);
 h1{font-family:var(--serif);font-size:var(--fs-h1);font-weight:600;letter-spacing:-.021em;
   margin:0;line-height:1.05;text-wrap:balance}
 .note{font-size:var(--fs-body);line-height:1.62;color:var(--ink2);margin:0;max-width:var(--measure)}
+.note a,.limits a,.wrap > footer a{color:var(--ac)}
+
+/* inline term definitions -- tap/click toggles, hover/focus previews */
+.term{font:inherit;background:none;border:none;padding:0;margin:0;color:inherit;cursor:help;
+  position:relative;border-bottom:1px dotted var(--ink3);display:inline}
+.term:hover .tip,.term:focus .tip,.term.open .tip{opacity:1;visibility:visible;transform:translateY(0)}
+/* position:fixed, placed by app.js from the term's rect: tables live inside overflow
+   containers, and an absolutely positioned popover there either clips or widens the scroll */
+.term .tip{position:fixed;left:0;top:0;z-index:50;width:max-content;max-width:240px;
+  background:var(--ink);color:var(--card);font-family:var(--sans);font-size:12px;font-weight:400;
+  line-height:1.45;text-align:left;padding:8px 10px;border-radius:5px;letter-spacing:0;
+  white-space:normal;
+  text-transform:none;opacity:0;visibility:hidden;transform:translateY(-3px);
+  transition:opacity .12s,transform .12s;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.term:not(:hover):not(:focus):not(.open) .tip{display:none}
+
+/* side-by-side layouts. Collapse to one column below ~1000px, where the widest
+   table (the change-log board, ~750px) would otherwise need to scroll. */
+.top{display:flex;flex-direction:column;gap:22px}
+.top > header h1{margin:0}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+.split-main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.split-side{position:sticky;top:16px;min-width:0;max-height:calc(100vh - 32px);overflow:auto;
+  border-radius:7px}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:center}
+.out.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.split-main .lg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 20px}
+.sum-dir-stack{display:none}
+@media(max-width:1000px){
+  .top,.split,.pair{grid-template-columns:1fr}
+  .sum-dir-side{display:none} .sum-dir-stack{display:inline}
+  .split-side{position:static;max-height:none;overflow:visible}
+}
+
+/* player check card */
+.verdict{border-radius:8px;padding:16px 18px;border:1px solid var(--hair);border-left:4px solid var(--ink3);
+  background:var(--card);display:flex;flex-direction:column;gap:4px}
+.verdict b{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-.012em;line-height:1.25}
+.verdict p{margin:0;font-size:14px;line-height:1.55;color:var(--ink2)}
+.verdict.hot{border-left-color:var(--hot);background:var(--hot-s)}
+.verdict.cold{border-left-color:var(--cold);background:var(--cold-s)}
+.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pc-grid > section{background:var(--card);border:1px solid var(--hair);border-radius:8px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;min-width:0}
+.pc-grid h3{margin:0;font-size:11px;font-family:var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink3);font-weight:500}
+.pc-grid .rows{display:flex;flex-direction:column;gap:3px}
+.pc-grid .row{grid-template-columns:minmax(0,1fr) 46px minmax(60px,1.1fr) 62px;gap:8px;padding:6px 8px}
+.pc-grid .row .nm{flex-wrap:wrap;gap:2px 6px;font-size:12px}
+.pc-note{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink3)}
+.pc-list{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--ink2)}
+.pc-list b{color:var(--ink);font-weight:600}
+.pc-tiles .v{font-size:22px}
+.pc-big{margin:0;font-size:13.5px;color:var(--ink2)}
+.pc-big b{font-family:var(--serif);font-size:24px;color:var(--ink);font-weight:600}
+.pc-links{display:flex;gap:22px;margin:0;font-size:13px}
+.pc-links a{color:var(--ac);text-decoration:none}
+.pc-links a:hover{text-decoration:underline}
+@media(max-width:1000px){.pc-grid{grid-template-columns:1fr}}
 
 /* tabs */
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -57,6 +119,18 @@ h1{font-family:var(--serif);font-size:var(--fs-h1);font-weight:600;letter-spacin
 .ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--card);
   border:1px solid var(--hair);border-radius:6px;padding:13px 15px}
 .f{display:flex;flex-direction:column;gap:4px}
+/* "what does this control affect" -- one small label on every control group */
+.scope{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ac);margin:0}
+.ctrl > .scope{flex-basis:100%;margin-bottom:-6px}
+.tfoot{margin:-6px 0 0;font-size:12px;color:var(--ink3);line-height:1.5;max-width:90ch}
+.tfoot:empty{display:none}
+.sechead-row{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 20px;flex-wrap:wrap}
+.f.inline{flex-direction:row;align-items:center;gap:8px}
+.cgroup{display:flex;flex-direction:column;gap:8px;align-self:flex-start}
+.cgroup + .cgroup{border-left:1px solid var(--hair);padding-left:18px}
+.cg-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+@media(max-width:640px){.cgroup + .cgroup{border-left:0;padding-left:0;border-top:1px solid var(--hair);padding-top:12px}}
 .f>span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink3)}
 select,input[type=number],input[type=text]{font:inherit;font-size:13px;background:var(--card);
@@ -68,6 +142,11 @@ select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-off
 .sub{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3)}
 .warnbar{border-left:3px solid var(--hot);background:var(--hot-s);padding:11px 14px;
   font-size:13px;color:var(--ink2);border-radius:0 4px 4px 0}
+/* An empty warn bar still paints its background and border, so a cleared
+   warning leaves a coloured stripe under the headline. */
+.warnbar:empty{display:none}
+.infobar{border-left:3px solid var(--ac);background:var(--ac-s);padding:11px 14px;
+  font-size:13px;color:var(--ink2);border-radius:0 4px 4px 0}
 .lg{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--ink3);align-items:center}
 .lg i{display:inline-block;width:20px;height:10px;vertical-align:-1px;margin-right:5px;border-radius:2px}
 
@@ -76,18 +155,25 @@ select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-off
 .gh{display:flex;justify-content:space-between;align-items:baseline;padding:10px 2px 5px;
   font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink3)}
-.row{display:grid;grid-template-columns:152px 66px 1fr 62px;gap:12px;align-items:center;
+.row{display:grid;grid-template-columns:152px 66px 1fr 84px;gap:12px;align-items:center;
   padding:7px 10px;background:var(--card);border:1px solid var(--hair)}
 .nm{font-size:12.5px;display:flex;align-items:center;gap:6px}
 .val{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
 .bar{position:relative;height:17px;background:var(--sunk)}
 .fill{position:absolute;top:0;bottom:0;}
-.ghost{position:absolute;top:50%;transform:translateY(-50%);height:12px;border:1px dashed currentColor;
-  opacity:.45;border-radius:2px;pointer-events:none}
+/* the part of the raw percentile that shrinking took away: hatched in the row's own color */
+.noise{position:absolute;top:0;bottom:0;opacity:.45;
+  background:repeating-linear-gradient(135deg,currentColor 0 1.5px,transparent 1.5px 5px)}
 .mk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.25;left:50%}
 .pct{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right;
   font-variant-numeric:tabular-nums}
 .rawpct{font-size:10px;color:var(--ink3);margin-left:4px;font-weight:400}
+.axis{display:grid;grid-template-columns:152px 66px 1fr 84px;gap:12px;padding:0 10px 2px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.axis > span:nth-child(2),.axis > span:last-child{text-align:right}
+.axis .ax{display:grid;grid-template-columns:1fr auto 1fr}
+.axis .ax > span:last-child{text-align:right}
+@media(max-width:640px){.axis{display:none}}
 .relchip{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.04em;padding:1px 5px;
   background:var(--sunk);color:var(--ink3);white-space:nowrap}
 
@@ -113,15 +199,11 @@ td.up{color:var(--hot);font-weight:600}
 td.dn{color:var(--cold);font-weight:600}
 .chip{font-family:"IBM Plex Mono",monospace;font-size:9.5px;padding:1px 6px;border-radius:9px;
   background:var(--sunk);color:var(--ink3)}
-.chip.ok{background:var(--cold-s);color:var(--cold)}
-.chip.no{background:var(--hot-s);color:var(--hot)}
+/* held: neutral on purpose -- red/blue already mean direction everywhere else */
+.chip.ok{background:var(--ink);color:var(--card);font-weight:600}
+.chip.no{background:none;color:var(--ink3);border:1px solid var(--hair)}
 
-/* explain boxes */
-.defbox{background:var(--sunk);border:1px solid var(--hair);border-radius:6px;padding:14px 16px;
-  display:flex;flex-direction:column;gap:8px}
-.defbox h3{margin:0;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
-.defbox p{margin:0;font-size:var(--fs-body);line-height:1.62;color:var(--ink2);max-width:var(--measure)}
-.defbox code,code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--card);
+code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--card);
   padding:1px 5px;border-radius:3px;border:1px solid var(--hair)}
 
 /* planner */
@@ -167,7 +249,210 @@ h2.sec{font-family:var(--serif);font-size:var(--fs-h2);font-weight:600;letter-sp
 label.ck{flex-direction:row;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);
   cursor:pointer;padding-bottom:7px}
 label.ck input{margin:0;accent-color:var(--ac)}
+.moref{padding-bottom:7px}
+.moref > summary{cursor:pointer;font-size:12.5px;color:var(--ac);list-style:none}
+.moref > summary::-webkit-details-marker{display:none}
+.moref > summary::after{content:" +"}
+.moref[open] > summary::after{content:" \2212"}
+.moref[open]{flex-basis:100%}
+.moref-in{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--hair)}
 
+
+/* head-to-head: where the uncertainty comes from. One bar, three segments,
+   summing to the whole variance -- the point being how little of it is talent. */
+.vsbar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:2px 0 14px;
+  background:var(--sunk)}
+.vsbar span{display:block;height:100%}
+.vsbar span:not(:last-child){border-right:1px solid var(--card)}
+#vs-head .unit{font-size:15px;font-weight:600;color:var(--ink2);letter-spacing:0}
+
+/* The tab's question, under the page title. Deliberately the plainest sentence
+   on the page: the title names the tool, this says what it is for. */
+.qline{margin:6px 0 0;font-family:var(--serif);font-size:var(--fs-lede);
+  line-height:1.4;color:var(--ink2);max-width:52ch}
+
+/* Head to head: the sentence that says what the headline percentage is a
+   percentage OF. Without it "80% Aaron Judge" is a number with no predicate. */
+.claim{margin:8px 0 0;font-size:var(--fs-lede);line-height:1.5;color:var(--ink);max-width:60ch}
+.claim b{font-weight:600}
+#vs-split{margin:18px 0 6px}
+#vs-split .scope{margin-bottom:7px}
+#vs-split .lg{margin-top:9px}
+#vs-split .lg b{color:var(--ink);font-weight:600}
+
+/* The calibration row matching what is currently on screen. Not :hover's --sunk,
+   which would make the two states indistinguishable under the cursor. */
+tbody tr.hl td{background:var(--sunk)}
+/* The accent rule belongs to the row, so it goes on the first cell only --
+   on every cell it draws a blue bar between each column instead. */
+tbody tr.hl td:first-child{box-shadow:inset 2px 0 0 var(--ac);font-weight:600;color:var(--ink)}
+.note.wrong{border-left:3px solid var(--cold);padding:9px 0 9px 12px;margin:0 0 12px}
+
+/* ---- the global setting strip -------------------------------------------
+   Shaped so it cannot be mistaken for one of the per-tab .ctrl cards: no card
+   background, no radius, rules above and below, and the label carries the
+   current state as a sentence instead of a caption. */
+.gbar{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--sunk);padding:11px 14px;margin:0}
+.gbar-state{margin:0;flex-basis:100%;font-family:var(--mono);font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ac)}
+.gbar-ctl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+.gbar .sub{padding-bottom:2px}
+/* A tab that ignores the global setting says so and means it. */
+.gbar.off{background:transparent}
+.gbar.off .gbar-state{color:var(--ink3)}
+.gbar.off .gbar-ctl{opacity:.45}
+.gbar.off select{cursor:not-allowed}
+
+/* Per-tab captions step down now that the accent belongs to the global bar,
+   so the page has one loud label rather than four competing ones. */
+.panel .scope{color:var(--ink3)}
+
+/* ---- how each estimate was reached --------------------------------------
+   Two small ledgers, one per player: what he has done this season, what he
+   usually is, and how much weight each supplied. The weight bars are the
+   shrinkage made literal -- a short season simply cannot fill its bar. */
+.pests{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px}
+.pest{border:1px solid var(--hair);border-radius:6px;background:var(--card);padding:12px 14px}
+.pest-h{margin:0;display:flex;align-items:baseline;gap:10px;justify-content:space-between}
+.pest-h b{font-size:var(--fs-lede);font-weight:600}
+.pest-v{font-family:var(--mono);font-size:var(--fs-lede);font-weight:600;color:var(--ink)}
+.pest-l{margin:1px 0 9px;font-size:var(--fs-micro);color:var(--ink3);
+  font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.pest-rows{display:flex;flex-direction:column;gap:6px}
+.pest-row{display:grid;grid-template-columns:5.6em 3.4em 1fr 64px 2.6em;gap:8px;
+  align-items:center;font-size:var(--fs-body)}
+.pest-row .pl{color:var(--ink2)}
+.pest-row .pv{font-family:var(--mono);color:var(--ink)}
+.pest-row .pn{color:var(--ink3);font-size:var(--fs-micro)}
+.pest-row .pw{background:var(--sunk);height:7px;border-radius:4px;overflow:hidden}
+.pest-row .pw i{display:block;height:100%;background:var(--ac);border-radius:4px}
+.pest-row .pp{font-family:var(--mono);font-size:var(--fs-micro);color:var(--ink2);text-align:right}
+.pest-warn{margin:9px 0 0;font-size:var(--fs-micro);line-height:1.5;color:var(--cold)}
+#vs-players{margin:16px 0 0}
+#vs-players .scope{margin-bottom:7px}
+
+/* ---- the three-slot explainer -------------------------------------------
+   Every tab now says the same three things in the same order: what it answers
+   (the visible lede), how to read it, and what it cannot tell you. The third
+   was the one that used to be improvised per tab, or omitted. */
+.use .slot{display:flex;flex-direction:column;gap:11px}
+.use .slot + .slot{margin-top:15px;padding-top:15px;border-top:1px solid var(--hair)}
+.use .slot h4{margin:0;font-family:var(--mono);font-size:var(--fs-micro);font-weight:500;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink3)}
+.use .slot.lim h4{color:var(--cold)}
+.use .slot.lim p{color:var(--ink2)}
+
+/* #vs-sub is a <p>, not the inline <span> .sub is normally used as, so it needs
+   its own spacing rather than the browser's default paragraph margins. */
+p#vs-sub{margin:7px 0 0;line-height:1.5}
+
+/* ---- what actually happened ---------------------------------------------
+   Shown when the chosen window has already been played. The border colour is
+   the only thing that says right or wrong at a glance; the copy is careful to
+   add that one result settles nothing, because a calibrated 70% is supposed to
+   lose three times in ten. */
+.ocome{border:1px solid var(--hair);border-left:3px solid var(--ink3);border-radius:0 6px 6px 0;
+  background:var(--card);padding:12px 15px;margin:16px 0 0}
+.ocome.ok{border-color:var(--right);border-left-width:4px;background:var(--right-s)}
+.ocome.miss{border-color:var(--wrong);border-left-width:4px;background:var(--wrong-s)}
+.ocome-h{margin:0 0 4px;font-family:var(--sans);font-weight:700;font-size:var(--fs-h2)}
+.ocome.ok .ocome-h{color:var(--right)} .ocome.miss .ocome-h{color:var(--wrong)}
+.ocome .scope{margin:0 0 6px}
+.ocome-l{margin:0;font-size:var(--fs-lede);line-height:1.5;color:var(--ink)}
+.ocome-v{margin:7px 0 0;font-size:var(--fs-body);color:var(--ink2);line-height:1.6}
+.ocome-v .sub{display:block;margin-top:3px;font-size:var(--fs-micro);line-height:1.5}
+.ocome .note{margin:8px 0 0}
+
+/* A pointer out to the addendum, where a wall of method used to sit inline. */
+.note.seealso{border-left:2px solid var(--line);padding-left:12px;margin-top:18px;
+  font-size:var(--fs-micro);color:var(--ink3)}
+.note.seealso a{color:var(--ac)}
+
+/* ---- vertical budget -----------------------------------------------------
+   Measured 2026-09-20: 446px of masthead, title and global bar sat above the
+   panel on a 758px viewport, and the answer landed below the fold on four of
+   seven tabs. Nothing here removes content; it removes the space around it. */
+.gbar{align-items:center;padding:8px 14px;gap:14px}
+.gbar-state{flex-basis:auto;margin:0}
+.wrap{gap:22px}
+.top{gap:14px}
+.panel{gap:16px}
+.use{padding:12px 16px;gap:9px}
+.use > summary{gap:5px}
+.use .lede{line-height:1.45}
+
+/* ---- Method page ---------------------------------------------------------
+   Written for a reader who doesn't follow baseball: a thesis for a headline,
+   plain prose, one real example, and the maths folded away for anyone who wants it. */
+.doc .glossary{border:1px solid var(--hair);border-radius:6px;background:var(--card);padding:12px 14px}
+.doc .note.ex{border-left:3px solid var(--ac);padding:2px 0 2px 12px}
+.doc .note.caveat{border-left:3px solid var(--cold);padding:2px 0 2px 12px;color:var(--ink2)}
+.doc details.maths{margin-top:4px}
+.doc details.maths > summary{cursor:pointer;font-family:var(--mono);font-size:var(--fs-micro);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.doc details.maths[open] > summary{margin-bottom:8px}
+.doc .block.divider .sechead{border-top:1px solid var(--line);padding-top:26px}
+
+/* ---- two tabs, several sections each (docs/SPEC-restructure.md) ----------
+   Each old tool is now a section. A section opens with a small label naming what it answers,
+   so the tab reads top to bottom as one story about one player, or one metric. */
+.psec{display:flex;flex-direction:column;gap:14px;padding-top:22px;border-top:1px solid var(--line)}
+.panel > .psec:first-of-type{border-top:0;padding-top:4px}
+.psec-k{margin:0;font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em;
+  color:var(--ink)}
+.psec-woba{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);border-radius:3px;
+  padding:1px 6px;margin-left:8px;vertical-align:4px}
+.pbar{margin-bottom:2px}
+
+/* One analysis at a time (D62). The section's own label becomes its button, so the label is
+   hidden in the section itself rather than said twice. */
+.psec[hidden]{display:none!important}
+.psec.psec-pick > .psec-k{display:none}
+.psec.psec-pick{border-top:0;padding-top:10px}
+.subtabs{display:flex;flex-wrap:wrap;gap:6px;padding:18px 0 4px;border-top:1px solid var(--line)}
+.panel > .subtabs:first-child{border-top:0;padding-top:4px}
+.subtabs button{appearance:none;font:inherit;font-size:14px;color:var(--ink2);cursor:pointer;
+  background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.subtabs button:hover{color:var(--ink);border-color:var(--ink3)}
+.subtabs button[aria-selected="true"]{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+.subtabs button[aria-selected="true"] .psec-woba{color:inherit;border-color:currentColor;opacity:.7}
+.subtabs button .psec-woba{margin-left:6px;vertical-align:1px;font-size:9px}
+.subtabs button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* Per-section pickers driven by the shared Player picker: kept in the DOM, because each
+   renderer reads its own, but never shown. A control row left with nothing visible goes too. */
+label:has(> select[data-synced]){display:none}
+/* :has() may not be nested inside :has(), so this is phrased without it: a row that has a
+   synced picker and no other control of any kind. */
+.ctrl:has(select[data-synced]):not(:has(select:not([data-synced]))):not(:has(input)){display:none}
+
+/* One summary per tab, not one per section. A section that doesn't host it drops the empty
+   right-hand column and takes the full width. */
+.split:not(:has(.sum)){grid-template-columns:minmax(0,1fr)}
+.split:not(:has(.sum)) > .split-side{display:none}
+
+/* the season line: who he is, then his numbers, before any analysis */
+.line-meta{margin:-4px 0 0;font-size:var(--fs-lede);color:var(--ink2)}
+.line-meta b{color:var(--ink);font-weight:600}
+#line-table td,#line-table th{white-space:nowrap}
+
+/* Season line: the open season is highlighted, the total and the recent stretch sit under a rule */
+table.line tr.hl td{background:var(--hl, rgba(37,99,235,.06));font-weight:600}
+table.line tr.tot td{border-top:1px solid var(--ink3);font-weight:600}
+/* "What this answers" leads its analysis rather than trailing it */
+.psec.psec-pick > details.use{order:-1}
+
+/* right / wrong: only where something is judged correct (D67) */
+.chip.right{background:var(--right);color:#fff;border:0;font-weight:600}
+.chip.part{background:var(--right-s);color:var(--right);border:1px solid color-mix(in srgb,var(--right) 35%,transparent)}
+.chip.wrong{background:var(--wrong-s);color:var(--wrong);border:1px solid color-mix(in srgb,var(--wrong) 40%,transparent);font-weight:600}
+td.cal-right{background:var(--right-s);color:var(--right);font-weight:600}
+td.cal-wrong{background:var(--wrong-s);color:var(--wrong);font-weight:600}
+.vsp{font-weight:700}
 /* ---- deployment banner ---- */
 .dep{display:flex;gap:10px;align-items:flex-start;background:var(--sunk);
   border:1px dashed var(--line);border-radius:6px;padding:11px 14px;font-size:12.5px;
@@ -225,8 +510,7 @@ details.ev summary::-webkit-details-marker{display:none}
 details.ev summary::before{content:"▸ ";color:var(--ink3)}
 details.ev[open] summary::before{content:"▾ "}
 details.ev .inner{padding:0 16px 16px}
-.guard{padding:12px 16px;border-top:1px solid var(--hair);font-size:12px;color:var(--ink3);
-  line-height:1.55}
+.guard{margin:12px 0 0;font-size:12px;color:var(--ink3);line-height:1.55;max-width:90ch}
 .guard b{color:var(--ink2)}
 .ev-note{font-size:12px;color:var(--ink3);margin:0 0 10px;max-width:78ch;line-height:1.5}
 td.vd{font-weight:600}
@@ -243,12 +527,14 @@ td.vd.noise{color:var(--ink3);font-weight:400}
 .mast-in{max-width:1180px;margin:0 auto;padding:13px 16px;display:flex;
   align-items:baseline;gap:14px;flex-wrap:wrap}
 .mark{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink)}
+.mark img{width:20px;height:20px;align-self:center;flex:none}
+
 .mark b{font-size:16px;font-weight:700;letter-spacing:-.015em}
 .mark i{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
   letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);
   padding:2px 6px;border-radius:3px}
 .mast nav{margin-left:auto;display:flex;gap:4px}
-.mast nav a{font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 10px;
+.mast nav a{font-size:12.5px;color:var(--ink2);text-decoration:none;padding:5px 7px;
   border-radius:5px}
 .mast nav a:hover{background:var(--sunk);color:var(--ink)}
 .mast nav a[aria-current="page"]{background:var(--sunk);color:var(--ink);font-weight:600}
@@ -283,41 +569,60 @@ td.vd.noise{color:var(--ink3);font-weight:400}
 .go2{font-size:13.5px;color:var(--ink2);text-decoration:none;padding:11px 4px;
   border-bottom:1px solid var(--line)}
 .go2:hover{color:var(--ink);border-bottom-color:var(--ac)}
-.go:focus-visible,.go2:focus-visible,.card:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+.go:focus-visible,.go2:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
 
-/* the worked example -- the tool's own percentile component, real output */
-.demo{max-width:860px;display:flex;flex-direction:column;gap:14px}
-.demo .cap{display:flex;flex-direction:column;gap:5px}
-.demo .who{font-family:var(--mono);font-size:12px;color:var(--ink3)}
-.demo .rows{display:flex;flex-direction:column;gap:3px}
-.demo .row{grid-template-columns:132px 62px 1fr 58px}
-.demo .foot{font-size:13.5px;line-height:1.6;color:var(--ink2);margin:0;max-width:64ch}
-.demo .foot b{color:var(--ink)}
+/* landing-page player search */
+.pc-search{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-width:480px}
+.pc-search label{font-size:13px;color:var(--ink2)}
+.pc-search-row{display:flex;gap:8px}
+.pc-search input{flex:1;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:5px;background:var(--card);color:var(--ink)}
+.pc-search input:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.pc-search .go{border:0;cursor:pointer}
+.pc-search-msg{margin:0;font-size:12.5px;color:var(--ink3);min-height:1em}
 
-/* signposts -- four questions, not a sequence, so they carry no numbers */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:1px;
-  background:var(--hair);border:1px solid var(--hair);border-radius:7px;overflow:hidden}
-.card{background:var(--card);padding:22px 22px 20px;display:flex;flex-direction:column;gap:9px;
-  text-decoration:none;color:inherit}
-.card:hover{background:var(--ac-s)}
-.card .k{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.11em;
-  text-transform:uppercase;color:var(--ink3)}
-.card .q{font-family:var(--serif);font-size:18px;font-weight:600;line-height:1.28;
-  letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
-.card .d{font-size:13.5px;line-height:1.55;color:var(--ink2);margin:0}
-.card .eg{font-family:var(--mono);font-size:11.5px;line-height:1.5;color:var(--ink3);
-  border-top:1px dashed var(--hair);padding-top:9px;margin-top:auto}
+/* at-a-glance strip under the hero */
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--hair);
+  border:1px solid var(--hair);border-radius:8px;overflow:hidden}
+.strip > div{background:var(--card);padding:18px 20px;display:flex;flex-direction:column;gap:4px}
+.strip b{font-family:var(--serif);font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.strip span{font-size:12.5px;color:var(--ink3);line-height:1.45}
+.strip.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 
-/* how it works -- this one IS ordered, so the numerals mean something */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(248px,100%),1fr));gap:26px}
-.step{display:flex;flex-direction:column;gap:7px;align-items:flex-start}
-.step .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ac);
-  border-top:2px solid var(--ac);padding-top:9px;width:100%}
-.step h3{margin:0;font-size:14.5px;font-weight:600;letter-spacing:-.005em}
-.step p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink2)}
-.step .eq{font-family:var(--mono);font-size:12px;color:var(--ink3);background:var(--sunk);
-  border:1px solid var(--hair);border-radius:4px;padding:6px 9px;align-self:flex-start;
-  margin-top:auto}
+/* one row per tool: the pitch on one side, a real example on the other, alternating */
+.feat{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;align-items:center;
+  padding:34px 0;border-top:1px solid var(--hair)}
+.feat.flip > .feat-t{order:2}
+.feat-t{display:flex;flex-direction:column;gap:10px;align-items:flex-start;max-width:46ch}
+.feat-t .k{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ac)}
+.feat-t h3{margin:0;font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.015em;
+  line-height:1.2;text-wrap:balance}
+.feat-t p{margin:0;font-size:14.5px;line-height:1.65;color:var(--ink2)}
+.feat-v{margin:0;display:flex;flex-direction:column;gap:10px;background:var(--card);
+  border:1px solid var(--hair);border-radius:10px;padding:18px;box-shadow:0 1px 2px rgba(13,27,42,.04),
+  0 8px 24px rgba(13,27,42,.05)}
+.feat-v .rows{display:flex;flex-direction:column;gap:3px}
+.feat-v .row{grid-template-columns:128px 54px 1fr 84px}
+.feat-v .tw{border-radius:6px}
+.feat-v figcaption{font-size:12.5px;line-height:1.55;color:var(--ink3)}
+.feat-v figcaption b{color:var(--ink2)}
+.out.mini{grid-template-columns:repeat(3,minmax(0,1fr))}
+.out.mini .v{font-size:22px}
+.quote{margin:0;font-family:var(--serif);font-size:17px;line-height:1.6;color:var(--ink);
+  border-left:3px solid var(--ac);padding:2px 0 2px 16px}
+
+/* why-trust-it principles */
+.principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.principles h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.principles p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink2)}
+
+@media(max-width:1000px){
+  .feat{grid-template-columns:1fr;gap:22px}
+  .feat.flip > .feat-t{order:0}
+  .strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .principles{grid-template-columns:1fr;gap:16px}
+}
 
 .sechead{display:flex;flex-direction:column;gap:7px;max-width:52ch}
 .sechead .k{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.11em;
@@ -330,12 +635,46 @@ td.vd.noise{color:var(--ink3);font-weight:400}
 .limits{border-top:1px solid var(--line);padding-top:22px;display:flex;flex-direction:column;
   gap:10px;max-width:64ch}
 .limits p{margin:0;font-size:13.5px;line-height:1.62;color:var(--ink2)}
+.limits .eb{font-size:10.5px;color:var(--ink3)}
+/* prose tables (addendum) wrap; the tool's numeric tables stay on one line */
+.doc th,.doc td{white-space:normal;vertical-align:top;line-height:1.45;text-align:left}
 .limits b{color:var(--ink)}
+
+/* landing: headline beside a photo. The photo is monochrome and dissolves into the page
+   through a soft elliptical mask, so it reads as atmosphere rather than a pasted box --
+   and the fade also takes the crowd behind the batter out of focus. */
+.hero-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:40px;align-items:center}
+.hero-photo{margin:0;position:relative;height:540px;pointer-events:none}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 38%;display:block;
+  filter:grayscale(1) contrast(1.04) brightness(1.06);opacity:.72;mix-blend-mode:multiply;
+  -webkit-mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%);
+          mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%)}
+/* a whisper of the site blue over the photo's midtones */
+.hero-photo::after{content:"";position:absolute;inset:0;background:var(--ac);opacity:.08;
+  mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%);
+          mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%)}
+/* addendum: section heading in a sticky left column, its text to the right.
+   row-gap is 0 so the heading's long row span adds no empty gutters. */
+.doc .block{display:grid;grid-template-columns:250px minmax(0,1fr);column-gap:48px;row-gap:0;
+  align-items:start}
+.doc .block > *{grid-column:2}
+.doc .block > * + *{margin-top:14px}
+.doc .block > .sechead{grid-column:1;grid-row:1 / span 20;margin-top:0;position:sticky;top:20px}
+.doc .block > .sechead + *{margin-top:0}
+.doc .block > .sechead h2{font-size:22px}
+@media(max-width:1000px){
+  .hero-row,.doc .block{grid-template-columns:1fr}
+  .hero-photo{display:none}
+  .doc .block > *,.doc .block > .sechead{grid-column:1;grid-row:auto;position:static}
+  .doc .block > .sechead + *{margin-top:14px}
+}
 
 @media(max-width:560px){
   .lp{padding-block:36px 0;gap:46px}
-  .demo .row{grid-template-columns:1fr 54px;gap:6px 10px}
-  .demo .row .bar{grid-column:1/-1}
+  .feat-v .row{grid-template-columns:1fr 84px;gap:6px 10px}
+  .feat-v .row .bar{grid-column:1/-1}
+  .out.mini{grid-template-columns:1fr}
 }
 
 .site-foot{border-top:1px solid var(--line);margin-top:34px;background:var(--card)}
@@ -345,3 +684,41 @@ td.vd.noise{color:var(--ink3);font-weight:400}
 @media(min-width:820px){.site-foot-in{grid-template-columns:repeat(3,1fr);gap:30px}}
 .site-foot b{color:var(--ink2)}
 .site-foot a{color:var(--ac)}
+
+/* Streak history tab: case-study cards with a half-month wOBA sparkline */
+.cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(max-width:1000px){.cases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.cases{grid-template-columns:1fr}}
+.case{background:var(--card);border:1px solid var(--hair);border-radius:8px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:8px}
+.case header{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.case header b{font-family:var(--serif);font-size:17px;font-weight:600}
+.case header .chip{margin-left:auto}
+.case p{margin:0;font-size:13px;line-height:1.5;color:var(--ink2)}
+.case .chip{background:none;color:var(--ink3);border:1px solid var(--hair)}
+.case .chip.c-hot{background:var(--hot-s);color:var(--hot);border-color:transparent;font-weight:600}
+.case .chip.c-cold{background:var(--cold-s);color:var(--cold);border-color:transparent;font-weight:600}
+.cases-h{margin:22px 0 0;font-size:14px;font-weight:500;color:var(--ink2)}
+.spark.cold .s-band{fill:var(--cold-s)}
+.spark.cold .s-hot{fill:var(--cold)}
+.spark{width:100%;height:auto;display:block}
+.spark .s-band{fill:var(--hot-s)}
+.spark .s-band2{fill:var(--ink3);opacity:.08}
+.spark .s-base{stroke:var(--ink3);stroke-width:1;stroke-dasharray:3 3}
+.spark .s-line{fill:none;stroke:var(--ink2);stroke-width:1.4}
+.spark .s-pt{fill:var(--ink2)}
+.spark .s-hot{fill:var(--hot)}
+.spark .s-next{fill:var(--ink)}
+.s-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:-4px}
+tr.b-dim td{color:var(--ink3)}
+.spark .s-lab{font-family:var(--mono);font-size:9.5px;fill:var(--ink3)}
+
+/* Player check: who's hot or cold right now */
+.hc{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.hc-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.hc-col h3{margin:0;font-size:12px;font-family:var(--mono);letter-spacing:.09em;text-transform:uppercase}
+.hc-col h3.hot{color:var(--hot)} .hc-col h3.cold{color:var(--cold)}
+.hc-row{cursor:pointer}
+.hc-row:hover td{background:var(--cold-s)}
+.hc td.up{color:var(--hot)} .hc td.dn{color:var(--cold)}
+#hc-title .sub{font-family:var(--mono);font-size:12px;font-weight:400;margin-left:8px}
