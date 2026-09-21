@@ -40,6 +40,10 @@ output/*
 !output/changes.json
 !output/planner.json
 !output/blocks_index.json
-web/data/
+!web/data/
+web/data/*
+!web/data/breakouts.json
 web/.vercel/
 web/node_modules/
+.vercel
+.env*

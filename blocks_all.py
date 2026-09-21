@@ -7,19 +7,38 @@ Reliability for every metric is measured per player type, not assumed.
 import sqlite3, os, json, math
 from pathlib import Path
 import numpy as np
-con=sqlite3.connect(f"file:{os.environ['HOME']}/snap.db?mode=ro",uri=True)
+# Which database to read. This used to be hard-wired to ~/snap.db -- a copy made only inside the
+# Cowork sandbox, where reading the mounted repo database failed with disk I/O errors. On the Mac
+# that copy does not exist, so every scheduled refresh died on this line ("views=FAILED: blocks")
+# while the refresh as a whole still exited 0, and the site's data silently stopped at 2026-09-17.
+# Order: an explicit STATCAST_DB; the sandbox copy if one is present; otherwise the repo's own
+# database. Always read-only -- nothing here writes.
+_HERE = Path(__file__).resolve().parent
+DB = (os.environ.get("STATCAST_DB")
+      or (f"{os.environ.get('HOME','')}/snap.db" if Path(f"{os.environ.get('HOME','')}/snap.db").exists() else None)
+      or str(_HERE / "data" / "statcast.db"))
+print("reading", DB)
+con=sqlite3.connect(f"file:{DB}?mode=ro",uri=True)
 con.execute("PRAGMA cache_size=-600000")
 HIT="events IN ('single','double','triple','home_run','walk','hit_by_pitch')"
 SW="(description LIKE '%swing%' OR description LIKE 'foul%' OR type='X')"
 WH="(description LIKE 'swinging_strike%' OR description='foul_tip')"
 BLK="substr(game_date,1,7)||'-'||(CASE WHEN CAST(substr(game_date,9,2) AS INT)<=15 THEN 'A' ELSE 'B' END)"
+# An official at-bat: every plate-appearance-ending event except walks, intentional walks, hit
+# batters, sacrifices, catcher's interference and truncated PAs. Listed positively, from the
+# distinct values actually in the table, so a new Savant event value cannot silently count.
+AB_EV="""('field_out','strikeout','single','double','triple','home_run','force_out',
+ 'grounded_into_double_play','field_error','fielders_choice','double_play',
+ 'fielders_choice_out','strikeout_double_play','triple_play')"""
 OUTS="""CASE WHEN events IN ('grounded_into_double_play','double_play','strikeout_double_play',
  'sac_fly_double_play','sac_bunt_double_play') THEN 2 WHEN events='triple_play' THEN 3
  WHEN events IN ('field_out','strikeout','force_out','sac_fly','sac_bunt',
  'fielders_choice_out','other_out') THEN 1 ELSE 0 END"""
 
 BAT_F=["pa","wn","xn","k","bb","pit","sw","whf","oz","ozsw","nbs","sbs","ssl","naa","saa","sad",
-       "nev","sev","sla","hh","brl","sweet","gb","nbb"]
+       "nev","sev","sla","hh","brl","sweet","gb","nbb",
+       # surface stats, 2026-09-21 -- APPENDED, so every field above keeps its index
+       "ab","h1","h2","h3","hr","ibb","hbp","sf","sh","ci","g"]
 BAT_Q=f"""SELECT batter, {BLK} blk, SUM(woba_denom),
  SUM(CASE WHEN woba_denom=1 AND {HIT} THEN woba_value ELSE 0 END),
  SUM(CASE WHEN woba_denom=1 THEN estimated_woba_using_speedangle END),
@@ -35,7 +54,15 @@ BAT_Q=f"""SELECT batter, {BLK} blk, SUM(woba_denom),
  SUM(CASE WHEN type='X' AND launch_speed_angle=6 THEN 1 ELSE 0 END),
  SUM(CASE WHEN type='X' AND launch_angle BETWEEN 8 AND 32 THEN 1 ELSE 0 END),
  SUM(CASE WHEN bb_type='ground_ball' THEN 1 ELSE 0 END),
- SUM(CASE WHEN bb_type IS NOT NULL THEN 1 ELSE 0 END)
+ SUM(CASE WHEN bb_type IS NOT NULL THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events IN {AB_EV} THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='single' THEN 1 ELSE 0 END), SUM(CASE WHEN events='double' THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='triple' THEN 1 ELSE 0 END), SUM(CASE WHEN events='home_run' THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='intent_walk' THEN 1 ELSE 0 END), SUM(CASE WHEN events='hit_by_pitch' THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events IN ('sac_fly','sac_fly_double_play') THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events IN ('sac_bunt','sac_bunt_double_play') THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='catcher_interf' THEN 1 ELSE 0 END),
+ COUNT(DISTINCT game_pk)
 FROM pitches WHERE game_year=? AND game_type='R' GROUP BY 1,2"""
 
 PIT_F=["bf","outs","wn","xn","k","bb","pit","sw","whf","iz","zt","oz","ozsw","edge","loct",
@@ -62,18 +89,53 @@ PIT_Q=f"""SELECT pitcher, {BLK} blk, SUM(woba_denom), SUM({OUTS}),
  SUM(CASE WHEN type='X' AND launch_speed>=95 THEN 1 ELSE 0 END),
  SUM(CASE WHEN bb_type='ground_ball' THEN 1 ELSE 0 END),
  SUM(CASE WHEN bb_type IS NOT NULL THEN 1 ELSE 0 END)
+ ,SUM(CASE WHEN events IN ('single','double','triple','home_run') THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='home_run' THEN 1 ELSE 0 END),
+ SUM(CASE WHEN events='intent_walk' THEN 1 ELSE 0 END), SUM(CASE WHEN events='hit_by_pitch' THEN 1 ELSE 0 END),
+ COUNT(DISTINCT game_pk)
 FROM pitches WHERE game_year=? AND game_type='R' GROUP BY 1,2"""
 # note: PIT_Q selects 29 value cols after id/blk -> matches PIT_F order with ssv/nsp shift
 PIT_F=["bf","outs","wn","xn","k","bb","pit","sw","whf","iz","zt","oz","ozsw","edge","loct",
-       "nv","sv","ssv","nsp","ssp","nex","sex","naa","saa","nev","sev","hh","gb","nbb"]
+       "nv","sv","ssv","nsp","ssp","nex","sex","naa","saa","nev","sev","hh","gb","nbb",
+       "h","hr","ibb","hbp","g"]            # surface stats, 2026-09-21 -- appended
 
 names={}
 for pid,nm,pt in con.execute("SELECT DISTINCT player_id,player_name,player_type FROM expected_stats"):
     names[(pid,pt)]=nm
 
+SLOTS=((2,"C"),(3,"1B"),(4,"2B"),(5,"3B"),(6,"SS"),(7,"LF"),(8,"CF"),(9,"RF"))
+def team_pos(kind):
+    """Current team and primary position per (player, season).
+
+    Team: the side he played for in his most recent game that season -- batting side for a
+    hitter, fielding side for a pitcher. A player traded mid-season shows his latest team.
+    Position (hitters): the fielding slot he filled in the most games. The fielder_N columns
+    hold player ids, so no second data source is needed. A hitter who never took the field is a
+    DH -- correct, but by inference. Pitchers are "P"."""
+    tm, pos = {}, {}
+    side = ("CASE WHEN inning_topbot='Top' THEN away_team ELSE home_team END" if kind=="bat"
+            else "CASE WHEN inning_topbot='Top' THEN home_team ELSE away_team END")
+    who = "batter" if kind=="bat" else "pitcher"
+    for y in (2023,2024,2025,2026):
+        for pid, v in con.execute(f"SELECT {who}, MAX(game_date||'|'||{side}) FROM pitches "
+                                  "WHERE game_year=? AND game_type='R' GROUP BY 1", (y,)):
+            if v: tm[(pid,y)] = v.split("|",1)[1]
+        if kind != "bat":
+            continue
+        games = {}
+        for slot, name in SLOTS:
+            for pid, g in con.execute(f"SELECT fielder_{slot}, COUNT(DISTINCT game_pk) FROM pitches "
+                                      "WHERE game_year=? AND game_type='R' GROUP BY 1", (y,)):
+                if pid is not None:
+                    games.setdefault((pid,y), {})[name] = g
+        for key, d in games.items():
+            pos[key] = max(d, key=d.get)
+    return tm, pos
+
 OUT={}
 for kind,Q,FI,idkey,pakey,minpa in (("bat",BAT_Q,BAT_F,"batter","pa",150),
                                     ("pit",PIT_Q,PIT_F,"pitcher","bf",120)):
+    TM, POS = team_pos(kind)
     D={}; blocks=set()
     for y in (2023,2024,2025,2026):
         for r in con.execute(Q,(y,)):
@@ -81,7 +143,9 @@ for kind,Q,FI,idkey,pakey,minpa in (("bat",BAT_Q,BAT_F,"batter","pa",150),
             key=(pid,"batter" if kind=="bat" else "pitcher")
             if key not in names: continue
             blocks.add(blk)
-            D.setdefault((pid,y),{})[blk]=[float(v or 0) for v in r[2:]]
+            vals=[float(v or 0) for v in r[2:]]
+            assert len(vals)==len(FI), f"{kind}: query returns {len(vals)} columns, fields list {len(FI)}"
+            D.setdefault((pid,y),{})[blk]=vals
     blocks=sorted(blocks)
     rows=[]
     for (pid,y),b in D.items():
@@ -89,7 +153,10 @@ for kind,Q,FI,idkey,pakey,minpa in (("bat",BAT_Q,BAT_F,"batter","pa",150),
         if tot<minpa: continue
         rows.append({"id":int(pid),"y":y,
                      "n":names[(pid,"batter" if kind=="bat" else "pitcher")],
-                     "t":int(tot),"b":{k:[round(x,2) for x in v] for k,v in b.items() if v[0]>0}})
+                     "t":int(tot),
+                     "tm":TM.get((pid,y)),
+                     "pos":POS.get((pid,y),"DH") if kind=="bat" else "P",
+                     "b":{k:[round(x,2) for x in v] for k,v in b.items() if v[0]>0}})
     rows.sort(key=lambda r:(-r["y"],-r["t"]))
     OUT[kind]={"fields":FI,"rows":rows}
     print(f"{kind}: {len(rows)} player-seasons, {len(blocks)} distinct blocks")
@@ -169,3 +236,20 @@ for kind in OUT:
         print(f"  shard {kind}-{y}: {f.stat().st_size/1024:>6.0f} KB  {len(shard['rows'])} players")
 (SPLIT.parent / "blocks_index.json").write_text(json.dumps(index, indent=1))
 print("wrote output/blocks_index.json")
+
+# The site reads its shards from web/data/, and until 2026-09-21 nothing put them there: they
+# were copied by hand, which is why the site stopped at 2026-09-17 while the database kept
+# advancing. Publish them as part of the same step, so a successful refresh reaches the site and
+# matchup.py / reliability.py (which run next and read web/data/) see the fresh data.
+import shutil
+WEBDATA = _HERE / "web" / "data"
+WEBDATA.mkdir(parents=True, exist_ok=True)
+for f in SPLIT.glob("*.json"):
+    shutil.copy2(f, WEBDATA / f.name)
+shutil.copy2(SPLIT.parent / "blocks_index.json", WEBDATA / "blocks_index.json")
+print(f"published {len(list(SPLIT.glob('*.json')))} shards + index to {WEBDATA}")
+
+# The Player tab's Season line shows every season, so it needs a per-season summary of the
+# shards just published (lines.py; reads web/data only).
+import lines
+lines.main()

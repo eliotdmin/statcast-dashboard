@@ -130,14 +130,17 @@ def _name(df):
     return pd.Series(["unknown"] * len(df), index=df.index)
 
 
-def fetch_expected_stats(con, year, snapshot=None):
-    """Season-to-date expected vs actual leaderboards for hitters and pitchers."""
+def fetch_expected_stats(con, year, snapshot=None, min_pa=None):
+    """Season-to-date expected vs actual leaderboards for hitters and pitchers.
+
+    min_pa overrides the 50-PA leaderboard floor; history pulls pass 1 so a part-time season
+    still counts toward a player's usual level (history.py)."""
     from pybaseball import statcast_batter_expected_stats, statcast_pitcher_expected_stats
     snapshot = snapshot or default_snapshot(year)
 
     for kind, fn, minimum in (
-        ("batter", statcast_batter_expected_stats, 50),
-        ("pitcher", statcast_pitcher_expected_stats, 50),
+        ("batter", statcast_batter_expected_stats, min_pa or 50),
+        ("pitcher", statcast_pitcher_expected_stats, min_pa or 50),
     ):
         try:
             df = fn(year, minimum)

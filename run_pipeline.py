@@ -10,7 +10,7 @@ Writes two families of output:
 
   output/dashboard_data.json   the original dashboard
   output/blocks_all.json       per-half-month block counts, 2023-2026, hitters and
-  output/dontchase.json        pitchers -- the inputs to the Stretch Finder's four
+  output/dontchase.json        pitchers -- the inputs to Statcast Reality Check's four
   output/changes.json          tabs and the streak board
 
 The second family used to be built by hand, which meant it silently went stale
@@ -37,13 +37,27 @@ HERE = Path(__file__).parent
 OUT = HERE / "output" / "dashboard_data.json"
 TOP_N = 25
 
-# Scripts that rebuild the Stretch Finder's inputs, in dependency order:
+# Scripts that rebuild Statcast Reality Check's inputs, in dependency order:
 # streaks.py reads output/blocks_all.json, so blocks_all.py has to go first.
 # (label, argv-after-interpreter, file it is expected to write)
 VIEW_STEPS = [
     ("blocks",     ["blocks_all.py"],                   "output/blocks_all.json"),
     ("carry board", ["streaks.py", "--part", "wire"],   "output/dontchase.json"),
     ("change log", ["streaks.py", "--part", "changes"], "output/changes.json"),
+    # matchup.py reads the per-season shards blocks_all.py publishes into web/data/
+    # (a publish step added 2026-09-21; before it, nothing copied them there),
+    # so it runs after it. Both player types, all four horizons the tab offers;
+    # the whole backtest is about a second.
+    # Official season lines for every player on the site (MLB Stats API): the Season line's whole
+    # career, and the birth dates matchup.py's Marcel baseline ages with. Needs network, which the
+    # scheduled refresh on the Mac has. Runs before matchup.py, which reads it.
+    ("career lines", ["fetch_careers.py"], "web/data/careers-bat.json"),
+    ("matchup (hitters)",  ["matchup.py", "--kind", "bat"], "web/data/matchup-bat.json"),
+    ("matchup (pitchers)", ["matchup.py", "--kind", "pit"], "web/data/matchup-pit.json"),
+    # Bootstrapped intervals on the reliabilities the whole site shrinks with.
+    # Reads the shards blocks_all.py just wrote, so it runs after them.
+    ("reliability (hitters)",  ["reliability.py", "--kind", "bat"], "web/data/reliability-bat.json"),
+    ("reliability (pitchers)", ["reliability.py", "--kind", "pit"], "web/data/reliability-pit.json"),
 ]
 
 
@@ -114,7 +128,7 @@ def main():
                     help="only backfill the most recent N days (resumable; "
                          "extend later by raising or dropping this)")
     ap.add_argument("--skip-views", action="store_true",
-                    help="do not rebuild the Stretch Finder's data files")
+                    help="do not rebuild Statcast Reality Check's data files")
     ap.add_argument("--newest-first", action="store_true",
                     help="fetch recent days first, so a partial run is useful")
     args = ap.parse_args()
