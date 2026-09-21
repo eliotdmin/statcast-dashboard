@@ -221,3 +221,140 @@ Claude Code keeps its own full transcripts as JSONL under `~/.claude/projects/`,
 and `claude --resume` reopens one with context intact — so raw history is not
 lost there, it is just greppable rather than browsable. The session log is what
 turns it into something a person, or a future session, will actually read.
+
+**2026-09-20: the product was renamed from "Stretch Finder" to "True Talent" (D43).** The two
+artifact rows above keep their original titles, because that is what those artifacts are called.
+The repo directory and the Vercel project are still `statcast-dashboard` by design.
+
+---
+
+## 2026-09-20 (later): `site/` rebuilt from `web/`
+
+The drift described above had recurred, in the opposite direction and larger. `site/` is now the
+truth again and `python3 site/mksite.py` reproduces the deployed tree byte-for-byte. Full
+reasoning in **D45**; the operating rule and the verification command are now in `CLAUDE.md`.
+
+What changed in the repo: `site/body.html`, `site/head.html`, `site/summary.js`, `site/mkmock.py`
+and `site/mksite.py` were reconstructed from `web/`. No file in `web/` changed except
+`addendum.html`, which is now generated from the shared chrome instead of existing only as
+hand-made output (it gains one HTML comment, three blank lines and `aria-current` on its own nav
+link; rendered text is identical).
+
+Three latent bugs fixed on the way: `mksite.py` resolved its inputs against the caller's cwd, so
+the documented build command could not run; the build overwrote the real `web/og.png` with a 1×1
+placeholder; and the sixteen `str.replace` anchors that assemble `app.js` had no assertion behind
+them, so a stale one would have dropped a feature silently.
+
+**Next, and the reason the back-port was done first:** a head-to-head view — *which of these two
+players will be better over the next N weeks* — reported as a calibrated probability rather than
+a projected line, with the uncertainty split into talent / drift / sampling. Plus the pairwise
+"how many PA until you could tell them apart" answer from the planner's own machinery, and a
+calibration curve built by backtesting the estimator over 2023–2025.
+
+### 2026-09-20 (later still): clarity and rigour pass
+
+Five changes, in the order they were asked for — D47, D48, D49 carry the reasoning.
+
+1. **A plain question under the title on every tab**, reusing the landing page's own wording.
+2. **Head to head now defines its claim** ("finishes the next month with the higher wOBA of the
+   two"), labels every number, and glosses Brier once.
+3. **The global Type/Season control is a status strip**, not a fourth identical card — and it now
+   actually disables itself on Breakouts, which had been claiming in a footnote that it didn't
+   apply while staying fully live.
+4. **Head to head shows how each estimate was reached**: this season vs usual level, with the
+   weight each supplied drawn as a bar. Plus a landing-page card for the tab, which it had been
+   missing, and an inline flag when a player's prior history is thin.
+5. **A fixed three-slot explainer on all seven tabs** — what this answers / how to read it / what
+   it can't tell you. Existing prose was re-bucketed; the limits sections are mostly new.
+
+Verified: the build is idempotent, all three pages parse with zero unclosed tags, `app.js`,
+`evidence.js` and `api/summary.js` all parse, and both artifact builds produce seven tabs.
+**Still not seen in a browser** — the Chrome extension would not connect in either session, so
+every check here is structural. A visual pass is the first thing to do next.
+
+Known gaps: `stored_summaries.json` still has no `vs` entry (nor `card`/`breakouts`), so the
+no-API-key path shows a clear error on those three tabs. Marcel is still not among the forecasters
+`matchup.py` scores.
+
+### 2026-09-20 (browser pass): nine fixes that only a real render could find
+
+Everything to this point had been verified structurally — the build was idempotent, the HTML
+parsed with no unclosed tags, the JS parsed, and the maths was replicated in Python. All of that
+was true, and the tab was still visibly broken in ways none of it could see.
+
+1. **`history.json` race.** The LOADER repainted only the Player check tab by index when prior
+   seasons landed, so Head to head — which cannot produce an estimate at all without them —
+   rendered first and stayed stuck on "no prior-season baseline". It now repaints whichever tab
+   is open. *The user spotted this one on the first screenshot.*
+2. **The warning didn't distinguish "still loading" from "this player has no history"**, sending
+   a reader after missing data that was merely in flight.
+3. **The warn bar was never cleared on the success path**, so a resolved warning sat above a
+   perfectly good answer.
+4. **`.warnbar:empty` still painted** its background and left border — a coloured stripe under
+   the headline whenever a warning was cleared.
+5. **The calibration table had been silently deleted.** An earlier edit replaced a span of
+   `renderVsCal` that happened to contain the whole table-building block. The note below it still
+   rendered, so every structural check passed and the tab simply had no table.
+6. **`&sub1;` is not an HTML entity** — the drift formula printed `2σ&sub1;²t` on screen.
+7. **The highlighted calibration row** drew its accent on every `td`, striping the table.
+8. **The "386 qualified hitters" note** stayed visible on Breakouts, where Type and Season don't
+   apply.
+9. **`serve.py` let the browser cache `app.js`.** Three separate times a rebuilt file looked like
+   a change that hadn't worked. It now sends `no-store` for everything except `/data/`.
+
+Number 5 is the one worth remembering: **a parse check cannot tell you that a feature is missing,
+only that what remains is well-formed.** The others were cosmetic or a race; that one would have
+shipped a headline feature with its evidence table quietly absent.
+
+Confirmed working in Chrome afterwards: all seven tabs and their questions; the global bar
+disabling itself on Breakouts and re-enabling on exit; the as-of selector driving the estimate;
+the outcome reveal firing on an elapsed window (Bregman 61% over Crow-Armstrong on 30 May,
+scored wrong — Crow-Armstrong hit .513 to .303); the calibration table following the horizon
+(15/30/60/90 days, different n and Brier each); the self-check warning appearing at the 15-day
+horizon and nowhere else; and pitchers switching correctly to "lower wOBA allowed" and
+"batters faced".
+
+**Not verified: responsive layout.** The extension's viewport stays 1280px wide whatever the
+window is resized to, so phone width is still unchecked. `.pests` uses the
+`minmax(min(300px,100%),1fr)` guard from the gotchas list, but `.pest-row`'s five-column grid
+(`5.6em 3.4em 1fr 64px 2.6em`) is the thing most likely to be cramped and nobody has looked at it.
+
+## 2026-09-21: restructure into Player / Metric / Method (D58–D61)
+
+- Seven tabs became two, plus a Method page (D60, spec in `docs/SPEC-restructure.md`). The Player
+  tab holds, in order: Season line, The verdict, How he ranks, What changed, and Compare to…. The
+  Metric tab holds: planner, Who moved, hot/cold, carry, breakouts, and head-to-head scoring.
+  wOBA-only sections always show on the Player tab. On the Metric tab they fold away when another
+  metric is picked.
+- Surface stats, team and position are new shard fields (D61). `blocks_all.py` now runs on the Mac
+  and publishes to `web/data/`. It had failed on every scheduled run until now (FINDINGS 2026-09-21).
+- The head-to-head is now scored against naive slice baselines (D58).
+- `mkdash.py`, `mkmock.py` and `profiles.json` are deleted (D59).
+- **Unchecked:** phone width for the Season line (it scrolls inside `.tw`), the pitcher-only
+  columns, and the first scheduled refresh with the fixed `blocks_all.py`. Check that tomorrow's
+  `logs/refresh.log` SUMMARY no longer says `FAILED: blocks`.
+- Phase 4 of the spec (extending streaks and head-to-head beyond wOBA) has not started.
+- Nothing is committed.
+
+### 2026-09-21 (later): analyses, not metrics (D62)
+
+Both tabs now pick one analysis at a time from a pill row, with no global Metric picker. The second
+tab is called **League**. The hash names the open analysis. I checked in Chrome: every analysis
+on both tabs renders without errors, deep links work on a fresh load and on a hash change
+(`#p-break`, `#p-carry`, `#p-card?k=pit&id=…`), the hot/cold click opens the player, the planner
+and Who moved pickers work, and a type switch keeps the chosen analysis. Still unchecked: phone
+width for the pill row, which wraps.
+
+### 2026-09-21 (walk-through): Season line across seasons, eight UI fixes (D63)
+
+New file `lines.py`, run by `blocks_all.py`, writes `web/data/lines-{bat,pit}.json`. All eight
+fixes were checked in Chrome at 1280px. Phone width is still unchecked, because the browser window
+does not resize from this environment. At phone width the Season line table (up to 16 columns)
+scrolls sideways inside its `.tw` box, which is the thing most worth looking at.
+
+### 2026-09-21 (latest): D68
+- New script `fetch_careers.py`; it needs network and is in the pipeline.
+- `serve.py` pricing changed. Restart the dev server for it to take effect.
+- The carry board's wide table scrolls sideways inside its box when "what happened" is shown.
+- Open: rebuild `history.json` from 2015 (`fetch_history.py`, which writes the DB, so do it on the
+  Mac) to test whether Marcel's tie with the estimator comes from its longer history.

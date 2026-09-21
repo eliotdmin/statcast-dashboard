@@ -529,7 +529,7 @@ At **183 plate appearances**, wOBA's reliability is $\rho = .45$ (Spearman–Bro
 - Sweet-spot% at 183 PA is $\rho = .37$. A hitter in the **12th percentile** shrinks all the way to
   the **36th** — the apparent problem mostly evaporates.
 
-That divergence is why the Stretch Finder draws two bars. Same window, same player, same six weeks:
+That divergence is why Statcast Reality Check draws two bars. Same window, same player, same six weeks:
 one number barely moves and another moves 22 points.
 
 ### The same idea for a change

@@ -1298,3 +1298,546 @@ official scorer's earned/unearned judgement, which is not in this data at all.
 `fetch.py` hardcoded its column list and dropped `era`/`xera` on ingest; now patched, columns added
 to the table. Backfilling the values needs network to baseballsavant, currently 403 through the
 proxy on both the device and the cloud container.
+
+## 2026-09-18 — Do two-week hot streaks "earned" by contact quality stick better than lucky ones?
+
+**Question.** The broadcast line: "he's smacking the ball the last two weeks — he's earned his
+results." Of two-week hot streaks, how much of the gain survives, and does it survive better when
+xwOBA rose with it? (`breakouts.py`, descriptive only; no model fit, so D28 is not engaged.)
+
+**Setup.** Hitter half-month blocks from `web/data/bat-*.json` (corrected wOBA numerator, D24).
+Hot = block wOBA ≥ .080 above the player's own strictly-prior same-season rate (≥ 35 PA in the
+block, ≥ 100 PA baseline). Earned = xwOBA up ≥ .050 vs the same baseline; lucky = up < .020.
+Outcome measured against the same baseline: next block (≥ 20 PA) and rest of season (≥ 50 PA).
+Kept = PA-weighted next gain / this gain. Bootstrap resamples players.
+
+**Result (2023–2025 headline; 2026 separately).**
+| group | n | next-2wk kept | rest-of-season kept | stuck (≥ half) | kaput (≤ baseline) |
+|---|---|---|---|---|---|
+| all hot streaks | 928 | 14% | 19% | 28% | 43% |
+| earned (xwOBA ≥ +.050) | 553 | 13% | 19% | 25% | 44% |
+| lucky (xwOBA < +.020) | 155 | 13% | 22% | 34% | 47% |
+| 2026, all | 253 | 12% | 18% | 31% | 40% |
+Earned minus lucky, share kept next 2 wk: **95% CI [−17%, +15%]** (2026: [−26%, +19%]).
+The xwOBA jump itself carried only **8–9%** into the next two weeks.
+Robustness (hard-hit% up ≥ 8 pts vs down): 17% vs 10% in 2023–25, **reversed** in 2026 (9% vs 19%).
+
+**What it shows.** A two-week hot streak keeps about a seventh of its gain over the next two weeks
+and about a fifth over the rest of the season, and nearly half are back at or below baseline
+immediately. Contact quality rising alongside it does not change that: at ~50 PA, xwOBA is
+itself mostly noise. This matches the variance decomposition (2026-09-12): with σ² = .2258 per PA
+and true drift sd .038, at most ~20% of a two-week gap vs a ~200-PA baseline can be real.
+
+**What it does not show.** That contact quality is useless — over longer windows xwOBA beats wOBA
+(2026-09-12). That no two-week breakout is real: ~15–20% of the average gain is, it just can't be
+told apart from the rest at this length. Streaks followed by no qualified next window (76 in
+2023–25: benchings, injuries, demotions) are excluded, and hot streaks are selected partly on a
+low baseline, so "kept" is if anything slightly overstated. Hitters only; pitchers not run.
+
+**Next.** Same test at 30- and 45-day windows, where xwOBA's reliability is higher and "earned"
+might start to separate from "lucky". Pitcher version (velocity/whiff-backed hot streaks).
+
+## 2026-09-18 (later) — Same question at 30 and 45 days: streaks earn trust through length, not contact
+
+**Question.** Follow-up to the entry above: at longer windows, where xwOBA is more reliable, do
+contact-backed hot streaks start to separate from lucky ones? (`breakouts.py --blocks 2|3`; same
+thresholds, next window the same length as the streak.)
+
+**Result.** Share of the gain kept in the next window of equal length:
+| window | n (23–25) | all kept | kaput | earned | lucky | earned−lucky 95% CI | 2026 all kept |
+|---|---|---|---|---|---|---|---|
+| ~15 days | 928 | **14%** | 43% | 13% | 13% | [−17%, +15%] | 12% |
+| ~30 days | 467 | **27%** | 32% | 28% | 29% | [−19%, +17%] | 29% |
+| ~45 days | 256 | **43%** | 21% | 42% | 51% | [−35%, +18%] | 43% |
+Hard-hit variant (hard-hit% up ≥ 8 pts vs down), 2023–25: 17 vs 10, 34 vs 21, 49 vs 38 —
+CIs [−5%, +18%], **[+0%, +26%]**, [−8%, +30%]. 2026: reversed at 15 and 45 days.
+
+**What it shows.** How long a streak has lasted is what makes it believable: persistence roughly
+triples from two weeks to six (14% → 43%), and 2026 reproduces the ladder almost exactly. Rising
+xwOBA alongside the streak adds nothing at any of the three lengths.
+
+**What it does not show.** 2026 at 45 days has earned 51% vs lucky 3% (CI [+5%, +86%]) on 15 lucky
+streaks, in the opposite direction to 2023–25 and in the development set (D28): not counted. The
+hard-hit edge is consistent in sign across three 2023–25 windows but significant at none after
+this many comparisons; it is a hypothesis, not a finding. Windows overlap within a season, so
+the three rows are not independent samples. Hitters only.
+
+**Next.** Pre-register the hard-hit hypothesis against 2027 (backlog S32) rather than keep
+testing it on the same seasons.
+
+## 2026-09-18 (later) — What happened to the most convincing "earned" two-week breakouts?
+
+**Question.** Take the nine strongest-looking contact-backed two-week hot streaks: in each of
+2023–2025, the three distinct hitters with the largest xwOBA jump during a streak
+(`breakouts.py --export`, D38). How many held up over the next two weeks?
+
+**Result.**
+| season | hitter | half-month | gap | xwOBA up | next 2 wk | rest of season | outcome |
+|---|---|---|---|---|---|---|---|
+| 2023 | Manny Machado | Jul A | +.257 | +.223 | +.081 | +.046 | faded |
+| 2023 | Luis Robert Jr. | May A | +.302 | +.220 | −.014 | +.074 | gone |
+| 2023 | Josh Jung | May B | +.238 | +.193 | +.001 | −.003 | faded |
+| 2024 | Aaron Judge | May A | +.211 | +.252 | +.227 | +.183 | stuck |
+| 2024 | Matt Chapman | May B | +.207 | +.210 | +.031 | +.093 | faded |
+| 2024 | Brenton Doyle | Jul A | +.318 | +.186 | +.025 | −.015 | faded |
+| 2025 | Ryan McMahon | May A | +.266 | +.261 | +.028 | +.060 | faded |
+| 2025 | Juan Soto | May A | +.108 | +.257 | −.090 | +.063 | gone |
+| 2025 | Tyler O'Neill | Jul B | +.231 | +.234 | — | −.011 | too few PA next |
+Gaps are wOBA over the hitter's own strictly-earlier season rate. Stuck = the next two weeks
+kept at least half the gain. **1 of 8 evaluable stuck.**
+
+**What it shows.** Even the most extreme contact-backed streaks mostly behaved like the
+ladder says: the next two weeks kept a small share. Several ran modestly above baseline for the
+rest of the season (Robert +.074, Chapman +.093, Soto +.063), so "faded" doesn't mean "nothing
+was real".
+
+**What it does not show.** Nine cases are an illustration, not evidence. The evidence is the
+928-streak ladder. Selecting on the largest xwOBA jump also selects for noisy xwOBA, which
+works against these cases. Judge 2024 is one elite hitter; it doesn't show that elite hitters'
+streaks stick.
+
+**Next.** None on its own; the open question stays S32 (hard-hit-backed streaks, 2027).
+
+## 2026-09-18 (later) — Against a career baseline, do statistically significant streaks stick?
+
+**Question.** Same as the breakout ladder, but (a) the baseline is career-to-date since 2023 (every
+earlier block, prior seasons included, ≥ 300 PA), not the earlier-season rate; (b) only windows
+with |z| ≥ 2, where z = gap / sqrt(0.2258·(1/PA_window + 1/PA_baseline)); (c) cold streaks as well
+as hot. (`breakouts.py --career [--blocks 2|3]`; headline 2024–2025, since 2023 has no prior season.)
+
+**Result.** Share of the gap still there over the next window of equal length (cold: share of
+the slump that persisted), 2024–2025:
+| window | hot n | hot kept | hot back to baseline | cold n | cold kept | cold recovered |
+|---|---|---|---|---|---|---|
+| ~15 days | 161 | **3%** | 57% | 141 | **9%** | 41% |
+| ~30 days | 133 | **3%** | 50% | 144 | **20%** | 28% |
+| ~45 days | 100 | **14%** | 38% | 132 | **24%** | 28% |
+Earned vs lucky: 78–92% of significant streaks are "earned" (xwOBA moved ≥ .050 the same way);
+lucky groups are 6–15 streaks. Where both have ≥ 10, every earned−lucky CI includes zero
+(hot 15 d [−54%, +15%]; cold 30 d [−34%, +5%]; hot 45 d [−32%, +42%]; cold 45 d [−20%, +49%]).
+2026 (development set): hot 2% / 9% / 19%, cold 13% / 3% / 17%.
+Case studies (rule: top 3 xwOBA moves per season and direction, 2024–25): 0 of 6 hot kept half;
+3 of 6 cold (Olson, Alvarez, Betts) were still half as far down two weeks later.
+
+**What it shows.** Clearing a significance bar against a career baseline doesn't make a hot streak
+durable. It keeps less than the season-baseline study (3% vs 14% at two weeks). Slumps persist more
+than hot streaks at all three lengths in 2024–2025.
+
+**What it does not show.** The two studies aren't like-for-like: different baseline, a z filter
+that selects the most extreme windows (more regression by construction), and different seasons
+(2024–25 vs 2023–25). So "3% vs 14%" isn't a clean effect of the baseline. The hot/cold asymmetry
+is compatible with injuries and aging (a real decline that looks like a slump) but nothing here
+identifies them; IL data isn't in the database. The 2026 cold ladder isn't monotone. "Career" is
+at most three prior seasons, so it's closer to a 3-year Marcel-style baseline than a true career.
+The lucky groups are too small to say anything about contact at this threshold.
+
+**Next.** A true career baseline needs the 2015–2022 backfill (RESEARCH_BACKLOG "What unlocks the
+most"). To test the injury explanation for sticky slumps, join IL stints from StatsAPI.
+
+## 2026-09-20 — Head to head: ordering a pair is a much easier question than projecting a level
+
+**Question.** The site refuses to publish a projected line, for a measured reason: at one month a
+point forecast scores R² ≈ 0.06 against a realistic ceiling of 0.264, and Marcel ties a 48-feature
+Statcast model (2026-09-12). But "who will be better over the next N weeks" is not a point
+forecast — only the *sign* of the gap has to clear the noise. Can that question be answered
+honestly, and does the answer calibrate? (`matchup.py`; descriptive plus a backtest, no
+coefficients fit, so D28 is not engaged.)
+
+**Setup.** Talent is D42's usual level (prior seasons, 1/.8/.6, regressed toward league by
+k = σ²/τ² ≈ 330 PA) updated by this season's rate, combined by precision. The difference between
+two players over the next window carries three independent variances — estimate uncertainty,
+true-talent drift (sd .0381/month), and sampling (σ² = .2258 per PA) — and
+P(A > B) = Φ(Δ/√total). Backtest: every block boundary of every season, estimate from strictly
+prior blocks, pair players disjointly, score against the following 30 days.
+
+**Result (hitters, 3,259 pairs, 2023–2026; pitchers, 2,774).**
+
+| forecaster | Brier | reliability | resolution |
+|---|---|---|---|
+| prior seasons + this season, shrunk | **.2378** | .0058 | .0180 |
+| this season's wOBA, unshrunk | .2646 | .0300 | .0153 |
+| prior seasons only | .2414 | .0057 | .0143 |
+| always 50% | .2500 | .0001 | .0000 |
+
+Calibration (hitters): said .524 → .520 actual; .574 → .558; .622 → .632; .672 → .677;
+.737 → .739. Only the top bucket drifts (.849 → .767, n = 60). Pitchers track similarly.
+
+**Three things worth keeping.**
+1. **Ranking a pair on raw season wOBA is worse than a coin flip** (.2646 vs .2500). Its
+   reliability term is five times the shrunk estimator's: it is not short of information, it is
+   overconfident with the information it has. This is the wOBA-is-negative-information result of
+   2026-09-12 showing up in a second, independent form.
+2. **Well calibrated, almost no resolution.** Resolution is .018 against an irreducible .250. The
+   estimator is honest and rarely far from 50%: the median matchup lands **.076 from a coin flip**
+   (hitters) and .066 (pitchers). Aaron Judge over Alex Bregman — an 86-point estimated talent
+   gap, near the widest in baseball — is 80% over two weeks, and still 80% over the rest of season.
+3. **Sampling is 63% of the uncertainty, talent under 5%** (drift 32%). Lengthening the window
+   does not help the way people expect: sampling noise falls as 1/n but drift accumulates as √t,
+   so rest-of-season is no more decisive than one month. For Judge/Bregman the drift share goes
+   4% → 38% → 83% across 2 weeks / 1 month / rest of season.
+
+**Sequential vs fixed-horizon, on the same data.** D28 records a holdout dying of repeated looking.
+Scoring the estimator against each alternative both ways: a fixed-horizon 95% CI separates every
+pair, and so does a variance-adaptive (asymptotic) confidence sequence valid at every sample size
+at once — **at 1.6× the width**. That is the measured price of being allowed to peek here, and it
+is small enough to pay. A first cut used the sub-Gaussian proxy implied by boundedness (σ ≤ 1) and
+reported 9–31× instead; the observed sd is ≈ .084, so that bound was an order of magnitude too
+loose and would have badly overstated the cost. Worth remembering: **a conservative bound is not a
+free choice when the number is the point being made.**
+
+**A bug worth recording.** The first pitcher run was pinned at a ~50% hit rate in every bucket,
+including where it claimed 86%. Cause: shard field order differs by player type — hitters lead
+`pa, wn, xn`, pitchers `bf, outs, wn, xn` — and hardcoded indices read *outs* as the wOBA
+numerator. Fields are now looked up by name. Signature to remember: **a forecaster whose hit rate
+is flat across confidence buckets is not a weak forecaster, it is a disconnected one.**
+
+**What it does not show.** That this beats Marcel — Marcel was not run as a pairwise forecaster
+here, and that comparison is the obvious next step. Pairs are disjoint within a boundary but
+overlap across boundaries and reuse the same players all season, so the effective sample is
+smaller than n. Both PA floors select for regulars: injuries, demotions and benchings leave the
+sample rather than being scored as losses, which flatters any forecaster that implicitly assumes
+continued playing time. 2026 is included (no coefficients are fit to it) but remains a development
+set. Playing time is an input, not a forecast.
+
+**Next.** Add Marcel as a fifth forecaster on identical pairs. Test whether the top calibration
+bucket's overconfidence survives more data. Pre-register the calibration curve against 2027.
+
+## 2026-09-20 (later) — The head-to-head drift term is miscalibrated at both ends of the window
+
+**Question.** The matchup estimator's uncertainty carries a drift term `2σ₁²t` with σ₁ = .0381 per
+month, i.e. true talent taken as a random walk whose sd grows as √t. The 30-day calibration was
+near-perfect (2026-09-20, earlier entry). Does it hold at the other horizons the tab offers?
+(`matchup.py --windows 1,2,4,6`, hitters; same estimator, same panel construction.)
+
+**Result.** Calibration is *not* stable across the horizon. Share of matchups the favourite
+actually won, against what the estimator claimed:
+
+| horizon | n | said .52 | .57 | .62 | .67 | .74 | .84 | Brier | drift share of variance |
+|---|---|---|---|---|---|---|---|---|---|
+| 15 days | 2,378 | .510 | **.507** | .548 | .620 | .700 | .733 | .2478 | 13.5% |
+| 30 days | 3,259 | .520 | .558 | .632 | .677 | .739 | .767 | .2378 | 32.3% |
+| 60 days | 2,707 | .533 | .560 | .640 | **.734** | **.797** | .833 | .2326 | 59.9% |
+| 90 days | 1,785 | .543 | .600 | .634 | .673 | **.869** | — | .2333 | 75.3% |
+
+**At 15 days the estimator is systematically overconfident** — it says 57% and delivers a coin
+flip, says 84% and delivers 73%; every bucket falls short. **At 60 and 90 days it is systematically
+underconfident** — says 74%, delivers 80% and 87%. Thirty days, the horizon it was first built and
+checked at, is the one place it is right.
+
+**What it implies.** The sign of the error flips with the window in the direction that says the
+drift term is too small at short horizons and too large at long ones. A √t random walk is the
+wrong shape: real talent movement looks more persistent than a walk over a fortnight (something
+is varying at short range that the per-PA σ² does not capture — platoon usage, pitcher quality
+faced, park sequence) and less than a walk over three months (talent is mean-reverting, not
+free to wander). Fitting `t^α` with α < 0.5, or an Ornstein–Uhlenbeck drift with a reversion
+term, are the two obvious candidates.
+
+**What it does not show.** Which of those two is right, or that drift is the guilty term at all —
+the same pattern could come from σ² being understated at short windows for reasons unrelated to
+drift. Nothing here is fitted: these are four evaluations of one fixed formula, so no parameter has
+been tuned to 2026 and D28 is not engaged. It also cannot be fixed by tuning against this panel,
+which is the whole point of the backlog entry below.
+
+**What was done about it.** The estimator is unchanged. The site now ships a calibration table
+*per horizon* and displays the one matching the reader's selection, so the receipt matches the
+claim (D50). Until this entry, the tab showed the 30-day table whichever horizon was chosen, which
+silently overstated its accuracy at two weeks and understated it at three months.
+
+**Checked and rejected as a second dimension:** whether calibration also depends on how far into
+the season the as-of date sits. Splitting the 30-day panel at the season midpoint gives Brier
+.2373 early against .2381 late, and mean(actual − said) of +0.002 against −0.006. No systematic
+effect, so the tables are conditioned on horizon only and the buckets stay populated.
+
+**Next.** Pre-register the fix rather than tune it — see RESEARCH_BACKLOG S33.
+
+## 2026-09-20 (later still) — RETRACTION: per-PA variance does not rise with hitter quality
+
+**The claim, made in a design review of the dashboard and now withdrawn.** The site sizes every
+uncertainty with one constant, σ² = 0.2258 per plate appearance. I argued that this must be wrong
+because wOBA is a weighted sum with widely spaced weights, so a hitter who reaches more often and
+for more bases has a larger per-PA second moment almost mechanically — and that the site therefore
+understates uncertainty around the best hitters. A quick check appeared to confirm it: splitting
+2025 hitters into quartiles by season wOBA gave σ² ≈ .264 for the bottom three and **.327** for the
+top, 24% higher.
+
+**That check was contaminated, by exactly the error I had raised two critiques earlier.** It
+stratified players on *the same season's wOBA it then measured the variance of*. A hitter lands in
+the top quartile partly because he was lucky, and a lucky season is a high-variance season by
+construction. Sorting on the outcome manufactured the gradient.
+
+**Done properly** (`variance.py`): strata defined by **prior-season** rate from `history.json`,
+never by the blocks measured, and σ² recovered as the slope of
+E[(w₂−w₁)²] = σ²(1/pa₁ + 1/pa₂) + var(drift) over adjacent half-month blocks, bootstrapped by
+resampling players. Hitters, 2023–2026, 8,657 adjacent pairs, 421 players:
+
+| stratum, prior-season rate | pairs | σ² | 95% CI |
+|---|---|---|---|
+| .202–.295 (mean .277) | 1,731 | .2012 | [.152, .253] |
+| .295–.313 (mean .305) | 1,731 | .1452 | [.100, .194] |
+| .313–.328 (mean .321) | 1,731 | .2727 | [.199, .359] |
+| .328–.346 (mean .336) | 1,731 | .1568 | [.104, .210] |
+| .346–.457 (mean .367) | 1,733 | .2336 | [.154, .312] |
+
+Non-monotone, every interval overlapping. **Top stratum minus bottom: +0.032, 95% CI
+[−0.066, +0.137].** No gradient. The constant stands, and nothing on the site was changed.
+
+**A second, real caveat found on the way.** This estimator is weakly identified from aggregated
+block data, and its answer depends almost entirely on the range of 1/pa it is fitted over:
+
+| block PA floor | pairs | x range | σ² | implied half-month drift sd |
+|---|---|---|---|---|
+| 10 | 8,657 | .029–.200 | .186 [.162, .213] | .066 |
+| 15 | 7,959 | .029–.133 | .202 [.165, .232] | .059 |
+| 25 | 6,318 | .029–.080 | .145 [.084, .208] | .076 |
+| 40 | 4,061 | .029–.050 | .126 [−.021, .285] | .081 |
+
+The intercept and slope trade off: as the x-range narrows, drift absorbs variance that belongs to
+σ² and the estimate collapses. Every implied drift figure here is far above the .0381 per *month*
+measured in 2026-09-12, which says the split is unreliable, not that the drift is large. **This is
+not evidence against 0.2258** — it is evidence that adjacent-block aggregates cannot re-measure it.
+Doing so properly needs the per-PA outcome distribution from the pitch-level database, which the
+shards do not carry.
+
+**What it shows.** No measurable dependence of per-PA variance on hitter quality, at this
+resolution. **What it does not show.** That none exists — the theoretical argument is still sound
+and the CI on the difference reaches +.137, which would be a 60% effect at the top. It shows only
+that the data available cannot detect it, and that the quick check which appeared to was an
+artefact of its own sorting.
+
+**Next.** If it matters, compute σ² per player directly from pitch-level wOBA values in
+`data/statcast.db` (a Mac job, second moment per player) rather than inferring it from block
+aggregates.
+
+## 2026-09-20 — Every reliability figure now has an interval, and two of them are very wide
+
+`reliability.py` recomputes the split-half reliabilities from the shipped shards — verified to
+reproduce `blocks_all.py`'s published values to within 0.0009 — and bootstraps them over 1,572
+qualifying player-seasons.
+
+| metric | ρ | 95% CI | width |
+|---|---|---|---|
+| swing length | .982 | [.976, .986] | .011 |
+| bat speed | .974 | [.971, .978] | .008 |
+| whiff% | .917 | [.910, .927] | .017 |
+| xwOBA | .691 | [.657, .725] | .068 |
+| **wOBA** | **.479** | **[.418, .545]** | **.127** |
+| **sweet-spot%** | **.371** | **[.307, .444]** | **.137** |
+
+Pitchers are starker still: `edge%` is .228 [.140, .307], while arm angle, extension and fastball
+velocity all sit above .994 with intervals under .002 wide.
+
+**The shape of it is the finding.** The metrics the site tells readers to trust are known to
+within a percentage point; the metrics it tells them to distrust are *also imprecisely known*.
+wOBA's "48% real" could honestly be 42% or 55%, and since the shrinkage coefficient **is** ρ, that
+slop passes straight into every shrunk wOBA percentile — the place the site's central claim is
+doing the most work. The intervals are on screen now: in the planner's table as a column, and on
+every `% real` chip as a tooltip.
+
+**What it does not cover.** The bootstrap resamples player-seasons, so it captures uncertainty in
+which players were measured, not in how they were split into halves. And Spearman–Brown projection
+to another sample size carries this uncertainty along without widening it, so a projected ρ is at
+least this uncertain and probably more.
+
+## 2026-09-20 — Judging streaks on a longer horizon: the aggregate was right, the verdicts were not
+
+**Question.** The streak study judged every hot or cold streak against the next window of the
+*same* length — a two-week streak against the following two weeks. The objection, raised by the
+user: that compares one noisy sample with another. Does lengthening the follow-up change the answer?
+(`breakouts.py`, now with `--horizon`; descriptive, no model fit, D28 not engaged.)
+
+**Two different answers, depending on what is being judged.**
+
+*The aggregate share kept barely moves.* Follow-up noise is mean-zero and independent of how the
+streak was selected, so averaged over a hundred-plus streaks it cancels rather than biasing.
+Career view, 2024–2025, share kept on the old next-window measure against a fixed 60-day horizon:
+
+| streak | hot: next win → 60 days | cold: next win → 60 days |
+|---|---|---|
+| 15 days | 3% → 0% | 9% → 11% |
+| 30 days | 3% → 8% | 20% → 20% |
+| 45 days | 14% → 12% | 24% → 24% |
+
+*The per-streak verdicts move a lot, at short lengths.* A verdict on one streak has nothing to
+average its follow-up noise against. The share called **"stuck"** (still at least half the gap):
+
+| streak | hot | cold |
+|---|---|---|
+| 15 days | **20% → 8%** | **21% → 7%** |
+| 30 days | 14% → 15% | 24% → 22% |
+| 45 days | 23% → 23% | 32% → 30% |
+
+So at two weeks, roughly two-thirds of the "stuck" calls were luck in the follow-up window. At 30
+and 45 days the old follow-up was already long, so little changes. The objection was right about
+the verdicts and the case studies, and wrong about the headline percentages.
+
+**A composition effect, caught before it was misreported.** On the season view the aggregate *did*
+rise — 14% → 19%, 27% → 33%, 43% → 46% — which looked like the horizon unbiasing something. It was
+not. Holding the streaks fixed isolates it:
+
+| streak | all, next win | same streaks, next win | same streaks, 60 days |
+|---|---|---|---|
+| 15 days | 14% | **17%** | 19% |
+| 30 days | 27% | **33%** | 33% |
+| 45 days | 43% | **46%** | 46% |
+
+Nearly the whole rise is the *sample*: a 60-day horizon cannot score streaks that come late in the
+season, and dropping them raises the figure. **Late-season streaks keep less** — at every length
+on the season view, and at 15 and 30 days on the career view (the 45-day career rows rest on 13–15
+late streaks and reverse, so they settle nothing).
+
+**What it costs.** 171 of 766 career-view streaks are too late to score on a 60-day horizon, and
+the figures now describe early- and mid-season streaks. For a streak happening *now* the shares
+probably run a little high. Said so on the tab.
+
+**Rejected: rest of season.** It mixes horizons — a May streak gets four months, an August one gets
+one — and drops injured and benched players, who skew toward the slumping ones.
+
+**Next.** Whether late-season streaks persist less because of September call-up pitching, fatigue,
+or roster decisions is untested, and it overlaps with backlog S34/H5.
+
+## 2026-09-20 — The head-to-head estimator against a naive prior: real skill, mostly borrowed
+
+**Question.** The user found the estimator's scoring poor. The record only compared it with
+"always say 50%" and with two comparators that turned a raw gap into a probability *using this
+estimator's own variance model* — so none of them was naive. Against a genuinely naive rule, does
+the Bayesian machinery earn anything?
+
+**The baseline.** Slice matchups by one raw gap and predict the win rate that slice actually had.
+Folded by symmetry (A favoured by +g is B favoured by −g), ten quantile slices of |g|, thin slices
+shrunk toward the fold's overall rate, and fitted **leave-one-season-out** so a season is never
+scored by rates learned from itself — an in-sample lookup table is calibrated by construction and
+would flatter itself. It uses no σ², no drift, no Φ. Differences bootstrapped by resampling block
+boundaries, since pairs at one boundary share a date. (`matchup.py`, `slice_baseline`.)
+
+**Hitters** (Brier; lower is better, a coin is .2500):
+
+| horizon | estimator | best naive rule | estimator vs it, 95% CI | naive share of the skill |
+|---|---|---|---|---|
+| 15 days | .2478 | .2478 (fixed-share favourite) | no difference | — |
+| 30 days | .2378 | .2415 (prior-season gap) | **better**, [+.0016, +.0059] | 70% |
+| 60 days | .2326 | .2388 (prior-season gap) | **better**, [+.0047, +.0079] | 64% |
+| 90 days | .2333 | .2364 (prior-season gap) | **better**, [+.0002, +.0064] | 82% |
+
+**Pitchers:** better than every naive rule at 30, 60 and 90 days; at 15 days it beats a coin but
+*not* a slice on this season's gap. The best naive rule captures 50–58% of the skill.
+
+**Three things to keep.**
+1. **Over two weeks, the hitter estimator has no demonstrable skill.** Against a coin: +.0022,
+   95% CI [−.0018, +.0060]. The 80% it will print for a lopsided two-week matchup is a lean, not a
+   forecast, and the tab now says so at that horizon.
+2. **From a month out the skill is real but mostly borrowed.** Ranking on last season's wOBA and
+   looking up the historical win rate already gets 64–82% of the way for hitters. Combining prior
+   form with the current season, weighted by how much of each to trust, adds the rest — significant
+   at every horizon, and small.
+3. **The probability mapping is fine; the ranking is the whole game.** Re-slicing the estimator's
+   *own* gap empirically scores no better than its Φ(Δ/σ) probabilities at 30–90 days, so the
+   variance model is converting a ranking into well-calibrated probabilities. The one exception is
+   hitters at 15 days, where re-slicing nearly helps (−.0023, CI [−.0048, +.0002]) — the same
+   two-week overconfidence found earlier (backlog S33).
+
+**What it does not show.** That a better ranking would help much: resolution is only ~.018 at any
+horizon, so the ceiling on improvement is low whatever the method. And the naive rules are the
+strongest *simple* competitors, not the strongest competitors — Marcel as a pairwise forecaster is
+still unrun.
+
+**A bug found by running it.** Switching Type from Pitchers back to Hitters left the pitchers'
+scoring record on screen: one global held a single type's record, and a per-type fetch cache
+stopped it being reloaded. Now one record per type.
+
+## 2026-09-21 — The daily refresh never rebuilt the shards; surface stats validated against published lines
+
+**The refresh.** All four runs in `logs/refresh.log` ended with `views=FAILED: blocks`. The
+pitch data was ingesting fine, but `blocks_all.py` was pointed at `~/snap.db`, which exists only
+in the sandbox. Separately, no step copied the shards into `web/data/`. So the site's shards
+stayed at 2026-09-17, whatever the pitch table held. After the fix, 2026 gained the 09-B
+block, 9 hitters and 13 pitchers.
+
+**Regression check on 2023–25.** Every counted field is identical before and after the rewrite.
+Only `xn` (summed xwOBA) differs, by ±0.01 in about 0.2% of blocks. That is float summation order
+from the changed query plan, not a data change.
+
+**Surface stats against published lines.**
+- Judge 2024 matches exactly on every field except SO: 170 here against 171 official.
+- Raleigh 2025 has 60 HR, position C, team SEA.
+- Skubal 2024 has 190.2 IP against 192.0 official. Innings run short because outs made on the
+  bases aren't tied to a batter.
+
+**The strikeout undercount.** The `k` field counts `events = 'strikeout'` only, so
+`strikeout_double_play` is missed. It is typically 0–2 a season per player. This is left
+unchanged on purpose (D61), because fixing it would shift every published K% and reliability
+figure.
+
+**Reliability re-run on the fresh shards.** Both `reliability.py --kind bat` and `--kind pit`
+completed. Pitcher ground-ball% is .786 [.762, .807].
+
+## 2026-09-21 — Head to head against last season, career and Marcel: Marcel ties the estimator for hitters
+
+**Question.** The user asked for the track record to be scored against more naive priors: season to
+date, prior season, prior career, and Marcel. (`matchup.py`, same slice baseline as the 2026-09-20
+entry: rank by one raw gap, predict the slice's actual win rate, leave-one-season-out, bootstrap
+over block boundaries.)
+
+**New inputs.** `fetch_careers.py` pulls official MLB season lines from the Stats API for every
+player on the site, back to each player's debut, along with birth dates. From those, wOBA is
+rebuilt from counting stats with fixed FanGraphs-2023 weights. That gives last season, career
+before this season, and Marcel (5/4/3 weights over three prior seasons, regressed with 3,000 PA of
+the prior season's league rate, age-adjusted with marcel3.py's curve). The data now runs through
+the 09-B block, so the estimator's own Brier moved slightly from the 2026-09-20 entry (30 days:
+.2378 → .2396).
+
+**Result, hitters.** Brier, with the estimator's edge over the rule and its 95% CI:
+
+| horizon | pairs | estimator | Marcel | Marcel vs estimator | last season | career |
+|---|---|---|---|---|---|---|
+| 15 days | 2,463 | .2485 | **.2464** | tie, [−.0049, +.0007] | .2477 tie | .2485 tie |
+| 30 days | 3,383 | .2396 | .2420 | tie, [−.0002, +.0050] | .2449 est. better | .2460 est. better |
+| 60 days | 2,871 | .2345 | **.2340** | tie, [−.0026, +.0017] | .2421 est. better | .2416 est. better |
+| 90 days | 1,948 | .2320 | **.2304** | tie, [−.0069, +.0039] | .2392 est. better | .2391 est. better |
+
+**Marcel is the strongest naive rule for hitters at every horizon.** It is statistically tied with
+the Bayesian estimator at all four, and its point estimate is better at 15, 60 and 90 days. By
+season at 30 days, the estimator is ahead in 2024 (.2377 vs .2399) and 2025 (.2357 vs .2407), and
+level in 2026 (.2458 vs .2456). There are no 2023 pairs: the estimator skips a season with no
+prior-season history, and `history.json` starts in 2023. Last season alone and career alone both
+lose to the estimator from 30 days on.
+
+**Pitchers are different.** The estimator beats Marcel at every horizon, with every CI excluding
+zero (for example 30 days: .2426 vs .2491, [+.0038, +.0092]). The best naive rule is last season at
+15 days and season to date beyond that. Marcel does worst of the naive rules for pitchers,
+consistent with pitcher wOBA-against being noisier year to year (FINDINGS 2026-09-12, pitcher gap).
+
+**What it means.** For hitters, the value of the head-to-head estimator over a well-regressed
+three-year average with an age adjustment is not demonstrable, which is D42's lesson again ("the
+value is in the shrinking"). The current-season update is not yet shown to add anything over
+Marcel. For pitchers, it clearly does.
+
+**Caveats.** Marcel here is a slice rule on the Marcel gap, not Marcel's own probability. The
+rebuilt wOBA uses one set of weights for every season. Marcel sees 2020–2022 official lines, which
+the estimator's own prior (history.json, 2023 on) does not, so part of Marcel's showing may be
+longer history rather than method. Rebuilding `history.json` from 2015 (`fetch_history.py`) would
+separate the two.
+
+## 2026-09-21 — "held" on a fixed 60-day follow-up
+
+**Change.** The change tables (Swing & approach changes, Biggest skill changes) used to judge a
+move against the next window of its own length. They now judge it against the following 60 days
+for every window length, as the streak study does (2026-09-20).
+
+**Share of 2026 moves past |z| ≥ 2 that held at least half, all metrics:**
+
+| window | next window of same length | next 60 days | testable moves (before → after) |
+|---|---|---|---|
+| 15 days | 35% | **26%** | 1,551 → 1,058 |
+| 30 days | 47% | **46%** | 1,340 → 915 |
+| 45 days | 57% | **58%** | 840 → 626 |
+
+**What it shows.** At 15 days the old follow-up flattered the moves: a third of the "held" verdicts
+at that length rested on a two-week follow-up that was itself mostly noise. At 30 and 45 days the
+aggregate barely moves, the same pattern as the streak study, where aggregates were stable and
+short-window single verdicts were not. Single rows move a lot. Alex Bregman's hard-hit% drop
+(May 16–Jun 1) went from 77% held to 43%, and David Hamilton's bat-speed gain from 31% to 12%.
+
+**Caveats.** The comparison is not like-for-like. Moves from the last 60 days of data can't be
+scored, so the "after" column drops late-season moves (at 30 days, 876 moves are pending, up from
+451). The streak study found that late-season moves keep less, so the new figures probably run a
+little high for a move happening now. The sample wasn't held fixed to separate the two effects.

@@ -153,7 +153,7 @@ Two uses, and this repo needs both:
 - **k = 2**, to go from a half-season split to a full season:
   `rho_full = 2r / (1 + r)`.
 - **k = n / n0**, to go from the measured sample size `n0` to whatever sample size the
-  user just selected in the Stretch Finder. This is the `relAt()` function in the
+  user just selected in Statcast Reality Check. This is the `relAt()` function in the
   artifact and `rel_at()` in `profile.py`.
 
 **Sanity check, and why we trust it.** The projection predicts a month-to-month wOBA
@@ -200,7 +200,7 @@ and in percentile space, where the league mean is the 50th percentile:
 pct_shrunk = 50 + rho * (pct_raw - 50)
 ```
 
-That is the solid bar in the Stretch Finder. The dashed outline is `pct_raw`, which is
+That is the solid bar in Statcast Reality Check. The dashed outline is `pct_raw`, which is
 what an uncorrected Savant-style page shows. The gap between them is the part of the
 ranking that is coin flips.
 

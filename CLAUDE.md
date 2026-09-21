@@ -112,3 +112,83 @@ protect. The launchd plist hard-codes that path. Do not move the repo back into
 a protected folder, and do not "fix" this by granting Full Disk Access to
 /bin/bash -- that hands unrestricted disk access to every shell script on the
 machine, forever.
+
+## Deploy web/, never the repo root -- and watch for a stale Framework Preset
+
+`vercel deploy` run from the repo root fails immediately with
+`Error: File size limit exceeded (100 MB)`, because `data/statcast.db` (1.8 GB)
+sits at the root and gets swept into the bundle. `web/` is the actual
+deployable unit, with its own `vercel.json`; always `cd web` first. See D29 in
+DECISIONS.md.
+
+A worse version of this already happened once: that mistaken root-level deploy,
+surrounded by dozens of top-level `.py` analysis scripts, caused Vercel to guess
+"Python" and save it as the project's **Framework Preset** -- a setting that
+persists server-side across deploys, not something re-detected fresh each time.
+Every following deploy, even one correctly scoped to `web/`, kept failing with
+
+    Error: No python entrypoint found. Set "tool.vercel.entrypoint" in
+    pyproject.toml or define an entrypoint in one of: app.py, index.py, ...
+
+`web/vercel.json` now pins `"framework": null` and `web/.vercelignore` excludes
+`serve.py` to prevent a repeat, but if this error resurfaces anyway, the fix is
+in the dashboard, not the repo: check Framework Preset under
+`vercel.com/edm16/statcast-dashboard/settings` and set it to "Other" directly.
+See D30.
+
+## Prior-season history is a small leaderboard pull, not the pitch backfill
+
+The site's "usual level" baseline (D42) needs only season totals, which Savant's expected-stats
+leaderboard already provides back to 2015. `python3 fetch_history.py` (on the Mac: it fetches
+and writes the DB) pulls 2015–2022 in a few minutes and rebuilds `web/data/history.json`.
+`history.py` alone is read-only and safe from the sandbox. Don't reach for `backfill.py` (3.6 GB,
+overnight) unless you need pitch-level data from those years.
+
+## `site/` is the source; `web/` is output. Never hand-edit `web/`
+
+This was violated for two sessions and cost a full reconstruction to undo (D45). The rule and
+the way to check it:
+
+    python3 site/mksite.py          # from the repo root; paths anchor to the script, not your cwd
+    cd web && python3 serve.py      # http://localhost:8787
+
+Hand-maintained inside `web/`, and safe to edit there: `serve.py`, `stored_summaries.json`,
+`stored_profiles.json`, `img/`, `og.png` (built by `make_og.py`), `report.html` (built by
+`publish_report.py`) and `data/` (built by `blocks_all.py`, gitignored). **Everything else in
+`web/` is overwritten on the next build** — `index.html`, `app/`, `app.js`, `styles.css`,
+`addendum.html`, `lib/`, `api/`, `prompts/`, `vercel.json`, `README.md`, `favicon.svg`.
+
+Before trusting a build, diff it against what was deployed:
+
+    cp -R web /tmp/web-before && python3 site/mksite.py && diff -r /tmp/web-before web
+
+An empty diff is the point. `mksite.py` assembles `app.js` through sixteen ordered
+`str.replace` calls on `body.html`'s script, and **`str.replace` does not raise when its pattern
+is missing** — so a stale pattern yields a working-looking file with a feature quietly gone. If
+you change that script near one of those anchors, re-run the diff.
+
+The same applies to the two artifact builds: `mkdash.py` and `mkmock.py` read the same
+`body.html`, so a tab that is missing from source is missing from the published artifacts too.
+
+## Correction, 2026-09-21: the artifact builds are gone
+
+The section above says `mkdash.py` and `mkmock.py` read `body.html` and must be kept in step. That
+is no longer true. Both published artifacts they built (Stretch Finder, Stretch Finder Deployed)
+were deleted at the user's direction, and the two scripts and `site/profiles.json` were removed
+with them. `mksite.py` is now the only build. The summary panel's CSS, which `mksite.py` used to
+read out of `mkmock.py`, lives in `mksite.py` itself. See D59.
+
+## /data is cached for 300s, so a regenerated shard looks stale in the browser
+
+`serve.py` sends no-store for pages but a 300-second cache for `/data/*`. After re-running
+`blocks_all.py`, the browser can keep serving the old shard. A hard reload of the page does not
+always refetch files loaded by `fetch()`. The symptom on 2026-09-21 was the Season line saying
+"This season's data predates the surface stats" for pitchers only. To force it, run
+`fetch('/data/pit-2026.json',{cache:'reload'})` in the console, or wait five minutes. Check with
+`performance.getEntriesByType('resource')`: a `transferSize` of 0 means it came from the cache.
+
+## `.sub` is taken: it sets the monospace caption font
+
+`head.html` styles `.sub` as the small mono caption (`#h-span`, `#g-note`…). Putting `sub` on a
+section as a state class turned every paragraph inside it monospace (2026-09-21). Use a prefixed
+name (`psec-pick`) for any new state class.
