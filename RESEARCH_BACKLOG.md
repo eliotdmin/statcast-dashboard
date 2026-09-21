@@ -240,3 +240,86 @@ not a finding, until it survives a season it did not generate.
 wOBA-xwOBA has within-season split-half reliability 0.164 but correlates +0.29 with itself across
 seasons, three year-pairs running. The lower-bound argument for odd/even splits does not comfortably
 cover a gap that size. A variance-components model (player / season / residual) would settle it.
+
+### S32 — Do hot streaks backed by rising hard-hit rate stick better? (pre-register for 2027)
+`breakouts.py` found hard-hit-backed hot streaks kept 7–13 points more of their gain than
+hard-hit-down streaks at 15/30/45 days in 2023–25, significant at none after multiple comparisons,
+and 2026 did not reproduce it (FINDINGS 2026-09-18). Write the prediction down before 2027 data
+exists — e.g. "at 30 days, hard-hit-up streaks keep at least 8 points more than hard-hit-down" —
+and test once.
+
+### S33 — Fix the head-to-head drift term, and pre-register the fix before fitting it
+The matchup estimator treats true talent as a random walk, `var(drift) = 2σ₁²t` with σ₁ = .0381
+per month. Measured 2026-09-20: it is calibrated at 30 days, **over**confident at 15 (says 57%,
+delivers 51%) and **under**confident at 60 and 90 (says 74%, delivers 80% and 87%). The sign flips
+with the window, which says the √t shape is wrong rather than the constant.
+
+Two candidates, both cheap to fit and both easy to fool yourself with:
+- **`t^α` with α fitted.** The flip implies α < 0.5. One parameter.
+- **Ornstein–Uhlenbeck**, `var = (σ₁²/θ)(1 − e^{−2θt})`, which is flat-ish early and saturates
+  late — the right qualitative shape for talent that reverts rather than wanders. Two parameters.
+
+**Why this is a backlog item and not a patch.** There are exactly four horizons, all evaluated on
+the same overlapping panel, and 2026 is a development set (D28). Fitting one or two parameters to
+four calibration curves drawn from the same 3,000 pairs is how a holdout dies — and this project
+has already recorded one dying that way. The honest sequence is: pick the functional form on
+2023–2025 only, write the predicted 2027 calibration down in `PREREGISTRATION.md` before the
+season exists, then score once.
+
+**Can it answer?** Probably. The signal is large (a 13-point calibration miss at 90 days is not
+subtle) and the direction is consistent across every bucket at both extremes. The risk is that
+drift is not the guilty term at all — σ² may be understated at short windows for reasons that have
+nothing to do with talent moving — so the pre-registration should name a test that distinguishes
+them, e.g. whether the short-window miss survives conditioning on games played in the window.
+
+Until then the site ships a calibration table per horizon and shows the matching one (D50), so the
+error is disclosed rather than hidden.
+
+### S34 — Does the end of a season tell you anything about the next one?
+A late window is the most recent evidence and the least reliable, and those pull in opposite
+directions. Five sub-questions, in the order they should be asked. Hitters; the window is the
+**final 45 days**, not "September" as a calendar fact (persistence ladder 14% / 27% / 43% at
+15 / 30 / 45 days, FINDINGS 2026-09-18).
+
+**H1 — The late window alone is far worse than the full season.** wOBA needs 225 PA for ρ = 0.5;
+45 days is ~150 PA against a season's 600. Near-certain, and it is the null the rest must clear.
+
+**H2 — It adds nothing incremental to the full season, for outcomes.** Regress season Y+1 wOBA on
+(full-season Y wOBA, final-45-day Y wOBA). Predicted: the late coefficient is indistinguishable
+from zero and plausibly **negative** — conditional on the season total, a hot finish means the
+earlier months were relatively worse, and part of the heat is luck owed back (the "once you know
+xwOBA, wOBA is negative information" result, 2026-09-12). This is the offseason analogue of D27.
+
+**H3 — The inputs carry real signal across the offseason, and it still does not pay.** Bat speed
+is ~90% reliable at 50 PA, so a late window measures it almost perfectly while measuring wOBA
+barely at all. Two predictions, deliberately split: late-window bat speed **beats** the season
+average at predicting next season's *bat speed* (likely true, pure reliability), and that edge
+**does not** carry into next season's *wOBA* (likely null). Worth running precisely because both
+halves are informative — it would be the offseason twin of the paradox already on the carry tab,
+where input changes persist at r ≈ .5 and forecast nothing.
+
+**H4 — Any gain concentrates in players without a track record.** The measured niche is the
+least-history quartile (+0.049, P = 0.94, 2026-09-12). A late window is a rounding error against
+three prior seasons and a large share of everything known about a call-up. Close to mechanically
+true — weak prior, so the likelihood weighs more — so the test is whether it is large enough to
+act on, not whether it exists.
+
+**H5 — The confounds may sink it.** Roster expansion means late-season lineups face call-up
+pitching; contenders rest regulars while eliminated teams play prospects; and playing time, the
+single strongest predictor in the panel (0.0316, double xwOBA), is exactly what September
+distorts. Undisclosed injury is the same unmeasured explanation already flagged for sticky slumps,
+and IL data is still not in the database. A pitcher-quality control is not optional here.
+
+**Can it answer?** Only partly, and the constraint is data rather than method. Block-level data
+covers 2023–2026, so there are **three season transitions**, one of which (2025→26) is a
+development set (D28). Roughly 220–250 hitters clear 60 PA in Sep/Oct each year. `fetch_history.py`
+extends *season totals* to 2015 but not block-level data, so a longer panel needs the 3.6 GB
+overnight backfill. H1, H2 and H3 are answerable at this size; H4 is underpowered.
+
+**Design constraint, from this project's own failure.** At season level a shrunk average of past
+xwOBA ties Marcel (.166 vs .164) while a 20-feature GBM scores **−0.060**, worse than predicting
+league average, on 267 training seasons. Anything here must be a one- or two-parameter addition to
+Marcel. A feature dump is already known to lose.
+
+H6 of this set — late-season decline as an early aging signal — is not listed here because it
+cannot be tested at the current panel size and has therefore been pre-registered instead.
