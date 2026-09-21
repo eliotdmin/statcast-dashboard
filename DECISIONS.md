@@ -1409,3 +1409,28 @@ D73's display-size picker (46px, full-width underline) was "absurdly big". It is
 select at 22px serif, with a card background, a small chevron, a 280px minimum width and an accent
 border on hover. It still sits in the heading position on the Player tab, but reads as a clear
 control rather than a banner.
+
+## D75 — The daily refresh deploys: committed code plus that morning's data (2026-09-21)
+
+The user wants the live dashboard to always show current numbers. The refresh already rebuilt
+`web/data/` every day at 11:00, but nothing published it: production only changed on a manual
+deploy.
+
+`deploy.sh` builds a snapshot from `git archive HEAD web`, copies in the current `web/data/`
+(gitignored, rebuilt daily) and the Vercel link, and runs `npx vercel deploy --prod --yes` from
+there. `refresh.sh` calls it only after a clean pipeline run *and* a clean integrity check; a
+failed morning leaves yesterday's deploy live. Deploying from the commit, not the working tree,
+means half-finished work on disk at 11:00 is never shipped. `STATCAST_NO_DEPLOY=1` turns the step
+off, and `./deploy.sh --dry-run` shows the snapshot without publishing.
+
+**What production serves.** Only precomputed JSON, about 8.3 MB in 19 files: per-season shards
+(about 0.9 MB each), career lines, the matchup and reliability records, and history. The 1.8 GB
+SQLite database never leaves the Mac. The browser fetches `/data/*.json` from Vercel's CDN and
+computes everything client-side; the only server code is `/api/summary`. `/data` is cached 5
+minutes in browsers and 24 hours at the edge, but a new deployment clears the edge cache, so each
+day's deploy is live at once.
+
+**Rejected for now:** a hosted database behind an API (overkill for about 8 MB that changes once a
+day), and pushing data to object storage (Vercel Blob) separately from code deploys. The latter is
+the natural next step if deploy volume or data size grows, because it separates "the numbers
+changed" from "the code changed".

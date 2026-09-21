@@ -80,6 +80,17 @@ print(f"integrity: {v} | pitches: {n:,}")
 if v != "ok":
     raise SystemExit("DATABASE CORRUPT -- stop and recover before the next run")
 PY
-log "integrity exit=$?"
+irc=$?
+log "integrity exit=$irc"
+
+# Publish, so the live site always shows this morning's numbers. Only after a clean pipeline and a
+# clean integrity check: a failed refresh leaves yesterday's deploy up rather than shipping a
+# partial one. deploy.sh ships the committed code plus the fresh data (see its header).
+if [ "$rc" = 0 ] && [ "$irc" = 0 ] && [ "${STATCAST_NO_DEPLOY:-0}" != 1 ]; then
+    ./deploy.sh >> "$LOG" 2>&1
+    log "deploy exit=$?"
+else
+    log "deploy skipped (pipeline=$rc integrity=$irc)"
+fi
 log "=== refresh done ==="
 exit $rc
