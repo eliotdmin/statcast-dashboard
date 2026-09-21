@@ -413,7 +413,7 @@ p#vs-sub{margin:7px 0 0;line-height:1.5}
   border-radius:8px;padding:16px 18px 14px}
 .phead-top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .phead-top select{min-width:260px}
-.phead > .psec{border-top:1px solid var(--hair);padding-top:14px;gap:10px}
+.phead > .psec{border-top:0;padding-top:0;gap:10px}
 /* the career table is dense by design: tighter cells keep the card compact */
 .phead table.line th,.phead table.line td{padding:5px 8px}
 .phead table.line th:first-child,.phead table.line td:first-child{padding-left:12px}
@@ -469,4 +469,23 @@ table.line tr.tot td{border-top:1px solid var(--ink3);font-weight:600}
 td.cal-right{background:var(--right-s);color:var(--right);font-weight:600}
 td.cal-wrong{background:var(--wrong-s);color:var(--wrong);font-weight:600}
 .vsp{font-weight:700}
+
+/* Player tab: the picker is the heading (D73) */
+.hero-pick{display:none;flex-direction:column;align-items:flex-start;gap:4px}
+body[data-tab="player"] .hero-pick{display:flex}
+body[data-tab="player"] #view-title{display:none}
+.hero-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ac)}
+.hero-pick select{appearance:none;-webkit-appearance:none;font-family:var(--serif);
+  font-size:var(--fs-display);font-weight:600;letter-spacing:-.02em;line-height:1.1;color:var(--ink);
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5l5 5 5-5' fill='none' stroke='%230c64d6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 2px center/0.55em;
+  border:0;border-bottom:3px solid var(--ac);border-radius:0;padding:0 1.1em 4px 0;cursor:pointer;max-width:100%}
+.hero-pick select:hover{border-bottom-color:var(--ink)}
+.hero-pick select:focus-visible{outline:2px solid var(--ac);outline-offset:6px}
+.hero-pick .line-meta{margin:6px 0 0}
+/* key-numbers summary, at the top of the Season line */
+.line-sum{display:flex;flex-direction:column;gap:8px}
+.line-sum-out{border-left:3px solid var(--ac);background:var(--ac-s);padding:10px 14px;border-radius:0 6px 6px 0}
+.line-sum-out p{margin:0 0 8px;font-size:var(--fs-body);line-height:1.6;color:var(--ink);max-width:78ch}
+.line-sum-out p:last-child{margin-bottom:0}
+.line-sum-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 </style>

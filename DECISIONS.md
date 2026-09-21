@@ -1380,3 +1380,25 @@ single read"), and asked for every one-liner to make sense on its own.
   not to help" (D66: no retraction framing).
 - Only the "What this answers" box (`.use.ans`) moves to the top of an analysis now; method boxes
   stay at the bottom.
+
+## D73 — On the Player tab the picker is the heading; a key-numbers summary tops the Season line (2026-09-21)
+
+**Picker.** The user wanted the player selection higher and bigger, as the focal point. On the
+Player tab the page title is hidden and the picker takes its place.
+- It's a large serif select, underlined in the accent colour with a chevron, showing the player's
+  name only; the PA count is stripped from the option text.
+- The team and position line sits under it.
+- `body[data-tab]`, set in `show()`, switches this per tab. The League tab keeps its ordinary
+  title.
+
+**Key-numbers summary.** A "Summarize his key numbers" button sits at the top of the Season line
+card. It sends the table exactly as drawn (every season, the career row, the formatted cells) to
+`/api/summary` as a new `line` view, with its own prompt: compare the selected season with his
+career and recent seasons, then describe the career's shape, with no causes and no projections.
+It is its own small component with its own abort, because the main summary panel is one shared
+node that resets on every redraw and would cut this summary off mid-stream. It keeps one summary
+per player and season in memory.
+
+**Not verified end to end.** No `ANTHROPIC_API_KEY` is set on this Mac, so locally `serve.py`
+answers with its no-key message. The request shape, the view whitelist (`api/summary.js` and
+`serve.py`) and the error display were checked; a generated summary was not.

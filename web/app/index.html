@@ -42,6 +42,13 @@
 <header>
   <p class="eb"><span id="eb">loading&hellip;</span></p>
   <h1 id="view-title">Statcast Reality Check</h1>
+  <!-- On the Player tab the player IS the heading: the picker takes the title's place (D73). -->
+  <div class="hero-pick">
+    <label class="hero-k" for="g-who">Player</label>
+    <select id="g-who" aria-label="Player"><option>loading&hellip;</option></select>
+    <p class="line-meta" id="line-meta"></p>
+    <span class="sub" id="g-note"></span>
+  </div>
   <p class="qline" id="view-q"></p>
 </header>
 
@@ -76,13 +83,15 @@
 <!-- The player header: picker and season-by-season line in one card, only as wide as the table,
      so the choice and its result read as one thing rather than two page-wide strips. -->
 <div class="phead">
-  <div class="phead-top">
-    <label class="f"><span>Player</span><select id="g-who"><option>loading&hellip;</option></select></label>
-    <span class="sub" id="g-note"></span>
-  </div>
   <section class="psec" id="p-line">
-    <p class="psec-k" id="line-name">&mdash;</p>
-    <p class="line-meta" id="line-meta"></p>
+    <p class="psec-k" id="line-name">Season by season</p>
+    <div class="line-sum" id="line-sum">
+      <div class="line-sum-out" id="line-sum-out"></div>
+      <div class="line-sum-bar">
+        <button class="btn" id="line-sum-go" type="button">Summarize his key numbers</button>
+        <span class="sub" id="line-sum-note">A short read of the table below, written by an AI model from those numbers only.</span>
+      </div>
+    </div>
     <div class="tw" id="line-table"></div>
     <p class="tfoot" id="line-foot"></p>
   </section>

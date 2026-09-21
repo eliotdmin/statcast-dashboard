@@ -1821,6 +1821,57 @@ function linesFor(id){
   });
 }
 function fmtIP(ip){ var w=Math.floor(ip+1e-9); return w+"."+Math.round((ip-w)*3); }
+/* ===================== key-numbers summary =====================
+   A second, independent summary for the Season line. The main summary panel is one shared node
+   that resets on every redraw, which would cut this one off mid-stream, so it has its own
+   request and its own abort. Same endpoint, same rules, its own prompt ("line"). */
+var LINE_EV=null, LINE_SUMS={}, LINE_CTL=null;
+function setLineEvidence(r, cols, rows, cell, official){
+  var sig=K+"|"+YR+"|"+r.id;
+  LINE_EV={sig:sig, view:"line", title:"His key numbers",
+    sub:r.n+(r.tm?" · "+r.tm:"")+" · "+rows.length+" rows",
+    cols:[{k:"season"},{k:"team"}].concat(cols.map(function(c){return {k:c};})),
+    rows:rows.map(function(rw){ var o={season:rw.lab, team:rw.tm};
+      cols.forEach(function(c){ o[c]=cell(c,rw.v[c]).replace(/&mdash;/g,"—"); }); return o; }),
+    context:{player:r.n, kind:K, selected_season:YR, source:official?"official MLB season lines":"pitch-tracking blocks"}};
+  paintLineSum();
+}
+function paintLineSum(){
+  var out=$("#line-sum-out"), go=$("#line-sum-go"); if(!out||!go) return;
+  var done=LINE_EV && LINE_SUMS[LINE_EV.sig];
+  out.innerHTML=done?done:""; out.hidden=!done;
+  go.textContent=done?"Rewrite":"Summarize his key numbers";
+  go.disabled=!LINE_EV;
+}
+function paras(t){
+  return t.split(/\n{2,}/).map(function(x){ return '<p>'+x.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</p>'; }).join("");
+}
+function runLineSum(){
+  if(!LINE_EV) return;
+  var pk=LINE_EV, out=$("#line-sum-out"), go=$("#line-sum-go"), text="";
+  if(LINE_CTL) LINE_CTL.abort();
+  LINE_CTL=new AbortController();
+  out.hidden=false; out.innerHTML='<p class="sub">Writing&hellip;</p>'; go.disabled=true;
+  fetch("/api/summary",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({view:"line", kind:K, evidence:pk}), signal:LINE_CTL.signal})
+    .then(function(res){
+      if(!res.ok) return res.json().catch(function(){return {};}).then(function(j){ throw new Error(j.error||("HTTP "+res.status)); });
+      var rd=res.body.getReader(), dec=new TextDecoder(), buf="";
+      function line(l){ l=l.trim(); if(!l) return; var e; try{ e=JSON.parse(l); }catch(x){ return; }
+        if(e.type==="delta"){ text+=e.text||""; if(LINE_EV===pk) out.innerHTML=paras(text); }
+        else if(e.type==="error") throw new Error(e.error||"stream error"); }
+      return (function pump(){ return rd.read().then(function(st){
+        if(st.done){ buf+=dec.decode(); if(buf) line(buf); return; }
+        buf+=dec.decode(st.value,{stream:true}); var i;
+        while((i=buf.indexOf("\n"))!==-1){ line(buf.slice(0,i)); buf=buf.slice(i+1); }
+        return pump(); }); })();
+    })
+    .then(function(){ if(text){ LINE_SUMS[pk.sig]=paras(text); } if(LINE_EV===pk) paintLineSum(); })
+    .catch(function(e){ if(e.name==="AbortError") return;
+      if(LINE_EV===pk){ out.innerHTML='<p class="sub">Couldn&rsquo;t write a summary: '+
+        String(e.message).replace(/</g,"&lt;")+'</p>'; go.disabled=false; } });
+}
+
 /* Official season lines for a whole career, from the MLB Stats API (fetch_careers.py). They
    replace the block-summed line whenever they exist: they go back to a player's debut, and they
    are the published numbers, strikeout double plays included. */
@@ -1877,6 +1928,7 @@ function renderOfficialLine(r, seasons){
        cols.map(function(c){return '<td>'+cell(c,rw.v[c])+'</td>';}).join("")+'</tr>';
   });
   $("#line-table").innerHTML=h+'</tbody></table>';
+  setLineEvidence(r, cols, rows, cell, true);
   $("#line-foot").innerHTML="Official MLB season lines (MLB Stats API), every season of his career"+
     (CAREERS[K]&&CAREERS[K].fetched?", fetched "+CAREERS[K].fetched:"")+". The current season "+
     "is as of that date. "+(K==="bat"
@@ -1886,9 +1938,8 @@ function renderOfficialLine(r, seasons){
 }
 function renderLine(){
   var r=ROWS.find(function(x){return String(x.id)===String($("#g-who").value);});
-  if(!r){ $("#line-name").textContent="Pick a player"; $("#line-meta").textContent="";
+  if(!r){ $("#line-meta").textContent="";
     $("#line-table").innerHTML=""; return; }
-  $("#line-name").textContent=r.n;
   // an old shard without the surface fields: say so rather than print zeros
   if(F.g==null){ $("#line-meta").textContent="";
     $("#line-table").innerHTML='<p class="note">This season\u2019s data predates the surface stats; '+
@@ -1928,6 +1979,7 @@ function renderLine(){
        cols.map(function(c){return '<td>'+cell(c,rw.v[c])+'</td>';}).join("")+'</tr>';
   });
   $("#line-table").innerHTML=h+'</tbody></table>';
+  setLineEvidence(r, cols, rows, cell, false);
   $("#line-foot").innerHTML=(LINES[K]?"":"Loading earlier seasons&hellip; ")+
     "Seasons from 2023, when this data starts; a season below the site&rsquo;s playing-time floor "+
     "isn&rsquo;t listed. "+(K==="bat"
@@ -2023,6 +2075,7 @@ function fillGlobalPickers(){
   if(gw && src && gw.dataset.sig!==K+"|"+YR+"|"+src.options.length){
     var keepW=gw.value;
     gw.innerHTML=src.innerHTML;
+    [].forEach.call(gw.options,function(o){ o.textContent=o.textContent.replace(/\s*\([\d,]+ (?:PA|BF|batters faced)\)\s*$/,""); });
     gw.value=[].some.call(gw.options,function(o){return o.value===keepW;})?keepW:src.value;
     gw.dataset.sig=K+"|"+YR+"|"+src.options.length;
   }
@@ -2051,6 +2104,7 @@ function paintGlobalBar(){
 
 function show(i, sid){
   active=i;
+  document.body.setAttribute("data-tab", i===0?"player":"league");
   if(sid && SUBS[i].indexOf(sid)>=0) sub[i]=sid;
   paintSubs();
   TABS.forEach(function(t,j){
@@ -2126,6 +2180,8 @@ if(HQ.k==="bat"||HQ.k==="pit") kindS.value=HQ.k;
 var h0=fromHash(), SCROLL0=h0&&h0.section!==TABS[h0.tab][1].slice(1)?h0.section:null;
 if(h0 && SUBS[h0.tab].indexOf(h0.section)>=0) sub[h0.tab]=h0.section;
 initSubs();
+document.body.setAttribute("data-tab", (h0&&h0.tab>0)?"league":"player");
+$("#line-sum-go").addEventListener("click", runLineSum);
 if(h0&&h0.tab>0){ active=h0.tab;            // set the tab, don't render: no data yet
   TABS.forEach(function(t,j){
     $(t[0]).setAttribute("aria-selected", j===h0.tab?"true":"false");

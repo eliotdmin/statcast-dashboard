@@ -1285,6 +1285,14 @@ Lead with the single most defensible observation in the evidence, not the larges
 Name at least one thing the evidence cannot settle."""
 
 VIEW_PROMPTS = {
+ "line": """This evidence is one player's official season-by-season line: one row per season, then a
+career total. `context.selected_season` is the season the reader is looking at. Summarize his key
+numbers in two short paragraphs. First, the selected season against his own career and his last
+two or three seasons: which figures stand out, up or down, and by how much. Then the longer shape
+of the career -- rising, steady, or falling -- using the rows, not outside knowledge. A partial
+current season has fewer games; say so before comparing its totals, and prefer rates (AVG, OBP,
+SLG, OPS, ERA, WHIP, K%, BB%) to counting stats when seasons differ in length. These are surface
+results, not skill measurements: do not say what caused a change, and do not project next season.""",
  "stretch": """This evidence is one player over one window. Say what his body did, then what the
 results did, then whether those two agree. The reader wants to know which of his numbers
 he should carry into a decision and which he should ignore at this sample size.""",
@@ -1366,7 +1374,7 @@ const path = require("node:path");
 const MODEL = process.env.PROFILE_MODEL || "claude-haiku-4-5-20251001";
 const DIR   = path.join(process.cwd(), "prompts");
 const BASE  = fs.readFileSync(path.join(DIR, "base.md"), "utf8");
-const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs"];
+const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line"];
 const VIEW_PROMPT = Object.fromEntries(
   VIEWS.map(v => [v, fs.readFileSync(path.join(DIR, v + ".md"), "utf8")]));
 

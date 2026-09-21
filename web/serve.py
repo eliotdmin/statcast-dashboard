@@ -28,7 +28,7 @@ PRICE_IN, PRICE_OUT = 1.0, 5.0      # Haiku 4.5, $ per million tokens
 
 PROMPTS = os.path.join(ROOT, "prompts")
 STORED = os.path.join(ROOT, "stored_summaries.json")
-VIEWS = ("stretch", "changes", "carry", "planner", "breakouts", "card", "vs")
+VIEWS = ("stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line")
 mimetypes.add_type("application/json", ".json")
 mimetypes.add_type("image/svg+xml", ".svg")
 
