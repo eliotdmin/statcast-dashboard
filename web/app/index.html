@@ -106,10 +106,10 @@
     <div class="split-main" id="pc-body"></div>
     <aside class="split-side"><div class="sum-slot"></div></aside>
   </div>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">Whether to believe what one player has done lately, pulling the other views into a single read.</span>
+      <span class="lede">Whether a player&rsquo;s recent hot or cold stretch is a real change in how good he is or a streak likely to fade &mdash; judged from his results, his swing and contact measurements, and how similar streaks have played out.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -179,8 +179,7 @@
   <details class="use">
     <summary>
       <span class="k">How the shrinkage works</span>
-      <span class="lede">The definition of &ldquo;% real,&rdquo; where it comes from, and how each
-      bar is adjusted for sample size.</span>
+      <span class="lede">What &ldquo;% real&rdquo; means, how it is measured, and why a percentile from a small sample is pulled toward the 50th.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
     <p><b>The definition.</b> For a metric over <i>n</i> plate appearances, <code>% real</code> is
@@ -204,10 +203,10 @@
     convention &mdash; <code>E[T|X] = &mu; + b(X&minus;&mu;)</code> with
     <code>b = cov(T,X)/var(X) = var(T)/var(X) = &rho;</code>.</p>
   </details>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">Where a player actually ranked over a date range you pick &mdash; and how much of that ranking is real rather than luck.</span>
+      <span class="lede">How a player ranks against his peers on every Statcast measurement over the dates you pick, with each ranking pulled toward average by however much of it is luck at that sample size.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -242,6 +241,8 @@
 
 <section class="psec" id="p-changes-mine">
   <p class="psec-k">Swing &amp; approach changes</p>
+  <div class="use static ans"><span class="k">What this answers</span>
+    <span class="lede">Which parts of this player&rsquo;s swing, plate discipline or contact changed by more than chance allows this season, and whether each change was still there 60 days later.</span></div>
   <div class="sechead-row">
     <h2 class="sec" id="c-title">&mdash;</h2>
     <label class="f inline"><span>Player</span><select id="c-who" data-synced><option>loading&hellip;</option></select></label>
@@ -299,10 +300,10 @@
   </div>
   <aside class="split-side"><div class="sum-slot"></div></aside>
   </div>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">Which of two players is likelier to finish ahead over a window you choose, given as odds rather than as a projected stat line.</span>
+      <span class="lede">The chance that one player outperforms another over the next two weeks to three months, given as odds rather than as a projected stat line.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -375,9 +376,8 @@
   <div class="tw" id="pl-table"></div>
   <details class="use">
     <summary>
-      <span class="k">Spearman&ndash;Brown, run backwards</span>
-      <span class="lede">The formulas behind both modes, and why sample-size planning belongs before
-      the intervention, not after.</span>
+      <span class="k">How the sample sizes are calculated</span>
+      <span class="lede">The formulas behind both numbers &mdash; how much data makes a statistic trustworthy, and how much it takes to confirm a change &mdash; and why to work them out before looking at the results.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
     <p><b>Reliability mode</b> solves <code>&rho;(n) = t</code> for <code>n</code>:
@@ -397,10 +397,10 @@
     swings resolves bat speed fine and resolves essentially nothing about exit velocity, hard-hit
     rate or outcomes.</p>
   </details>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">How much data a question needs, worked out <i>before</i> you go and collect it.</span>
+      <span class="lede">How many plate appearances (or batters faced) it takes before a statistic is trustworthy, and how many it takes to confirm that a player has really changed.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -477,9 +477,8 @@
   </div>
   <details class="use">
     <summary>
-      <span class="k">z, sd, and held &mdash; what each one is for</span>
-      <span class="lede">Two different questions, and you need both answers, plus the out-of-sample
-      check that decides whether a move is worth trusting.</span>
+      <span class="k">What z, sd and held each tell you</span>
+      <span class="lede"><b>z</b> says whether a move is bigger than chance allows, <b>sd</b> whether it is big enough to matter, and <b>held</b> whether it lasted &mdash; and how each is calculated.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
     <p><b><code>z</code> asks: could noise have done this?</b> The change is divided by the standard
@@ -497,10 +496,10 @@
     past <code>|z| = 2</code> held at least half (26% of 15-day moves, 58% of 45-day ones). The window-over-window correlation of these deltas runs from +.37 (K%) to +.58
     (attack angle), so a move that repeats is worth considerably more than a move that does not.</p>
   </details>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">Whether a player genuinely changed something, as opposed to his numbers simply moving around.</span>
+      <span class="lede">Which players across the league changed a swing, plate-discipline or contact measurement by more than chance allows &mdash; and how often those changes were still there 60 days later.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -540,6 +539,8 @@
 
 <section class="psec" id="p-card-league">
   <p class="psec-k">Hot &amp; cold right now <span class="psec-woba">on wOBA</span></p>
+  <div class="use static ans"><span class="k">What this answers</span>
+    <span class="lede">Which players&rsquo; results over the last few weeks are clearly above or below both their own earlier-season rate and their usual level from prior seasons.</span></div>
   <h2 class="sec" id="hc-title">Who&rsquo;s hot or cold right now</h2>
   <div class="ctrl">
     <p class="scope">Applies to this list and the card below</p>
@@ -584,8 +585,7 @@
   <details class="use">
     <summary>
       <span class="k">How the expectation is built</span>
-      <span class="lede">The model behind the carry rate, how to read R&sup2; against its ceiling,
-      and what failed on the way there.</span>
+      <span class="lede">The regression behind each expected figure, how its accuracy compares with the best any model could do, and which extra inputs were tested and found not to help.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
     <p><b>The model.</b> Next window&rsquo;s wOBA is regressed on four things: the player&rsquo;s
@@ -606,10 +606,10 @@
     do not predict next month&rsquo;s wOBA, because next month&rsquo;s wOBA is barely predictable
     by anything.</p>
   </details>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">How much of a hot or cold streak is likely to still be there next month, for every qualified player at once.</span>
+      <span class="lede">For every qualified player, how much of his current 30-day hot or cold streak a model expects to carry into the next month &mdash; and, for past windows, how that expectation turned out.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -669,10 +669,10 @@
   <h2 class="sec">Case studies</h2>
   <p class="note" id="b-cases-lede"></p>
   <div id="b-cases"></div>
-  <details class="use">
+  <details class="use ans">
     <summary>
       <span class="k">What this answers</span>
-      <span class="lede">Whether hot streaks that look &ldquo;earned&rdquo; &mdash; the ones where a hitter really is squaring the ball up &mdash; actually last longer than lucky ones.</span>
+      <span class="lede">How much of a hot or cold streak has historically lasted, and whether streaks backed by harder contact last any longer than lucky ones.</span>
       <span class="more" aria-hidden="true"></span>
     </summary>
 
@@ -709,6 +709,8 @@
 
 <section class="psec" id="p-vs-scored">
   <p class="psec-k">Head-to-head track record <span class="psec-woba">on wOBA</span></p>
+  <div class="use static ans"><span class="k">What this answers</span>
+    <span class="lede">How often the head-to-head odds have been right in past seasons, bucket by bucket, and whether a simple rule of thumb would have done as well.</span></div>
   <div class="ctrl">
     <p class="scope">How the head-to-head estimator on the Player tab has actually scored &middot;
     every matchup in the backtest, bucketed by what it claimed</p>

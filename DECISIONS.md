@@ -1364,3 +1364,19 @@ sized to its content, not the page: about 895 of 1,148px for a hitter, and narro
 whose table has fewer columns. Its table cells are tightened (5px 8px). A labelled "Analyses" break
 (a rule, extra space, and a small caption) now separates the player header from the analysis
 buttons.
+
+## D72 — Every analysis gets a standalone "What this answers" line (2026-09-21)
+
+The user found the one-liner for "Is his recent form real?" vague ("pulling the other views into a
+single read"), and asked for every one-liner to make sense on its own.
+- All seven existing "What this answers" lines were rewritten to say concretely what the analysis
+  tells you, and to what or whom.
+- The three analyses that had none now have one: Swing & approach changes, Hot & cold right now,
+  and Head-to-head track record. They use a plain box (`.use.static`) with nothing to expand.
+- The four method boxes also got clearer one-liners, and two headings were renamed:
+  "Spearman–Brown, run backwards" became "How the sample sizes are calculated", and "z, sd, and
+  held — what each one is for" became "What z, sd and held each tell you".
+- The carry box's "what failed on the way there" became "which extra inputs were tested and found
+  not to help" (D66: no retraction framing).
+- Only the "What this answers" box (`.use.ans`) moves to the top of an analysis now; method boxes
+  stay at the bottom.

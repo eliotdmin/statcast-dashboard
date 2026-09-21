@@ -457,7 +457,9 @@ label:has(> select[data-synced]){display:none}
 table.line tr.hl td{background:var(--hl, rgba(37,99,235,.06));font-weight:600}
 table.line tr.tot td{border-top:1px solid var(--ink3);font-weight:600}
 /* "What this answers" leads its analysis rather than trailing it */
-.psec.psec-pick > details.use{order:-1}
+.psec.psec-pick > .use.ans{order:-1}
+/* a one-line "What this answers" with nothing more to expand */
+.use.static{display:flex;flex-direction:column;gap:7px}
 
 /* right / wrong: only where something is judged correct (D67) */
 .chip.right{background:var(--right);color:#fff;border:0;font-weight:600}
