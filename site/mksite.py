@@ -1285,6 +1285,14 @@ Lead with the single most defensible observation in the evidence, not the larges
 Name at least one thing the evidence cannot settle."""
 
 VIEW_PROMPTS = {
+ "hotcold": """This evidence is today's hot and cold board: the players whose recent results are far
+enough from their own earlier-season rate (and, when `context.test` is "both", from their prior
+seasons too) to clear the board's test. Describe the shape of the board first -- how many cleared
+it out of the pool, whether hot or cold dominates -- then the two or three players whose case is
+strongest, saying WHY it is strong: a large move, a small z, or contact quality moving with the
+results. Being on this board means a move is bigger than noise over this window; it does NOT mean
+it will continue, so do not forecast. Where `contact` moves the other way from `vs. earlier`, say
+that the results and the contact quality disagree.""",
  "line": """This evidence is one player's official season-by-season line: one row per season, then a
 career total. `context.selected_season` is the season the reader is looking at. Summarize his key
 numbers in two short paragraphs. First, the selected season against his own career and his last
@@ -1374,7 +1382,7 @@ const path = require("node:path");
 const MODEL = process.env.PROFILE_MODEL || "claude-haiku-4-5-20251001";
 const DIR   = path.join(process.cwd(), "prompts");
 const BASE  = fs.readFileSync(path.join(DIR, "base.md"), "utf8");
-const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line"];
+const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line", "hotcold"];
 const VIEW_PROMPT = Object.fromEntries(
   VIEWS.map(v => [v, fs.readFileSync(path.join(DIR, v + ".md"), "utf8")]));
 

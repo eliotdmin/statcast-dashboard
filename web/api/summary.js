@@ -13,7 +13,7 @@ const path = require("node:path");
 const MODEL = process.env.PROFILE_MODEL || "claude-haiku-4-5-20251001";
 const DIR   = path.join(process.cwd(), "prompts");
 const BASE  = fs.readFileSync(path.join(DIR, "base.md"), "utf8");
-const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line"];
+const VIEWS = ["stretch", "changes", "carry", "planner", "breakouts", "card", "vs", "line", "hotcold"];
 const VIEW_PROMPT = Object.fromEntries(
   VIEWS.map(v => [v, fs.readFileSync(path.join(DIR, v + ".md"), "utf8")]));
 

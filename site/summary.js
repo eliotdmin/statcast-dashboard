@@ -165,6 +165,33 @@ var SUM = (function(){
       };
     },
 
+    "p-card-league": function(){
+      var v = VIEWSTATE.hc; if(!v || !(v.hot.length + v.cold.length)) return null;
+      var row=function(p,side){ return {player:p.n, side:side, pa:Math.round(p.pa),
+        recent:D3(p.w), earlier:D3(p.wb), vs_earlier:(p.gap>0?"+":"\u2212")+D3(Math.abs(p.gap)),
+        z:p.z.toFixed(1),
+        usual:p.u?D3(p.u.mean):"—",
+        vs_usual:(p.u?((p.w-p.u.mean>0?"+":"\u2212")+D3(Math.abs(p.w-p.u.mean))):"—"),
+        contact:(p.xgap>0?"+":"\u2212")+D3(Math.abs(p.xgap))}; };
+      return {
+        view:"hotcold",
+        title:"Read the hot and cold board",
+        sub:v.nhot+" hot, "+v.ncold+" cold of "+v.pool+" · "+v.span+" "+v.season,
+        note:"The players the board lists, in its order (at most twelve a side). <b>vs. earlier</b> "+
+             "is against his own rate earlier this season and <b>vs. usual</b> against his prior "+
+             "seasons; <b>contact</b> is the same move measured on xwOBA, which is steadier than "+
+             "results at this sample size.",
+        cols:[{k:"player",l:"player",a:"l"},{k:"side",l:"side",a:"l"},{k:"pa",l:"PA"},
+              {k:"recent",l:"recent"},{k:"earlier",l:"earlier"},{k:"vs_earlier",l:"vs. earlier"},
+              {k:"z",l:"z"},{k:"usual",l:"usual"},{k:"vs_usual",l:"vs. usual"},
+              {k:"contact",l:"contact"}],
+        rows:v.hot.map(function(p){return row(p,"hot");})
+              .concat(v.cold.map(function(p){return row(p,"cold");})),
+        context:{window:v.window, span:v.span, test:v.mode, hot:v.nhot, cold:v.ncold,
+                 pool:v.pool, metric:v.metric, kind:v.kind, season:v.season}
+      };
+    },
+
     "p-carry": function(){
       var v = VIEWSTATE.carry; if(!v || !v.board.length) return null;
       var wo = v.kind==="bat" ? "wOBA" : "wOBA allowed";

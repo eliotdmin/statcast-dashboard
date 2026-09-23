@@ -1453,3 +1453,17 @@ later in the day works, which is why this looked fine when it was set up.
 The retry alone should fix the common case; the token removes the dependency on an interactive
 login altogether. Creating the token is the user's to do (Vercel dashboard → Account Settings →
 Tokens), since it is a credential.
+
+## D77 — The League tab opens on the board, not the planner; the board gets a summary (2026-09-23)
+
+The League tab opened on "Sample size needed", a methods tool, so a visitor landed on a calculator
+rather than on the league. The analyses are now in reading order — Hot & cold right now, Biggest
+skill changes, Streak carry forecast, Streak history study, Head-to-head track record, Sample size
+needed — so it opens on the board that makes someone want to click a name, and the methods tool is
+last.
+
+Hot & cold had no AI summary, which would have been the first thing a visitor noticed now that it
+leads. It has one: a new `hotcold` view whose prompt asks for the shape of the board first, then
+the two or three strongest cases and why, with an explicit instruction not to forecast (being on
+the board means a move is bigger than noise, not that it will continue). Head-to-head track record
+is still without one; it is a fixed historical record rather than a view of today.

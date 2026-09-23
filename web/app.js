@@ -960,6 +960,9 @@ function renderHotCold(){
     "Click a name for his full card.";
   function f3(x){ return (x>0?"+":"&minus;")+D3(Math.abs(x)); }
   function f1(x){ return (x>0?"+":"&minus;")+Math.abs(x).toFixed(1); }
+  VIEWSTATE.hc={hot:hot.slice(0,12), cold:cold.slice(0,12), nhot:hot.length, ncold:cold.length,
+    pool:all.length, mode:mode, window:WINNAME[W], span:lbl(BL[first])+"–"+lblEnd(BL[last]),
+    haveU:haveU, kind:K, season:YR, metric:R};
   function tbl(list, kind){
     var CAP=12, open=$("#hc-board")["_all_"+kind], shown=open?list:list.slice(0,CAP);
     var head='<h3 class="'+kind+'">'+(kind==="hot"?"Hot":"Cold")+' <span class="sub">'+list.length+'</span></h3>';
@@ -2008,8 +2011,10 @@ var SECTION_TAB={"p-player":0,"p-line":0,"p-card":0,"p-stretch":0,"p-changes-min
 /* Each tab shows one analysis at a time, picked from a button row (D62). The Season line is not
    one of them: it heads the Player tab whatever analysis is open. RENDER is the only place that
    knows which function draws which analysis, so rendering a tab means rendering what's open. */
+/* Order is reading order. The League tab opens on the board that makes someone want to click a
+   name; "Sample size needed" is a methods tool and goes last (D77). */
 var SUBS=[["p-card","p-stretch","p-changes-mine","p-vs"],
-          ["p-planner","p-changes","p-card-league","p-carry","p-break","p-vs-scored"]];
+          ["p-card-league","p-changes","p-carry","p-break","p-vs-scored","p-planner"]];
 var RENDER={"p-card":function(){renderCard();}, "p-stretch":function(){renderStretch();},
             "p-changes-mine":function(){renderChanges();}, "p-vs":function(){renderVs();},
             "p-planner":function(){renderPlanner();}, "p-changes":function(){renderChanges();},
@@ -2411,6 +2416,33 @@ var SUM = (function(){
                   rel:Math.round(100*o.rel), n:Math.round(o.n), held:Math.round(100*o.held)+"%"};
         }),
         context:{player:v.player, pending_hidden:v.pending, season:v.season, kind:v.kind}
+      };
+    },
+
+    "p-card-league": function(){
+      var v = VIEWSTATE.hc; if(!v || !(v.hot.length + v.cold.length)) return null;
+      var row=function(p,side){ return {player:p.n, side:side, pa:Math.round(p.pa),
+        recent:D3(p.w), earlier:D3(p.wb), vs_earlier:(p.gap>0?"+":"\u2212")+D3(Math.abs(p.gap)),
+        z:p.z.toFixed(1),
+        usual:p.u?D3(p.u.mean):"—",
+        vs_usual:(p.u?((p.w-p.u.mean>0?"+":"\u2212")+D3(Math.abs(p.w-p.u.mean))):"—"),
+        contact:(p.xgap>0?"+":"\u2212")+D3(Math.abs(p.xgap))}; };
+      return {
+        view:"hotcold",
+        title:"Read the hot and cold board",
+        sub:v.nhot+" hot, "+v.ncold+" cold of "+v.pool+" · "+v.span+" "+v.season,
+        note:"The players the board lists, in its order (at most twelve a side). <b>vs. earlier</b> "+
+             "is against his own rate earlier this season and <b>vs. usual</b> against his prior "+
+             "seasons; <b>contact</b> is the same move measured on xwOBA, which is steadier than "+
+             "results at this sample size.",
+        cols:[{k:"player",l:"player",a:"l"},{k:"side",l:"side",a:"l"},{k:"pa",l:"PA"},
+              {k:"recent",l:"recent"},{k:"earlier",l:"earlier"},{k:"vs_earlier",l:"vs. earlier"},
+              {k:"z",l:"z"},{k:"usual",l:"usual"},{k:"vs_usual",l:"vs. usual"},
+              {k:"contact",l:"contact"}],
+        rows:v.hot.map(function(p){return row(p,"hot");})
+              .concat(v.cold.map(function(p){return row(p,"cold");})),
+        context:{window:v.window, span:v.span, test:v.mode, hot:v.nhot, cold:v.ncold,
+                 pool:v.pool, metric:v.metric, kind:v.kind, season:v.season}
       };
     },
 
