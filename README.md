@@ -1,106 +1,122 @@
-# Statcast Breakout & Regression Dashboard
+# Statcast Reality Check
 
-League-wide Statcast pipeline that finds hitters and pitchers whose *results*
-have drifted away from their *underlying contact quality*, and projects where
-they land the rest of the season.
+[![tests](https://github.com/eliotdmin/statcast-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/eliotdmin/statcast-dashboard/actions/workflows/tests.yml)
 
-## Setup (one time)
+**[statcast-dashboard.vercel.app](https://statcast-dashboard.vercel.app)** · [technical report](https://statcast-dashboard.vercel.app/report) · [method](https://statcast-dashboard.vercel.app/addendum)
 
-```bash
-cd ~/Projects/statcast-dashboard
-pip install -r requirements.txt        # or: conda activate <env> && pip install -r requirements.txt
+A hitter goes 2-for-30. Is he hurt, has he changed something, or has he just been unlucky? This
+project answers that from 2.9 million pitch-by-pitch measurements of the 2023–2026 major-league
+seasons, and it is as careful about what the data *cannot* say as about what it can.
+
+Every number on the site is shrunk by how much of it is real at that sample size, and every
+forecast is scored against simple rules of thumb before it is believed.
+
+![The Player tab: a player's whole career, then one analysis at a time](docs/img/player-tab.jpg)
+
+## Three things it found
+
+- **A two-week hot streak keeps about a seventh of its gain.** Six-week streaks keep about
+  two-fifths. What makes a streak believable is its length — not, as the broadcast line has it,
+  whether the hitter is "squaring the ball up": streaks backed by rising contact quality last no
+  longer than lucky ones.
+- **What a player *does* is measurable; what *happens to the ball* mostly is not.** Bat speed and
+  swing length repeat at .97+ within a season. Sweet-spot rate has no detectable year-over-year
+  signal at all. Any story built on one season of it is a story about nothing.
+- **Nothing beat a five-line baseline from 2004.** Eight model families, 48 features, gradient
+  boosting: none beats Marcel, whose whole trick is regressing hard toward the mean. The value is
+  in the shrinking, not in the features.
+
+The [technical report](https://statcast-dashboard.vercel.app/report) has the rest, including
+the results that did not work out and the predictions frozen against the 2027 season before that
+data exists.
+
+## What the site does
+
+**Player tab** — pick a player, see his whole career, then one analysis at a time:
+whether his recent form is real, his luck-adjusted percentiles, which parts of his swing or
+approach measurably changed, and his odds against any other player over a window you choose.
+
+**League tab** — who is hot or cold right now, the biggest skill changes league-wide, how much of
+each streak a model expects to survive, what streaks have historically done, how well the
+head-to-head odds have actually scored, and how much data a question needs in the first place.
+
+![The League tab: who is hot or cold right now, with an AI reading of the board](docs/img/league-board.jpg)
+
+Each view can be summarised in plain English by a language model that is given **only** the table
+on screen — the same rows you can expand and check — with a fixed rulebook (never call noise a
+change, never explain a result by an injury it cannot see, never cite a number that is not in the
+evidence).
+
+## How it works
+
+```
+Baseball Savant ──> SQLite (1.8 GB, local) ──> per-season JSON shards (~8 MB) ──> static site
+     backfill.py        blocks_all.py              web/data/*.json                 Vercel CDN
 ```
 
-## First run
+Everything the browser shows is computed in the browser from those shards. The only server code is
+one function that holds the model API key. The database never leaves the laptop.
 
-Start small to confirm everything works before the long backfill:
+A launchd job runs `refresh.sh` every morning: fetch yesterday's pitches, rebuild the shards,
+re-run the studies, check the database for corruption, and deploy — code from the last commit,
+data from this morning.
 
-```bash
-python3 run_pipeline.py --year 2026 --skip-pitches
-```
-
-That pulls only the season-to-date leaderboards (fast, ~10s) and writes
-`output/dashboard_data.json`.
-
-## Pitch-level backfill
-
-Everything beyond the season-to-date leaderboards — rolling trends, count-state
-splits, pitch-type analysis, the regression validation — needs pitch-level data.
-Start with the recent window:
-
-```bash
-python3 run_pipeline.py --year 2026 --days-back 60 --newest-first
-```
-
-`--newest-first` means a run you interrupt still leaves you the most useful days.
-To extend backward later, just raise or drop the flag — the `ingest_log` table
-records every day already fetched, so nothing is re-downloaded:
-
-```bash
-python3 run_pipeline.py --year 2026          # the rest of the season
-```
-
-**Every column Savant returns is stored**, not a curated subset, because
-recovering a column you did not save costs a full re-download. That includes
-`balls`/`strikes` (count states), `pitch_type`, `stand`/`p_throws` (platoon),
-base-out state, fielding alignment, `delta_run_exp`, and bat tracking where
-available. Expect roughly 400MB–1GB of SQLite for a full season. Savant
-occasionally adds columns mid-season; appends widen the table rather than fail.
-
-## Testing whether any of this predicts anything
-
-```bash
-python3 regression_test.py --year 2026 --windows 15 30 45 60
-```
-
-Walks the season in adjacent block pairs and asks whether period-1 xwOBA
-predicts period-2 wOBA better than period-1 wOBA does — the dashboard's premise,
-tested out-of-sample rather than assumed. Also fits the regression-to-the-mean
-coefficient per window length, which is what "short-term vs long-term
-regression" means numerically. Read its docstring for the caveats; survivorship
-bias is real and it cannot be corrected here.
-
-## Daily refresh
-
-```bash
-./refresh.sh
-```
-
-To schedule it on macOS, load the launchd job:
-
-```bash
-cp com.eliot.statcast.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.eliot.statcast.plist
-```
-
-It runs at 11:00 each morning — Statcast data lags about a day, so the previous
-day's games are settled by then.
-
-## What the numbers mean
-
-| Field | Meaning |
+| | |
 |---|---|
-| `luck_gap` | `est_woba - woba`. How much better the player deserved than he got. |
-| `luck_z` | That gap as a z-score vs. this season's qualified players. |
-| `outlook` | Sign-corrected `luck_z`. **Positive always means "expect improvement."** For pitchers the sign is flipped, because a pitcher who allowed *less* than deserved has been lucky. |
-| `proj_woba_ros` | Shrinkage projection: observed skill pulled toward league average based on sample size. |
-| `pct_ev`, `pct_barrel`, `pct_hardhit` | Contact-quality percentiles — the corroborating evidence that a gap is real skill, not noise. |
+| Data | 2,891,023 pitches, 2023–2026; 396 qualified hitters in 2026 |
+| Site | vanilla JS, no framework, no build step beyond `site/mksite.py` |
+| Analysis | Python standard library plus pandas/numpy/sklearn in the one-off studies |
+| Deploy | static files on Vercel, one serverless function |
 
-## Honest limits
+## Running it
 
-- The projection is a **simple shrinkage estimate**, not ZiPS or Steamer. No
-  aging curve, no park factors, no playing-time forecast, no platoon splits.
-- Expected stats do not know about a hitter's speed. Fast players persistently
-  out-hit their xwOBA; that is skill, not luck, and this model will keep
-  calling them regression candidates. Same for extreme shift-beaters.
-- `MIN_PA` gates are a blunt instrument. Metrics stabilise at different rates.
-- Baseball Savant is a public courtesy endpoint, not a contracted API. It can
-  change shape or rate-limit without notice.
+```bash
+pip install -r requirements.txt
+python3 site/mksite.py          # site/  ->  web/
+cd web && python3 serve.py      # http://localhost:8787
+```
 
-## Files
+That serves the site against whatever is in `web/data/`. To rebuild the data you need the database
+(`backfill.py`, several hours) and then:
 
-- `db.py` — SQLite schema and ingest bookkeeping
-- `fetch.py` — incremental Statcast pulls via pybaseball
-- `analyze.py` — signals, z-scores, projections
-- `run_pipeline.py` — orchestrator, writes `output/dashboard_data.json`
-- `selftest.py` — offline math verification, no network needed
+```bash
+python3 run_pipeline.py --year 2026
+```
+
+Set `ANTHROPIC_API_KEY` before `serve.py` to generate summaries locally; without it the site works
+and the Summarize buttons explain why they cannot.
+
+## Tests
+
+```bash
+python3 tests/test_build.py     # site build: no database needed, runs in CI
+python3 tests/test_facts.py     # every published finding, asserted against the database
+```
+
+`test_facts.py` is the unusual one. Each published number is asserted against the data, so a
+re-backfill or a provider schema change makes a test fail rather than quietly rotting a finding.
+Two of them would have caught real bugs that cost days.
+
+## Repository
+
+| | |
+|---|---|
+| `site/` → `web/` | the site. `site/` is the source; **never hand-edit `web/`** |
+| `blocks_all.py`, `streaks.py`, `matchup.py`, `breakouts.py`, `reliability.py` | what the site reads |
+| `fetch*.py`, `db.py`, `backfill.py`, `audit.py` | data in, and its integrity |
+| `run_pipeline.py`, `refresh.sh`, `deploy.sh` | the daily job |
+| `analysis/` | 39 one-off studies behind the findings |
+| `DECISIONS.md`, `FINDINGS.md` | why it is built this way, and every measured result |
+| `PREREGISTRATION.md` | predictions sealed before the 2027 season exists |
+
+`CLAUDE.md` holds the working agreements and the environment traps worth knowing before changing
+anything.
+
+## Honest limitations
+
+- One test season, and it was queried too many times to still be a clean holdout. Every 2026
+  figure should be read as optimistic by an unknown amount. 2027 is the clean test.
+- Four seasons is a short runway, and swing tracking only starts in 2024.
+- Marcel is the floor, not the standard; Steamer and ZiPS were not tested.
+- Almost everything is hitters. The pitcher side had one afternoon and immediately showed a larger
+  effect.
