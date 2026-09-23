@@ -187,7 +187,17 @@ select:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-off
 .cc .s{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink2)}
 
 /* tables */
-.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:5px;background:var(--card)}
+.tw{overflow-x:auto;border:1px solid var(--hair);border-radius:5px;background:var(--card);
+  /* scroll shadows: the right edge darkens while there is more table off-screen, so a wide table
+     on a phone looks scrollable instead of cut off. background-attachment local/scroll is what
+     makes the fades track the scroll position. */
+  background-image:linear-gradient(to right,var(--card),transparent),
+    linear-gradient(to left,var(--card),transparent),
+    linear-gradient(to right,rgba(13,27,42,.10),transparent),
+    linear-gradient(to left,rgba(13,27,42,.10),transparent);
+  background-position:0 0,100% 0,0 0,100% 0;background-repeat:no-repeat;
+  background-size:28px 100%,28px 100%,10px 100%,10px 100%;
+  background-attachment:local,local,scroll,scroll}
 table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{padding:6px 11px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--hair)}
 th:first-child,td:first-child,th.l,td.l{text-align:left}
@@ -489,4 +499,13 @@ body[data-tab="player"] #view-title{display:none}
 .line-sum-out p{margin:0 0 8px;font-size:var(--fs-body);line-height:1.6;color:var(--ink);max-width:78ch}
 .line-sum-out p:last-child{margin-bottom:0}
 .line-sum-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* phones: the analysis row costs four lines at full size, so tighten it (D78) */
+@media(max-width:560px){
+  .subtabs{gap:5px}
+  .subtabs button{font-size:13px;padding:5px 11px}
+  .subtabs button .psec-woba{display:none}
+  .phead{padding:12px 12px 10px}
+  .hero-pick select{font-size:20px;min-width:0;width:100%}
+}
 </style>

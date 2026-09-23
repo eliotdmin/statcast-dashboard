@@ -1467,3 +1467,19 @@ leads. It has one: a new `hotcold` view whose prompt asks for the shape of the b
 the two or three strongest cases and why, with an explicit instruction not to forecast (being on
 the board means a move is bigger than noise, not that it will continue). Head-to-head track record
 is still without one; it is a fixed historical record rather than a view of today.
+
+## D78 — Phone width, checked at last (2026-09-23)
+
+The browser here cannot be resized, so the app was rendered inside a 390px iframe (a throwaway
+harness in web/, deleted after). Findings:
+- Nothing overflows the page: `document.scrollWidth` is 390. Only the wide tables scroll inside
+  their own boxes, which is the intent.
+- The tables gave no sign they scrolled, so `.tw` now carries CSS scroll shadows: the edge darkens
+  while there is more table off-screen, and clears when you reach the end.
+- The analysis row cost four lines, so below 560px the pills are smaller, the "on wOBA" chips are
+  dropped, the player card's padding is tighter and the picker goes full width.
+
+**Empty states, checked at the same time.** A hitter with 14 PA in the window gets "Too early to
+read", not a broken card. A rookie with no prior seasons gets a one-row career table, the same
+verdict, and a head-to-head that says "No prior season to lean on, so his usual level is the league
+average" rather than a false precision.
