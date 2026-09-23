@@ -1,0 +1,709 @@
+<title>Statcast Data Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --ground:#fbfcfd; --panel:#ffffff; --line:#dfe4ea; --line-soft:#eef1f5;
+  --ink:#10141a; --ink-2:#4d5765; --ink-3:#78828f;
+  --accent:#1c5cab;
+  --full-bg:#eef1f5; --full-ink:#4d5765;
+  --high-bg:#cde2fb; --high-ink:#0d366b;
+  --mid-bg:#fdefc9;  --mid-ink:#6b4a00;
+  --low-bg:#fadedd;  --low-ink:#8c1f1e;
+  --zero-bg:#e6e9ee; --zero-ink:#78828f;
+  --ok:#0a6b33; --ok-bg:#e2f2e8; --bad:#b3231f; --bad-bg:#fbe7e6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:#0f1216; --panel:#171b21; --line:#2b323b; --line-soft:#222831;
+    --ink:#f2f5f8; --ink-2:#aab4c0; --ink-3:#7c8794;
+    --accent:#6da7ec;
+    --full-bg:#222831; --full-ink:#aab4c0;
+    --high-bg:#184f95; --high-ink:#dbeafd;
+    --mid-bg:#5a3f00;  --mid-ink:#ffe4a3;
+    --low-bg:#6b1b19;  --low-ink:#ffd9d7;
+    --zero-bg:#1d222a; --zero-ink:#6b7583;
+    --ok:#5ec98a; --ok-bg:#12321f; --bad:#f28b87; --bad-bg:#3a1513;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:#0f1216; --panel:#171b21; --line:#2b323b; --line-soft:#222831;
+  --ink:#f2f5f8; --ink-2:#aab4c0; --ink-3:#7c8794;
+  --accent:#6da7ec;
+  --full-bg:#222831; --full-ink:#aab4c0;
+  --high-bg:#184f95; --high-ink:#dbeafd;
+  --mid-bg:#5a3f00;  --mid-ink:#ffe4a3;
+  --low-bg:#6b1b19;  --low-ink:#ffd9d7;
+  --zero-bg:#1d222a; --zero-ink:#6b7583;
+  --ok:#5ec98a; --ok-bg:#12321f; --bad:#f28b87; --bad-bg:#3a1513;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1080px; margin:0 auto; padding-block:48px 96px; padding-left:20px; padding-right:20px; display:flex; flex-direction:column; gap:56px; }
+code { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:0.92em; }
+h1 { font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif; font-weight:700;
+     font-size:clamp(30px,5vw,42px); letter-spacing:-0.015em; margin:0; text-wrap:balance; }
+h2 { font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif; font-weight:700;
+     font-size:21px; margin:0 0 4px; letter-spacing:-0.01em; }
+h3 { font-size:15px; font-weight:600; margin:0; }
+.eyebrow { font-size:11px; font-weight:600; letter-spacing:0.11em; text-transform:uppercase;
+           color:var(--ink-3); margin:0 0 10px; }
+.lede { color:var(--ink-2); max-width:64ch; margin:10px 0 0; }
+.figures { display:flex; flex-wrap:wrap; gap:28px 44px; margin-top:28px;
+           padding-top:24px; border-top:1px solid var(--line); }
+.fig .k { font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:500;
+          font-variant-numeric:tabular-nums; letter-spacing:-0.02em; display:block; }
+.fig .l { font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:var(--ink-3); }
+section > .why { color:var(--ink-2); max-width:66ch; margin:0 0 18px; }
+.checks { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; }
+.check { background:var(--panel); border:1px solid var(--line-soft); border-left:3px solid var(--ok);
+         padding:14px 18px; }
+.check.bad { border-left-color:var(--bad); }
+.check-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.chip { font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:500; letter-spacing:0.07em;
+        padding:2px 7px; border-radius:3px; background:var(--ok-bg); color:var(--ok); }
+.chip.bad { background:var(--bad-bg); color:var(--bad); }
+.detail { margin:8px 0 4px; color:var(--ink); word-break:break-word; }
+.why { margin:0; color:var(--ink-2); font-size:13.5px; max-width:74ch; }
+.scroll { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+.tabular th, .tabular td { text-align:right; padding:7px 12px; border-bottom:1px solid var(--line-soft);
+                           font-family:"IBM Plex Mono",monospace; font-size:13px; white-space:nowrap; }
+.tabular thead th { text-align:right; font-family:"IBM Plex Sans",sans-serif; font-size:11px;
+                    letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3); font-weight:600;
+                    border-bottom:1px solid var(--line); }
+.tabular tbody th { text-align:left; font-weight:600; }
+.grid { font-size:13px; }
+.grid th, .grid td { border-bottom:1px solid var(--line-soft); padding:5px 10px; }
+.grid thead th { font-family:"IBM Plex Sans",sans-serif; font-size:11px; letter-spacing:0.06em;
+                 text-transform:uppercase; color:var(--ink-3); font-weight:600; text-align:center;
+                 border-bottom:1px solid var(--line); }
+.grid thead th.colname { text-align:left; }
+.colname { text-align:left; font-weight:400; white-space:nowrap; }
+.cond { display:block; font-size:11px; color:var(--ink-3); font-family:"IBM Plex Sans",sans-serif;
+        letter-spacing:0.01em; text-transform:none; }
+.cell { text-align:center; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+        white-space:nowrap; }
+.s-full { background:var(--full-bg); color:var(--full-ink); }
+.s-high { background:var(--high-bg); color:var(--high-ink); }
+.s-mid  { background:var(--mid-bg);  color:var(--mid-ink); font-weight:600; }
+.s-low  { background:var(--low-bg);  color:var(--low-ink); font-weight:600; }
+.s-zero { background:var(--zero-bg); color:var(--zero-ink); }
+.s-none { color:var(--ink-3); text-align:center; }
+.tag { font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3);
+       border:1px solid var(--line); padding:0 4px; border-radius:2px; }
+.dist { margin-bottom:26px; }
+.dist h3 { margin-bottom:6px; }
+.legend { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; font-size:11.5px;
+          font-family:"IBM Plex Mono",monospace; }
+.legend span { padding:2px 8px; }
+footer { border-top:1px solid var(--line); padding-top:18px; color:var(--ink-3); font-size:13px; }
+@media (max-width:640px) { .figures { gap:20px 28px; } .fig .k { font-size:21px; } }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">statcast-dashboard &middot; data integrity</p>
+  <h1>Statcast Data Audit</h1>
+  <p class="lede">Coverage, distributions and integrity for the pitch-level database.
+  Nulls are measured against what each column is actually <em>supposed</em> to be
+  populated on, so structural absence and real tracking gaps are never mixed together.</p>
+  <div class="figures">
+    <div class="fig"><span class="k">2,843,142</span><span class="l">pitches</span></div>
+    <div class="fig"><span class="k">4</span><span class="l">seasons</span></div>
+    <div class="fig"><span class="k">119</span><span class="l">columns</span></div>
+    <div class="fig"><span class="k">1.92 GB</span><span class="l">database</span></div>
+    <div class="fig"><span class="k">1</span><span class="l">checks failing</span></div>
+    <div class="fig"><span class="k">2023-03-30 &rarr; 2026-09-09</span><span class="l">date range</span></div>
+  </div>
+</header>
+
+<section>
+  <p class="eyebrow">01</p><h2>Integrity</h2>
+  <p class="why">Each check is an assertion about how the data is supposed to behave.
+  A failure means either the data is wrong or the assumption is — and the assumption
+  is the more likely culprit.</p>
+  <ul class="checks">
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>No duplicate pitches</h3></div>
+  <p class="detail"><code>0 duplicated (game_pk, at_bat, pitch)</code></p>
+  <p class="why">A day fetched twice would double-count every rate stat. ingest_log is supposed to prevent this.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>Count states legal</h3></div>
+  <p class="detail"><code>0 rows with impossible ball/strike counts</code></p>
+  <p class="why">Savant occasionally emits a 4-ball or 3-strike row on a mid-PA event; they should be excluded from count-state work.</p>
+</li>
+<li class="check bad">
+  <div class="check-head"><span class="chip bad">FAIL</span><h3>Regular season only</h3></div>
+  <p class="detail"><code>{&#x27;R&#x27;: 2793007, &#x27;S&#x27;: 50135}</code></p>
+  <p class="why">Spring training and postseason rows contaminate qualified-player leaderboards if not filtered.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>xwOBA non-contact convention is consistent across seasons</h3></div>
+  <p class="detail"><code>{2023: &#x27;folded-in&#x27;, 2024: &#x27;folded-in&#x27;, 2025: &#x27;folded-in&#x27;, 2026: &#x27;folded-in&#x27;}</code></p>
+  <p class="why">&#x27;folded-in&#x27; = strikeouts/walks carry an xwOBA (K=0.0, BB~0.70). &#x27;null&#x27; = they do not. If seasons disagree, `WHERE estimated_woba_using_speedangle IS NOT NULL` means &#x27;batted ball&#x27; in one season and &#x27;completed PA&#x27; in another. Use type=&#x27;X&#x27; for contact.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>Batted balls modelled by xwOBA</h3></div>
+  <p class="detail"><code>0 of 482,250 non-bunt balls in play (0.00%) have no xwOBA</code></p>
+  <p class="why">These are tracking failures, not structural nulls. Above ~1% means a real gap in the ball-tracking for that period, and every rate built on xwOBA is computed on a quietly non-random subset of contact.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>Every database column is documented</h3></div>
+  <p class="detail"><code>undocumented: none | in schema but not in db: none</code></p>
+  <p class="why">Savant adds columns mid-season and the ingest widens the table to accept them. An undocumented column is a metric nobody has decided how to treat -- add it to schema.yaml, with its applicability condition, before anything downstream consumes it.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>xBA/xSLG remain contact-only</h3></div>
+  <p class="detail"><code>0 non-contact rows carry an xBA</code></p>
+  <p class="why">xwOBA and xBA follow DIFFERENT conventions in the same row. Averaging xBA over all PA still drops strikeouts from the numerator while the denominator counts them.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>plate_x sign flips by batter side</h3></div>
+  <p class="detail"><code>mean plate_x: {&#x27;L&#x27;: -0.145, &#x27;R&#x27;: 0.184}</code></p>
+  <p class="why">Pitchers work away from both sides, so the two means must have OPPOSITE signs. If they don&#x27;t, the handedness correction in any platoon split is backwards.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>pfx_x sign flips by pitcher hand</h3></div>
+  <p class="detail"><code>mean pfx_x: {&#x27;L&#x27;: 0.395, &#x27;R&#x27;: -0.317}</code></p>
+  <p class="why">Arm-side run is opposite-signed for lefties and righties. Pooling without flipping cancels the effect to ~zero.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>2023: schedule complete</h3></div>
+  <p class="detail"><code>all 30 teams at 162</code></p>
+  <p class="why">A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>2024: schedule complete</h3></div>
+  <p class="detail"><code>{&#x27;CLE&#x27;: 161, &#x27;HOU&#x27;: 161} -- known: HOU @ CLE 2024-09-29, the regular-season finale, was rained out after a long delay and never made up -- it had no playoff implications. MLB played 2,429 games in 2024.</code></p>
+  <p class="why">A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout.</p>
+</li>
+<li class="check ok">
+  <div class="check-head"><span class="chip ok">PASS</span><h3>2025: schedule complete</h3></div>
+  <p class="detail"><code>all 30 teams at 162</code></p>
+  <p class="why">A cancelled game that was never made up leaves exactly two teams at 161 and names them; those are listed in SCHEDULE_EXCEPTIONS with a reason. Anything else -- one team short, or many -- is a fetch hole, not a rainout.</p>
+</li></ul>
+</section>
+
+<section>
+  <p class="eyebrow">02</p><h2>Season coverage</h2>
+  <p class="why">A complete regular season is 2,430 games and roughly 700,000 pitches.
+  Off days are logged deliberately so they are never re-requested; a day that appears
+  in neither column was never fetched.</p>
+  
+<div class="scroll"><table class="tabular">
+<thead><tr><th>season</th><th>pitches</th><th>games</th><th>of 2,430</th>
+<th>pitches/game</th><th>game days</th><th>off days</th><th>days logged</th></tr></thead>
+<tbody><tr>
+<th>2023</th>
+<td>720,684</td>
+<td>2,430</td>
+<td class="cell s-full">100%</td>
+<td>296.6</td>
+<td>182</td>
+<td>4</td>
+<td>186</td>
+</tr><tr>
+<th>2024</th>
+<td>732,482</td>
+<td>2,517</td>
+<td class="cell s-full">103.6%</td>
+<td>291.0</td>
+<td>190</td>
+<td>2</td>
+<td>192</td>
+</tr><tr>
+<th>2025</th>
+<td>742,080</td>
+<td>2,531</td>
+<td class="cell s-full">104.2%</td>
+<td>293.2</td>
+<td>190</td>
+<td>5</td>
+<td>195</td>
+</tr><tr>
+<th>2026</th>
+<td>647,896</td>
+<td>2,195</td>
+<td class="cell s-high">90.3%</td>
+<td>295.2</td>
+<td>166</td>
+<td>3</td>
+<td>169</td>
+</tr></tbody></table></div>
+</section>
+
+<section>
+  <p class="eyebrow">03</p><h2>Column coverage</h2>
+  <p class="why">Worst first. Each row states the population it was measured against —
+  <code>launch_speed</code> is scored on balls in play, not on every pitch, because a
+  called strike has no exit velocity to be missing.</p>
+  <div class="legend">
+    <span class="s-full">≥99.5% complete</span><span class="s-high">90–99%</span>
+    <span class="s-mid">50–90%</span><span class="s-low">under 50%</span><span class="s-zero">absent</span>
+  </div>
+  <div class="scroll">
+<table class="grid">
+  <thead><tr><th class="colname">column <span class="cond">measured against</span></th><th>2023</th><th>2024</th><th>2025</th><th>2026</th></tr></thead>
+  <tbody><tr><th class="colname"><code>spin_dir</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>spin_rate_deprecated</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>break_angle_deprecated</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>break_length_deprecated</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>tfs_deprecated</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>tfs_zulu_deprecated</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>umpire</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>sv_id</code> <span class="tag">dead</span><span class="cond">all pitches</span></th><td class="cell s-zero" title="0 of 720,684">0%</td><td class="cell s-zero" title="0 of 732,482">0%</td><td class="cell s-zero" title="0 of 742,080">0%</td><td class="cell s-zero" title="0 of 647,896">0%</td></tr><tr><th class="colname"><code>on_3b</code><span class="cond">all pitches (null = base empty, not missing)</span></th><td class="cell s-low" title="70,422 of 720,684">9.77%</td><td class="cell s-low" title="69,065 of 732,482">9.43%</td><td class="cell s-low" title="70,561 of 742,080">9.51%</td><td class="cell s-low" title="62,946 of 647,896">9.72%</td></tr><tr><th class="colname"><code>on_2b</code><span class="cond">all pitches (null = base empty, not missing)</span></th><td class="cell s-low" title="139,025 of 720,684">19.29%</td><td class="cell s-low" title="137,431 of 732,482">18.76%</td><td class="cell s-low" title="140,799 of 742,080">18.97%</td><td class="cell s-low" title="124,773 of 647,896">19.26%</td></tr><tr><th class="colname"><code>intercept_ball_minus_batter_pos_x_inches</code><span class="cond">all pitches</span></th><td class="cell s-low" title="144,608 of 720,684">20.07%</td><td class="cell s-low" title="316,728 of 732,482">43.24%</td><td class="cell s-low" title="332,610 of 742,080">44.82%</td><td class="cell s-low" title="299,232 of 647,896">46.19%</td></tr><tr><th class="colname"><code>intercept_ball_minus_batter_pos_y_inches</code><span class="cond">all pitches</span></th><td class="cell s-low" title="144,608 of 720,684">20.07%</td><td class="cell s-low" title="316,728 of 732,482">43.24%</td><td class="cell s-low" title="332,610 of 742,080">44.82%</td><td class="cell s-low" title="299,232 of 647,896">46.19%</td></tr><tr><th class="colname"><code>woba_denom</code><span class="cond">all pitches</span></th><td class="cell s-low" title="183,403 of 720,684">25.45%</td><td class="cell s-low" title="181,781 of 732,482">24.82%</td><td class="cell s-low" title="182,185 of 742,080">24.55%</td><td class="cell s-low" title="165,348 of 647,896">25.52%</td></tr><tr><th class="colname"><code>des</code><span class="cond">all pitches</span></th><td class="cell s-low" title="184,104 of 720,684">25.55%</td><td class="cell s-low" title="189,085 of 732,482">25.81%</td><td class="cell s-low" title="190,536 of 742,080">25.68%</td><td class="cell s-low" title="166,149 of 647,896">25.64%</td></tr><tr><th class="colname"><code>woba_value</code><span class="cond">all pitches</span></th><td class="cell s-low" title="184,376 of 720,684">25.58%</td><td class="cell s-low" title="189,417 of 732,482">25.86%</td><td class="cell s-low" title="190,869 of 742,080">25.72%</td><td class="cell s-low" title="166,444 of 647,896">25.69%</td></tr><tr><th class="colname"><code>babip_value</code><span class="cond">all pitches</span></th><td class="cell s-low" title="184,376 of 720,684">25.58%</td><td class="cell s-low" title="189,417 of 732,482">25.86%</td><td class="cell s-low" title="190,869 of 742,080">25.72%</td><td class="cell s-low" title="166,444 of 647,896">25.69%</td></tr><tr><th class="colname"><code>iso_value</code><span class="cond">all pitches</span></th><td class="cell s-low" title="184,376 of 720,684">25.58%</td><td class="cell s-low" title="189,417 of 732,482">25.86%</td><td class="cell s-low" title="190,869 of 742,080">25.72%</td><td class="cell s-low" title="166,444 of 647,896">25.69%</td></tr><tr><th class="colname"><code>on_1b</code><span class="cond">all pitches (null = base empty, not missing)</span></th><td class="cell s-low" title="221,734 of 720,684">30.77%</td><td class="cell s-low" title="221,407 of 732,482">30.23%</td><td class="cell s-low" title="226,890 of 742,080">30.57%</td><td class="cell s-low" title="202,068 of 647,896">31.19%</td></tr><tr><th class="colname"><code>hyper_speed</code><span class="cond">all pitches</span></th><td class="cell s-low" title="238,137 of 720,684">33.04%</td><td class="cell s-low" title="242,991 of 732,482">33.17%</td><td class="cell s-low" title="243,249 of 742,080">32.78%</td><td class="cell s-low" title="215,512 of 647,896">33.26%</td></tr><tr><th class="colname"><code>attack_angle</code><span class="cond">balls in play</span></th><td class="cell s-low" title="51,921 of 124,234">41.79%</td><td class="cell s-mid" title="114,089 of 128,479">88.8%</td><td class="cell s-high" title="120,401 of 129,932">92.66%</td><td class="cell s-high" title="108,128 of 112,656">95.98%</td></tr><tr><th class="colname"><code>attack_direction</code><span class="cond">balls in play</span></th><td class="cell s-low" title="51,921 of 124,234">41.79%</td><td class="cell s-mid" title="114,089 of 128,479">88.8%</td><td class="cell s-high" title="120,401 of 129,932">92.66%</td><td class="cell s-high" title="108,128 of 112,656">95.98%</td></tr><tr><th class="colname"><code>swing_path_tilt</code><span class="cond">balls in play</span></th><td class="cell s-low" title="51,920 of 124,234">41.79%</td><td class="cell s-mid" title="114,088 of 128,479">88.8%</td><td class="cell s-high" title="120,399 of 129,932">92.66%</td><td class="cell s-high" title="108,126 of 112,656">95.98%</td></tr><tr><th class="colname"><code>miss_distance</code><span class="cond">swinging strikes</span></th><td class="cell s-low" title="32,147 of 76,298">42.13%</td><td class="cell s-mid" title="69,784 of 77,876">89.61%</td><td class="cell s-high" title="73,889 of 77,477">95.37%</td><td class="cell s-high" title="65,540 of 66,483">98.58%</td></tr><tr><th class="colname"><code>bat_speed</code><span class="cond">swings</span></th><td class="cell s-low" title="144,670 of 341,066">42.42%</td><td class="cell s-high" title="316,818 of 350,707">90.34%</td><td class="cell s-high" title="332,891 of 352,771">94.36%</td><td class="cell s-high" title="299,431 of 307,544">97.36%</td></tr><tr><th class="colname"><code>swing_length</code><span class="cond">swings</span></th><td class="cell s-low" title="144,670 of 341,066">42.42%</td><td class="cell s-high" title="316,818 of 350,707">90.34%</td><td class="cell s-high" title="332,891 of 352,771">94.36%</td><td class="cell s-high" title="299,431 of 307,544">97.36%</td></tr><tr><th class="colname"><code>pitcher_days_since_prev_game</code><span class="cond">all pitches</span></th><td class="cell s-high" title="685,819 of 720,684">95.16%</td><td class="cell s-high" title="676,889 of 732,482">92.41%</td><td class="cell s-high" title="678,086 of 742,080">91.38%</td><td class="cell s-high" title="609,796 of 647,896">94.12%</td></tr><tr><th class="colname"><code>pitcher_days_until_next_game</code><span class="cond">all pitches</span></th><td class="cell s-high" title="692,601 of 720,684">96.1%</td><td class="cell s-high" title="683,989 of 732,482">93.38%</td><td class="cell s-high" title="685,047 of 742,080">92.31%</td><td class="cell s-high" title="609,571 of 647,896">94.08%</td></tr><tr><th class="colname"><code>estimated_ba_using_speedangle</code><span class="cond">balls in play</span></th><td class="cell s-high" title="122,220 of 124,234">98.38%</td><td class="cell s-high" title="122,120 of 128,479">95.05%</td><td class="cell s-high" title="122,582 of 129,932">94.34%</td><td class="cell s-high" title="110,354 of 112,656">97.96%</td></tr><tr><th class="colname"><code>estimated_slg_using_speedangle</code><span class="cond">balls in play</span></th><td class="cell s-high" title="122,220 of 124,234">98.38%</td><td class="cell s-high" title="122,120 of 128,479">95.05%</td><td class="cell s-high" title="122,582 of 129,932">94.34%</td><td class="cell s-high" title="110,354 of 112,656">97.96%</td></tr><tr><th class="colname"><code>batter_days_since_prev_game</code><span class="cond">all pitches</span></th><td class="cell s-high" title="711,875 of 720,684">98.78%</td><td class="cell s-high" title="703,517 of 732,482">96.05%</td><td class="cell s-high" title="703,624 of 742,080">94.82%</td><td class="cell s-high" title="635,320 of 647,896">98.06%</td></tr><tr><th class="colname"><code>hit_location</code><span class="cond">balls in play</span></th><td class="cell s-high" title="117,951 of 124,234">94.94%</td><td class="cell s-high" title="122,392 of 128,479">95.26%</td><td class="cell s-high" title="123,603 of 129,932">95.13%</td><td class="cell s-high" title="107,261 of 112,656">95.21%</td></tr><tr><th class="colname"><code>batter_days_until_next_game</code><span class="cond">all pitches</span></th><td class="cell s-high" title="714,533 of 720,684">99.15%</td><td class="cell s-high" title="705,689 of 732,482">96.34%</td><td class="cell s-high" title="706,453 of 742,080">95.2%</td><td class="cell s-high" title="635,454 of 647,896">98.08%</td></tr><tr><th class="colname"><code>arm_angle</code><span class="cond">all pitches</span></th><td class="cell s-high" title="711,134 of 720,684">98.67%</td><td class="cell s-high" title="706,209 of 732,482">96.41%</td><td class="cell s-high" title="708,798 of 742,080">95.52%</td><td class="cell s-high" title="638,959 of 647,896">98.62%</td></tr><tr><th class="colname"><code>if_fielding_alignment</code><span class="cond">all pitches</span></th><td class="cell s-high" title="715,516 of 720,684">99.28%</td><td class="cell s-high" title="716,635 of 732,482">97.84%</td><td class="cell s-high" title="728,576 of 742,080">98.18%</td><td class="cell s-high" title="644,237 of 647,896">99.44%</td></tr><tr><th class="colname"><code>of_fielding_alignment</code><span class="cond">all pitches</span></th><td class="cell s-high" title="715,516 of 720,684">99.28%</td><td class="cell s-high" title="716,635 of 732,482">97.84%</td><td class="cell s-high" title="728,576 of 742,080">98.18%</td><td class="cell s-high" title="644,237 of 647,896">99.44%</td></tr><tr><th class="colname"><code>hit_distance_sc</code><span class="cond">balls in play</span></th><td class="cell s-full" title="123,914 of 124,234">99.74%</td><td class="cell s-high" title="125,809 of 128,479">97.92%</td><td class="cell s-high" title="127,732 of 129,932">98.31%</td><td class="cell s-full" title="112,161 of 112,656">99.56%</td></tr><tr><th class="colname"><code>launch_speed</code><span class="cond">balls in play</span></th><td class="cell s-full" title="123,876 of 124,234">99.71%</td><td class="cell s-high" title="125,895 of 128,479">97.99%</td><td class="cell s-high" title="127,816 of 129,932">98.37%</td><td class="cell s-full" title="112,179 of 112,656">99.58%</td></tr><tr><th class="colname"><code>launch_speed_angle</code><span class="cond">balls in play</span></th><td class="cell s-full" title="123,874 of 124,234">99.71%</td><td class="cell s-high" title="125,895 of 128,479">97.99%</td><td class="cell s-high" title="127,814 of 129,932">98.37%</td><td class="cell s-full" title="112,179 of 112,656">99.58%</td></tr><tr><th class="colname"><code>launch_angle</code><span class="cond">balls in play</span></th><td class="cell s-full" title="123,965 of 124,234">99.78%</td><td class="cell s-high" title="125,961 of 128,479">98.04%</td><td class="cell s-high" title="127,899 of 129,932">98.44%</td><td class="cell s-full" title="112,239 of 112,656">99.63%</td></tr><tr><th class="colname"><code>release_spin_rate</code><span class="cond">all pitches</span></th><td class="cell s-high" title="713,765 of 720,684">99.04%</td><td class="cell s-high" title="718,670 of 732,482">98.11%</td><td class="cell s-high" title="727,970 of 742,080">98.1%</td><td class="cell s-high" title="644,352 of 647,896">99.45%</td></tr><tr><th class="colname"><code>spin_axis</code><span class="cond">all pitches</span></th><td class="cell s-high" title="713,765 of 720,684">99.04%</td><td class="cell s-high" title="718,670 of 732,482">98.11%</td><td class="cell s-high" title="727,966 of 742,080">98.1%</td><td class="cell s-high" title="644,357 of 647,896">99.45%</td></tr><tr><th class="colname"><code>effective_speed</code><span class="cond">all pitches</span></th><td class="cell s-high" title="716,602 of 720,684">99.43%</td><td class="cell s-high" title="720,971 of 732,482">98.43%</td><td class="cell s-high" title="729,380 of 742,080">98.29%</td><td class="cell s-high" title="644,616 of 647,896">99.49%</td></tr><tr><th class="colname"><code>release_extension</code><span class="cond">all pitches</span></th><td class="cell s-high" title="716,775 of 720,684">99.46%</td><td class="cell s-high" title="721,082 of 732,482">98.44%</td><td class="cell s-high" title="729,641 of 742,080">98.32%</td><td class="cell s-full" title="644,843 of 647,896">99.53%</td></tr><tr><th class="colname"><code>pfx_x</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,679 of 742,080">98.33%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>api_break_z_with_gravity</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,081 of 732,482">98.58%</td><td class="cell s-high" title="729,679 of 742,080">98.33%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>api_break_x_arm</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,679 of 742,080">98.33%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>api_break_x_batter_in</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,679 of 742,080">98.33%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>pitch_type</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>zone</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>plate_x</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>plate_z</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>sz_top</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>sz_bot</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>pitch_name</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,673 of 720,684">99.58%</td><td class="cell s-high" title="721,991 of 732,482">98.57%</td><td class="cell s-high" title="729,757 of 742,080">98.34%</td><td class="cell s-full" title="645,448 of 647,896">99.62%</td></tr><tr><th class="colname"><code>release_speed</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,838 of 720,684">99.61%</td><td class="cell s-high" title="722,089 of 732,482">98.58%</td><td class="cell s-high" title="729,816 of 742,080">98.35%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>release_pos_x</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>release_pos_z</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>pfx_z</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,812 of 742,080">98.35%</td><td class="cell s-full" title="645,469 of 647,896">99.63%</td></tr><tr><th class="colname"><code>vx0</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>vy0</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>vz0</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>ax</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>ay</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>az</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>release_pos_y</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,835 of 720,684">99.6%</td><td class="cell s-high" title="722,086 of 732,482">98.58%</td><td class="cell s-high" title="729,813 of 742,080">98.35%</td><td class="cell s-full" title="645,470 of 647,896">99.63%</td></tr><tr><th class="colname"><code>delta_run_exp</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,937 of 720,684">99.62%</td><td class="cell s-full" title="730,056 of 732,482">99.67%</td><td class="cell s-full" title="739,575 of 742,080">99.66%</td><td class="cell s-full" title="645,785 of 647,896">99.67%</td></tr><tr><th class="colname"><code>delta_pitcher_run_exp</code><span class="cond">all pitches</span></th><td class="cell s-full" title="717,937 of 720,684">99.62%</td><td class="cell s-full" title="730,056 of 732,482">99.67%</td><td class="cell s-full" title="739,575 of 742,080">99.66%</td><td class="cell s-full" title="645,785 of 647,896">99.67%</td></tr><tr><th class="colname"><code>estimated_woba_using_speedangle</code><span class="cond">completed plate appearances</span></th><td class="cell s-full" title="182,610 of 182,706">99.95%</td><td class="cell s-full" title="180,920 of 181,020">99.94%</td><td class="cell s-full" title="181,231 of 181,317">99.95%</td><td class="cell s-full" title="164,372 of 164,449">99.95%</td></tr><tr><th class="colname"><code>hc_x</code><span class="cond">balls in play</span></th><td class="cell s-full" title="124,179 of 124,234">99.96%</td><td class="cell s-full" title="128,429 of 128,479">99.96%</td><td class="cell s-full" title="129,883 of 129,932">99.96%</td><td class="cell s-full" title="112,600 of 112,656">99.95%</td></tr><tr><th class="colname"><code>hc_y</code><span class="cond">balls in play</span></th><td class="cell s-full" title="124,179 of 124,234">99.96%</td><td class="cell s-full" title="128,429 of 128,479">99.96%</td><td class="cell s-full" title="129,883 of 129,932">99.96%</td><td class="cell s-full" title="112,600 of 112,656">99.95%</td></tr><tr><th class="colname"><code>game_date</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>player_name</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>batter</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>pitcher</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>events</code><span class="cond">completed plate appearances</span></th><td class="cell s-full" title="182,706 of 182,706">100%</td><td class="cell s-full" title="181,020 of 181,020">100%</td><td class="cell s-full" title="181,317 of 181,317">100%</td><td class="cell s-full" title="164,449 of 164,449">100%</td></tr><tr><th class="colname"><code>description</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>game_type</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>stand</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>p_throws</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>home_team</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>away_team</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>type</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>bb_type</code><span class="cond">balls in play</span></th><td class="cell s-full" title="124,232 of 124,234">100%</td><td class="cell s-full" title="128,476 of 128,479">100%</td><td class="cell s-full" title="129,930 of 129,932">100%</td><td class="cell s-full" title="112,655 of 112,656">100%</td></tr><tr><th class="colname"><code>balls</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>strikes</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>game_year</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>outs_when_up</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>inning</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>inning_topbot</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>game_pk</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_2</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_3</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_4</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_5</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_6</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_7</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_8</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fielder_9</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>at_bat_number</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>pitch_number</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>home_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>away_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>bat_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>fld_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>post_away_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>post_home_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>post_bat_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>post_fld_score</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>delta_home_win_exp</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>home_score_diff</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>bat_score_diff</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>home_win_exp</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>bat_win_exp</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>age_pit_legacy</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>age_bat_legacy</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>age_pit</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>age_bat</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>n_thruorder_pitcher</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr><tr><th class="colname"><code>n_priorpa_thisgame_player_at_bat</code><span class="cond">all pitches</span></th><td class="cell s-full" title="720,684 of 720,684">100%</td><td class="cell s-full" title="732,482 of 732,482">100%</td><td class="cell s-full" title="742,080 of 742,080">100%</td><td class="cell s-full" title="647,896 of 647,896">100%</td></tr></tbody>
+</table></div>
+</section>
+
+<section>
+  <p class="eyebrow">04</p><h2>Distributions</h2>
+  <p class="why">Percentiles per season, with a count of values outside the physically
+  plausible range. Comparing the same row across seasons is how a silent calibration
+  change shows up.</p>
+  
+<section class="dist">
+  <h3><code>balls</code><span class="cond">plausible range 0 to 3</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>720,684</td><td>0.881</td>
+<td>0.972</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>3</td><td>3</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>732,482</td><td>0.871</td>
+<td>0.971</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>1</td><td>3</td><td>3</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>742,080</td><td>0.878</td>
+<td>0.969</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>3</td><td>3</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>647,896</td><td>0.882</td>
+<td>0.974</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>3</td><td>3</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>strikes</code><span class="cond">plausible range 0 to 2</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>720,684</td><td>0.899</td>
+<td>0.828</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>732,482</td><td>0.902</td>
+<td>0.83</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>742,080</td><td>0.9</td>
+<td>0.828</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>647,896</td><td>0.896</td>
+<td>0.83</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>outs_when_up</code><span class="cond">plausible range 0 to 2</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>720,684</td><td>0.983</td>
+<td>0.818</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>732,482</td><td>0.983</td>
+<td>0.818</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>742,080</td><td>0.98</td>
+<td>0.817</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>647,896</td><td>0.984</td>
+<td>0.819</td><td>0</td><td>0</td><td>0</td>
+<td>1</td><td>2</td><td>2</td><td>2</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>release_speed</code><span class="cond">plausible range 50 to 106</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,838</td><td>88.999</td>
+<td>6.085</td><td>33.4</td><td>73.8</td><td>84.6</td>
+<td>89.8</td><td>93.9</td><td>99.2</td><td>104.8</td>
+<td class="cell s-mid">0.049%</td></tr><tr><th>2024</th><td>722,089</td><td>89.147</td>
+<td>5.993</td><td>31.9</td><td>74.6</td><td>84.8</td>
+<td>89.9</td><td>94</td><td>99.1</td><td>105.5</td>
+<td class="cell s-mid">0.041%</td></tr><tr><th>2025</th><td>729,816</td><td>89.363</td>
+<td>6.157</td><td>21.7</td><td>74.5</td><td>85.1</td>
+<td>90.2</td><td>94.3</td><td>99.4</td><td>104.2</td>
+<td class="cell s-mid">0.087%</td></tr><tr><th>2026</th><td>645,469</td><td>89.613</td>
+<td>6.232</td><td>30.3</td><td>74.8</td><td>85.5</td>
+<td>90.5</td><td>94.5</td><td>99.7</td><td>105.5</td>
+<td class="cell s-low">0.144%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>effective_speed</code><span class="cond">plausible range 50 to 110</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>716,602</td><td>89.249</td>
+<td>6.261</td><td>29.2</td><td>73.4</td><td>84.8</td>
+<td>90.1</td><td>94.2</td><td>100</td><td>105.7</td>
+<td class="cell s-mid">0.057%</td></tr><tr><th>2024</th><td>720,971</td><td>89.418</td>
+<td>6.156</td><td>28.5</td><td>74.4</td><td>85.1</td>
+<td>90.3</td><td>94.2</td><td>99.9</td><td>107.1</td>
+<td class="cell s-mid">0.048%</td></tr><tr><th>2025</th><td>729,380</td><td>89.504</td>
+<td>6.32</td><td>28</td><td>74.2</td><td>85.2</td>
+<td>90.4</td><td>94.4</td><td>100</td><td>105.6</td>
+<td class="cell s-low">0.101%</td></tr><tr><th>2026</th><td>644,616</td><td>89.837</td>
+<td>6.41</td><td>26.5</td><td>74.6</td><td>85.6</td>
+<td>90.8</td><td>94.7</td><td>100.5</td><td>107.8</td>
+<td class="cell s-low">0.162%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>release_spin_rate</code><span class="cond">plausible range 500 to 3600</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>713,765</td><td>2249.15</td>
+<td>340.684</td><td>16</td><td>1190</td><td>2098</td>
+<td>2277</td><td>2448</td><td>2992</td><td>3544</td>
+<td class="cell s-mid">0.03%</td></tr><tr><th>2024</th><td>718,670</td><td>2255.45</td>
+<td>363.509</td><td>14</td><td>1010</td><td>2102</td>
+<td>2287</td><td>2465</td><td>3016</td><td>3578</td>
+<td class="cell s-low">0.143%</td></tr><tr><th>2025</th><td>727,970</td><td>2276.18</td>
+<td>363.853</td><td>42</td><td>1042</td><td>2137</td>
+<td>2314</td><td>2482</td><td>3046</td><td>3547</td>
+<td class="cell s-mid">0.038%</td></tr><tr><th>2026</th><td>644,352</td><td>2265.63</td>
+<td>369.745</td><td>2</td><td>1047</td><td>2126</td>
+<td>2306</td><td>2480</td><td>3021</td><td>3599</td>
+<td class="cell s-mid">0.074%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>release_extension</code><span class="cond">plausible range 3.0 to 8.5</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>716,775</td><td>6.439</td>
+<td>0.466</td><td>3</td><td>5.4</td><td>6.1</td>
+<td>6.4</td><td>6.7</td><td>7.5</td><td>11.7</td>
+<td class="cell s-mid">0.002%</td></tr><tr><th>2024</th><td>721,082</td><td>6.457</td>
+<td>0.456</td><td>3.2</td><td>5.3</td><td>6.2</td>
+<td>6.5</td><td>6.7</td><td>7.5</td><td>8.7</td>
+<td class="cell s-mid">0.001%</td></tr><tr><th>2025</th><td>729,641</td><td>6.426</td>
+<td>0.457</td><td>2.8</td><td>5.3</td><td>6.1</td>
+<td>6.4</td><td>6.7</td><td>7.5</td><td>9.6</td>
+<td class="cell s-mid">0.002%</td></tr><tr><th>2026</th><td>644,843</td><td>6.432</td>
+<td>0.457</td><td>2.7</td><td>5.3</td><td>6.2</td>
+<td>6.4</td><td>6.7</td><td>7.5</td><td>9.4</td>
+<td class="cell s-mid">0.002%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>pfx_x</code><span class="cond">plausible range -3 to 3</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,835</td><td>-0.125</td>
+<td>0.894</td><td>-2.58</td><td>-1.62</td><td>-0.89</td>
+<td>-0.18</td><td>0.58</td><td>1.6</td><td>2.36</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>722,086</td><td>-0.101</td>
+<td>0.897</td><td>-2.95</td><td>-1.6</td><td>-0.87</td>
+<td>-0.16</td><td>0.62</td><td>1.6</td><td>2.4</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>729,679</td><td>-0.13</td>
+<td>0.897</td><td>-2.45</td><td>-1.61</td><td>-0.91</td>
+<td>-0.21</td><td>0.57</td><td>1.61</td><td>2.54</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>645,469</td><td>-0.131</td>
+<td>0.908</td><td>-2.92</td><td>-1.62</td><td>-0.92</td>
+<td>-0.21</td><td>0.61</td><td>1.6</td><td>2.51</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>pfx_z</code><span class="cond">plausible range -3 to 3</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,835</td><td>0.59</td>
+<td>0.709</td><td>-2.14</td><td>-1.31</td><td>0.14</td>
+<td>0.64</td><td>1.2</td><td>1.71</td><td>2.84</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>722,086</td><td>0.588</td>
+<td>0.708</td><td>-2.45</td><td>-1.29</td><td>0.13</td>
+<td>0.62</td><td>1.19</td><td>1.71</td><td>2.31</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>729,812</td><td>0.574</td>
+<td>0.722</td><td>-2</td><td>-1.32</td><td>0.11</td>
+<td>0.61</td><td>1.19</td><td>1.71</td><td>2.55</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>645,469</td><td>0.559</td>
+<td>0.709</td><td>-1.91</td><td>-1.3</td><td>0.11</td>
+<td>0.6</td><td>1.16</td><td>1.69</td><td>2.7</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>plate_x</code><span class="cond">plausible range -4 to 4</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,673</td><td>0.036</td>
+<td>0.837</td><td>-11.365</td><td>-1.908</td><td>-0.524</td>
+<td>0.036</td><td>0.596</td><td>2.023</td><td>5.689</td>
+<td class="cell s-mid">0.007%</td></tr><tr><th>2024</th><td>721,991</td><td>0.054</td>
+<td>0.841</td><td>-5.381</td><td>-1.907</td><td>-0.51</td>
+<td>0.052</td><td>0.615</td><td>2.039</td><td>10.204</td>
+<td class="cell s-mid">0.005%</td></tr><tr><th>2025</th><td>729,757</td><td>0.039</td>
+<td>0.827</td><td>-7.135</td><td>-1.899</td><td>-0.516</td>
+<td>0.032</td><td>0.582</td><td>1.999</td><td>34.972</td>
+<td class="cell s-mid">0.005%</td></tr><tr><th>2026</th><td>645,448</td><td>0.019</td>
+<td>0.82</td><td>-6.351</td><td>-1.913</td><td>-0.531</td>
+<td>0.014</td><td>0.561</td><td>1.955</td><td>7.031</td>
+<td class="cell s-mid">0.006%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>plate_z</code><span class="cond">plausible range -2 to 7</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,673</td><td>2.282</td>
+<td>0.969</td><td>-4.277</td><td>-0.079</td><td>1.643</td>
+<td>2.284</td><td>2.916</td><td>4.518</td><td>11.024</td>
+<td class="cell s-mid">0.011%</td></tr><tr><th>2024</th><td>721,991</td><td>2.304</td>
+<td>0.968</td><td>-7.654</td><td>-0.01</td><td>1.661</td>
+<td>2.299</td><td>2.941</td><td>4.554</td><td>12.359</td>
+<td class="cell s-mid">0.008%</td></tr><tr><th>2025</th><td>729,757</td><td>2.323</td>
+<td>0.965</td><td>-57.601</td><td>-0.012</td><td>1.696</td>
+<td>2.336</td><td>2.969</td><td>4.556</td><td>10.42</td>
+<td class="cell s-mid">0.009%</td></tr><tr><th>2026</th><td>645,448</td><td>2.256</td>
+<td>0.972</td><td>-5.023</td><td>-0.131</td><td>1.629</td>
+<td>2.28</td><td>2.907</td><td>4.496</td><td>10.703</td>
+<td class="cell s-mid">0.01%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>sz_top</code><span class="cond">plausible range 2.5 to 4.8</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,673</td><td>3.361</td>
+<td>0.194</td><td>2.509</td><td>2.908</td><td>3.23</td>
+<td>3.36</td><td>3.49</td><td>3.815</td><td>4.304</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>721,991</td><td>3.406</td>
+<td>0.191</td><td>2.522</td><td>2.963</td><td>3.275</td>
+<td>3.402</td><td>3.528</td><td>3.87</td><td>4.282</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>729,757</td><td>3.429</td>
+<td>0.193</td><td>2.507</td><td>3.013</td><td>3.29</td>
+<td>3.43</td><td>3.557</td><td>3.909</td><td>4.411</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>645,448</td><td>3.214</td>
+<td>0.105</td><td>2.926</td><td>2.985</td><td>3.138</td>
+<td>3.21</td><td>3.285</td><td>3.489</td><td>3.541</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>sz_bot</code><span class="cond">plausible range 0.8 to 2.5</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,673</td><td>1.594</td>
+<td>0.113</td><td>0.759</td><td>1.32</td><td>1.517</td>
+<td>1.594</td><td>1.67</td><td>1.851</td><td>2.468</td>
+<td class="cell s-mid">0.001%</td></tr><tr><th>2024</th><td>721,991</td><td>1.601</td>
+<td>0.112</td><td>1</td><td>1.32</td><td>1.53</td>
+<td>1.6</td><td>1.67</td><td>1.86</td><td>2.136</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>729,757</td><td>1.605</td>
+<td>0.111</td><td>1.004</td><td>1.332</td><td>1.532</td>
+<td>1.605</td><td>1.679</td><td>1.867</td><td>2</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>645,448</td><td>1.622</td>
+<td>0.053</td><td>1.477</td><td>1.506</td><td>1.584</td>
+<td>1.62</td><td>1.658</td><td>1.761</td><td>1.787</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>arm_angle</code><span class="cond">plausible range -20 to 100</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>711,134</td><td>38.776</td>
+<td>12.772</td><td>-70.7</td><td>1.9</td><td>31.9</td>
+<td>39.9</td><td>47</td><td>64</td><td>84</td>
+<td class="cell s-low">0.221%</td></tr><tr><th>2024</th><td>706,209</td><td>38.098</td>
+<td>13.137</td><td>-71.2</td><td>2.7</td><td>30.4</td>
+<td>39.2</td><td>46.6</td><td>64.7</td><td>144</td>
+<td class="cell s-low">0.258%</td></tr><tr><th>2025</th><td>708,798</td><td>37.649</td>
+<td>12.888</td><td>-67.4</td><td>3.1</td><td>30.2</td>
+<td>38.4</td><td>46.1</td><td>63.6</td><td>87.1</td>
+<td class="cell s-low">0.245%</td></tr><tr><th>2026</th><td>638,959</td><td>37.199</td>
+<td>12.652</td><td>-66.5</td><td>4.9</td><td>30</td>
+<td>38.2</td><td>45.3</td><td>64.4</td><td>85</td>
+<td class="cell s-low">0.242%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>hit_distance_sc</code><span class="cond">plausible range 0 to 520</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>237,055</td><td>155.382</td>
+<td>120.908</td><td>0</td><td>1</td><td>19</td>
+<td>166</td><td>243</td><td>410</td><td>493</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>241,543</td><td>156.506</td>
+<td>120.068</td><td>0</td><td>1</td><td>21</td>
+<td>168</td><td>245</td><td>405</td><td>480</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>242,146</td><td>157.939</td>
+<td>120.359</td><td>0</td><td>1</td><td>22</td>
+<td>167</td><td>247</td><td>406</td><td>493</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>214,222</td><td>156.59</td>
+<td>119.313</td><td>0</td><td>1</td><td>25</td>
+<td>169</td><td>246</td><td>405</td><td>474</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>launch_speed</code><span class="cond">plausible range 5 to 125</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>236,925</td><td>82.596</td>
+<td>15.216</td><td>3.6</td><td>38</td><td>72.8</td>
+<td>82</td><td>94.3</td><td>110</td><td>121.2</td>
+<td class="cell s-mid">0.003%</td></tr><tr><th>2024</th><td>241,565</td><td>82.538</td>
+<td>15.086</td><td>3</td><td>38.9</td><td>73.1</td>
+<td>82.2</td><td>94.4</td><td>109.8</td><td>121.5</td>
+<td class="cell s-mid">0.002%</td></tr><tr><th>2025</th><td>242,034</td><td>83.106</td>
+<td>15.501</td><td>2.6</td><td>36</td><td>73.4</td>
+<td>83.2</td><td>95.3</td><td>110.1</td><td>122.9</td>
+<td class="cell s-mid">0.002%</td></tr><tr><th>2026</th><td>214,138</td><td>82.556</td>
+<td>15.247</td><td>2.3</td><td>35.6</td><td>73.3</td>
+<td>82.6</td><td>94.5</td><td>109.6</td><td>119.7</td>
+<td class="cell s-mid">0.004%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>launch_angle</code><span class="cond">plausible range -90 to 90</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>237,245</td><td>16.794</td>
+<td>32.714</td><td>-90</td><td>-62</td><td>-5</td>
+<td>20</td><td>41</td><td>79</td><td>90</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>241,882</td><td>17.445</td>
+<td>33.012</td><td>-90</td><td>-62</td><td>-5</td>
+<td>20</td><td>42</td><td>79</td><td>90</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>242,428</td><td>17.815</td>
+<td>32.869</td><td>-89</td><td>-61</td><td>-4</td>
+<td>20</td><td>42</td><td>80</td><td>90</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>214,460</td><td>17.912</td>
+<td>32.506</td><td>-90</td><td>-61</td><td>-3</td>
+<td>20</td><td>42</td><td>80</td><td>90</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>estimated_woba_using_speedangle</code><span class="cond">plausible range 0 to 2.5</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>182,610</td><td>0.32</td>
+<td>0.373</td><td>0</td><td>0</td><td>0.003</td>
+<td>0.162</td><td>0.611</td><td>1.692</td><td>2.001</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>180,920</td><td>0.316</td>
+<td>0.367</td><td>0</td><td>0</td><td>0.003</td>
+<td>0.174</td><td>0.59</td><td>1.632</td><td>2.014</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>181,231</td><td>0.316</td>
+<td>0.365</td><td>0</td><td>0</td><td>0.006</td>
+<td>0.162</td><td>0.587</td><td>1.616</td><td>2.018</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>164,372</td><td>0.315</td>
+<td>0.369</td><td>0</td><td>0</td><td>0.003</td>
+<td>0.163</td><td>0.59</td><td>1.737</td><td>2.044</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>delta_run_exp</code><span class="cond">plausible range -4 to 4</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>717,937</td><td>0</td>
+<td>0.227</td><td>-0.551</td><td>-0.353</td><td>-0.061</td>
+<td>-0.036</td><td>0.04</td><td>0.9</td><td>2.701</td>
+<td class="cell s-full">0%</td></tr><tr><th>2024</th><td>730,056</td><td>0</td>
+<td>0.224</td><td>-0.594</td><td>-0.339</td><td>-0.061</td>
+<td>-0.037</td><td>0.039</td><td>0.884</td><td>2.693</td>
+<td class="cell s-full">0%</td></tr><tr><th>2025</th><td>739,575</td><td>0</td>
+<td>0.228</td><td>-0.577</td><td>-0.345</td><td>-0.062</td>
+<td>-0.038</td><td>0.039</td><td>0.909</td><td>2.696</td>
+<td class="cell s-full">0%</td></tr><tr><th>2026</th><td>645,785</td><td>0</td>
+<td>0.224</td><td>-0.619</td><td>-0.347</td><td>-0.067</td>
+<td>-0.034</td><td>0.041</td><td>0.84</td><td>2.701</td>
+<td class="cell s-full">0%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>bat_speed</code><span class="cond">plausible range 20 to 95</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>144,734</td><td>69.638</td>
+<td>8.363</td><td>0.9</td><td>34</td><td>67</td>
+<td>71</td><td>74.3</td><td>82.6</td><td>88</td>
+<td class="cell s-low">0.482%</td></tr><tr><th>2024</th><td>316,997</td><td>69.458</td>
+<td>8.802</td><td>0.9</td><td>31.2</td><td>67</td>
+<td>70.9</td><td>74.2</td><td>82.8</td><td>88</td>
+<td class="cell s-low">0.595%</td></tr><tr><th>2025</th><td>333,101</td><td>69.624</td>
+<td>9.199</td><td>0.6</td><td>28.5</td><td>67.3</td>
+<td>71.2</td><td>74.6</td><td>82.8</td><td>88</td>
+<td class="cell s-low">0.67%</td></tr><tr><th>2026</th><td>299,640</td><td>69.81</td>
+<td>9.582</td><td>0.3</td><td>25.8</td><td>67.5</td>
+<td>71.5</td><td>74.8</td><td>82.8</td><td>88</td>
+<td class="cell s-low">0.814%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>swing_length</code><span class="cond">plausible range 2 to 12</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>144,734</td><td>7.229</td>
+<td>0.972</td><td>0.3</td><td>4.8</td><td>6.6</td>
+<td>7.3</td><td>7.9</td><td>9.1</td><td>10.5</td>
+<td class="cell s-low">0.357%</td></tr><tr><th>2024</th><td>316,997</td><td>7.215</td>
+<td>0.986</td><td>0.3</td><td>4.7</td><td>6.6</td>
+<td>7.3</td><td>7.9</td><td>9.1</td><td>12</td>
+<td class="cell s-low">0.432%</td></tr><tr><th>2025</th><td>333,101</td><td>7.202</td>
+<td>1.017</td><td>0.2</td><td>4.5</td><td>6.6</td>
+<td>7.3</td><td>7.9</td><td>9.1</td><td>12.9</td>
+<td class="cell s-low">0.499%</td></tr><tr><th>2026</th><td>299,640</td><td>7.204</td>
+<td>1.049</td><td>0.3</td><td>4.4</td><td>6.6</td>
+<td>7.3</td><td>7.9</td><td>9.2</td><td>14.1</td>
+<td class="cell s-low">0.629%</td></tr></tbody></table></div>
+</section>
+<section class="dist">
+  <h3><code>attack_angle</code><span class="cond">plausible range -40 to 60</span></h3>
+  <div class="scroll"><table class="tabular">
+  <thead><tr><th>season</th><th>n</th><th>mean</th><th>sd</th><th>min</th><th>p1</th>
+  <th>p25</th><th>median</th><th>p75</th><th>p99</th><th>max</th><th>outside range</th></tr></thead>
+  <tbody><tr><th>2023</th><td>144,734</td><td>9.295</td>
+<td>11.779</td><td>-89.758</td><td>-20.27</td><td>1.903</td>
+<td>9.542</td><td>17.12</td><td>34.444</td><td>80.536</td>
+<td class="cell s-low">0.287%</td></tr><tr><th>2024</th><td>316,997</td><td>9.154</td>
+<td>11.759</td><td>-89.556</td><td>-19.425</td><td>2.001</td>
+<td>9.443</td><td>17.008</td><td>33.606</td><td>86.088</td>
+<td class="cell s-low">0.331%</td></tr><tr><th>2025</th><td>333,101</td><td>9.066</td>
+<td>11.849</td><td>-88.134</td><td>-21.816</td><td>2.004</td>
+<td>9.427</td><td>16.858</td><td>33.469</td><td>89.261</td>
+<td class="cell s-low">0.341%</td></tr><tr><th>2026</th><td>299,640</td><td>9.056</td>
+<td>12.093</td><td>-89.61</td><td>-22.745</td><td>1.913</td>
+<td>9.404</td><td>16.907</td><td>33.452</td><td>88.466</td>
+<td class="cell s-low">0.419%</td></tr></tbody></table></div>
+</section>
+</section>
+
+<section>
+  <p class="eyebrow">05</p><h2>Leaderboard reconciliation</h2>
+  <p class="why">Savant's season leaderboard is its own aggregate, not a sum over the
+  pitch table, so a small wOBA difference is expected. What matters is the PA column:
+  it is the share of each player's plate appearances the pitch table actually contains,
+  and it is the fastest way to catch a backfill that quietly stopped early.</p>
+  
+<div class="scroll"><table class="tabular">
+<thead><tr><th>season</th><th>snapshot</th><th>players</th>
+<th>median wOBA difference</th><th>PA found in pitch table</th></tr></thead>
+<tbody><tr><th>2023</th><td>2023-10-01</td>
+<td>60</td><td>+0.0097</td>
+<td class="cell s-full">99.5%</td></tr><tr><th>2024</th><td>2024-09-30</td>
+<td>60</td><td>+0.0093</td>
+<td class="cell s-high">99.4%</td></tr><tr><th>2025</th><td>2025-09-28</td>
+<td>60</td><td>+0.0079</td>
+<td class="cell s-high">99.3%</td></tr><tr><th>2026</th><td>2026-09-10</td>
+<td>60</td><td>+0.0066</td>
+<td class="cell s-high">99.4%</td></tr></tbody></table></div>
+</section>
+
+<footer>Generated 2026-09-10T16:48:45+00:00 by <code>audit.py</code> · definitions in <code>DATA_DICTIONARY.md</code></footer>
+</div>
