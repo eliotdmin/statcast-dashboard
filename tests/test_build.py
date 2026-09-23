@@ -86,8 +86,10 @@ def test_prompts_match_views():
 
 def test_data_contract():
     """The client reads these files by name; the pipeline writes them."""
-    if not (WEB / "data").exists():          # gitignored: present on the Mac, absent in CI
-        print("  skip  web/data checks (no web/data in this checkout)")
+    # web/data is gitignored except breakouts.json, so the directory exists in CI but the
+    # pipeline's own output does not. Key the skip on a file only the pipeline writes.
+    if not (WEB / "data" / "blocks_index.json").exists():
+        print("  skip  web/data checks (no pipeline output in this checkout)")
         return
     need = ["blocks_index.json", "bat-2026.json", "pit-2026.json", "history.json",
             "matchup-bat.json", "reliability-bat.json", "lines-bat.json", "careers-bat.json"]
