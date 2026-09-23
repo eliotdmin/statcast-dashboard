@@ -1,52 +1,52 @@
 {
- "generated_at": "2026-09-21T11:02:47",
+ "generated_at": "2026-09-23T11:02:23",
  "shards": {
   "bat-2023": {
    "path": "blocks/bat-2023.json",
-   "bytes": 882602,
+   "bytes": 882603,
    "players": 403,
    "blocks": 14
   },
   "bat-2024": {
    "path": "blocks/bat-2024.json",
-   "bytes": 895548,
+   "bytes": 895549,
    "players": 410,
    "blocks": 13
   },
   "bat-2025": {
    "path": "blocks/bat-2025.json",
-   "bytes": 860239,
+   "bytes": 860240,
    "players": 391,
    "blocks": 13
   },
   "bat-2026": {
    "path": "blocks/bat-2026.json",
-   "bytes": 864333,
-   "players": 395,
+   "bytes": 866469,
+   "players": 396,
    "blocks": 13
   },
   "pit-2023": {
    "path": "blocks/pit-2023.json",
-   "bytes": 990267,
+   "bytes": 990265,
    "players": 485,
    "blocks": 14
   },
   "pit-2024": {
    "path": "blocks/pit-2024.json",
-   "bytes": 998418,
+   "bytes": 998416,
    "players": 483,
    "blocks": 13
   },
   "pit-2025": {
    "path": "blocks/pit-2025.json",
-   "bytes": 1001841,
+   "bytes": 1001839,
    "players": 491,
    "blocks": 13
   },
   "pit-2026": {
    "path": "blocks/pit-2026.json",
-   "bytes": 981636,
-   "players": 472,
+   "bytes": 989739,
+   "players": 475,
    "blocks": 13
   }
  }
