@@ -1,0 +1,28 @@
+name: tests
+
+# The data tests (tests/test_facts.py) need the 1.8 GB database, which lives on one laptop, so CI
+# runs the checks that need nothing but the repo: the site build, and that web/ is the build of
+# site/. That last one catches the common mistake -- editing site/ and forgetting to rebuild.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Site build checks
+        run: python3 tests/test_build.py
+      - name: app.js parses
+        run: node --check web/app.js
+      - name: Python files compile
+        run: python3 -m compileall -q *.py site/*.py tests/*.py analysis/*.py
