@@ -1434,3 +1434,22 @@ day's deploy is live at once.
 day), and pushing data to object storage (Vercel Blob) separately from code deploys. The latter is
 the natural next step if deploy volume or data size grows, because it separates "the numbers
 changed" from "the code changed".
+
+## D76 — The scheduled deploy needs a real access token, not the CLI's login (2026-09-23)
+
+D75's deploy step failed on both scheduled runs (2026-09-22 and 09-23) with `Error: Not
+authorized`, while the data refresh itself succeeded every time. The cause is the Vercel CLI's
+interactive login: its token lasts about eight hours (today's was issued 11:03 and expires 19:03),
+so the 11:00 job always starts with an expired one. The CLI refreshes it mid-command — `auth.json`
+is rewritten at 11:03 — but the deploy that triggered the refresh still fails. A deploy run by hand
+later in the day works, which is why this looked fine when it was set up.
+
+`deploy.sh` now:
+- uses `--token "$VERCEL_TOKEN"` when that is set, which is the supported way to deploy
+  unattended. It is meant to live in `.refreshrc` (gitignored), which both `refresh.sh` and
+  `deploy.sh` source;
+- without a token, runs `vercel whoami` first to force the refresh, then retries the deploy once.
+
+The retry alone should fix the common case; the token removes the dependency on an interactive
+login altogether. Creating the token is the user's to do (Vercel dashboard → Account Settings →
+Tokens), since it is a credential.
