@@ -358,3 +358,15 @@ scrolls sideways inside its `.tw` box, which is the thing most worth looking at.
 - The carry board's wide table scrolls sideways inside its box when "what happened" is shown.
 - Open: rebuild `history.json` from 2015 (`fetch_history.py`, which writes the DB, so do it on the
   Mac) to test whether Marcel's tie with the estimator comes from its longer history.
+
+### 2026-09-23: presentable-project pass (D77, D78)
+
+- `analysis/` holds 39 one-off studies; the root now has 23 scripts, all of which run daily or are
+  imported by something that does.
+- `tests/test_build.py` + `.github/workflows/tests.yml`: the build checks run in CI on every push.
+  `tests/test_facts.py` still needs the local database and is not in CI.
+- League tab opens on Hot & cold, which now has an AI summary (`hotcold` view).
+- Phone width checked at 390px: nothing overflows; wide tables have scroll shadows.
+- README rewritten with screenshots in `docs/img/`.
+- **Unpushed at the end of the session**, so the CI badge has never rendered and the workflow has
+  never run. Push to see it go green.
